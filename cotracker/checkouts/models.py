@@ -10,7 +10,7 @@ class Airstrip(TimeStampedModel):
     bases = models.ManyToManyField('self', symmetrical=False, limit_choices_to={'is_base': True}, blank=True, null=True)
 
     def __unicode__(self):
-        return "%s (%s)" % (self.identifier, self.description)
+        return "%s (%s)" % (self.ident, self.name)
 
 class AircraftType(TimeStampedModel):
     name = models.CharField(max_length=10)
