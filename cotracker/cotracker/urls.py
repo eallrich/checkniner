@@ -9,4 +9,4 @@ urlpatterns = patterns('',
 )
 
 if settings.SERVE_STATIC:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static.static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
