@@ -6,8 +6,8 @@ from django.core.exceptions import ImproperlyConfigured
 
 import dj_database_url
 
-# Assuming we begin in foo/bar/baz/settings/base.py, we should end at foo/bar/
-PROJECT_ROOT = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "..")
+# From checkniner/cotracker/cotracker/settings/base.py to checkniner/cotracker/
+PROJECT_ROOT = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir, os.pardir)
 
 
 def get_env_var(name):
