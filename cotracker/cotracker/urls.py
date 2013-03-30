@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls import patterns, include, static, url
+from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
 admin.autodiscover()
@@ -9,4 +9,6 @@ urlpatterns = patterns('',
 )
 
 if settings.SERVE_STATIC:
-    urlpatterns += static.static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += patterns('',
+	url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT,}
+    )
