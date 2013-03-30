@@ -4,6 +4,7 @@ import os
 
 from django.core.exceptions import ImproperlyConfigured
 
+import dj_database_url
 
 # Assuming we begin in foo/bar/baz/settings/base.py, we should end at foo/bar/
 PROJECT_ROOT = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "..")
@@ -19,17 +20,10 @@ def get_env_var(name):
         error_message = "The '%s' environment variable is not set" % name
         raise ImproperlyConfigured(error_message)
 
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'checkniner',                      # Or path to database file if using sqlite3.
-        'USER': get_env_var('DATABASE_USER'),
-        'PASSWORD': get_env_var('DATABASE_PASSWORD'),
-        'HOST': 'localhost',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '',                      # Set to empty string for default.
+if get_env_var('DATABASE_URL'):
+    DATABASES = {
+	'default': dj_database_url.config(),
     }
-}
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
