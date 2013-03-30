@@ -8,3 +8,6 @@ local/
 
 # Local sqlite DB
 cotracker/*.db
+
+# Generated/collected files
+cotracker/static/

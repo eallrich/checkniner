@@ -38,6 +38,9 @@ $ echo "export SECRET_KEY=aV3ryLong14c0mpl1ca73dStRin9" >> bin/activate
 $ echo "export INTERNAL_IP=192.168.1.1" >> bin/activate
 ```
 
+Optional environment variables:
++ SERVE_STATIC (when present and true, the URLconf will route static asset requests)
+
 Once the env vars are configured, activate the virtualenv and install the dependencies:
 
 ```shell
