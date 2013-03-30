@@ -1,6 +1,9 @@
 from .base import *
 
-DEBUG = False
+if bool(os.environ.get('FORCE_DEBUG_MODE')):
+    DEBUG = True
+else:
+    DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = ()
