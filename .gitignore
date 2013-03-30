@@ -1,7 +1,10 @@
 *.py[cod]
 
 # Virtualenv
-bin
-include
-lib
-local
+bin/
+include/
+lib/
+local/
+
+# Local sqlite DB
+cotracker/*.db
