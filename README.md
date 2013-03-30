@@ -24,14 +24,15 @@ The following environment variables are expected:
 + DJANGO_SETTINGS_MODULE (e.g. cotracker.settings.production)
 + DATABASE_URL (e.g. postgres://user:pass@host:port/database)
 + SECRET_KEY (e.g. aV3ryLong14c0mpl1ca73dStRin9)
-+ (Dev only) INTERNAL_IP (e.g. 127.0.0.1)
++ (Development only) INTERNAL_IP (e.g. 127.0.0.1)
++ (Production only) ALLOWED_HOST (e.g. example.com)
 
 These can be set in checkniner/bin/activate to ensure that they will always be available
 when running in the virtualenv.
 
 ```shell
 $ echo "export PYTHONPATH=/home/user/checkniner/cotracker/" >> bin/activate
-$ echo "export DJANGO_SETTINGS_MODULE=cotracker.settings.production" >> bin/activate
+$ echo "export DJANGO_SETTINGS_MODULE=cotracker.settings.development" >> bin/activate
 $ echo "export DATABASE_URL=sqlite:////home/user/checkniner/cotracker/dev.db" >> bin/activate
 $ echo "export SECRET_KEY=aV3ryLong14c0mpl1ca73dStRin9" >> bin/activate
 $ echo "export INTERNAL_IP=192.168.1.1" >> bin/activate
