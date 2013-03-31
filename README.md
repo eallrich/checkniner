@@ -1,6 +1,8 @@
 checkniner
 ==========
 
+[![Build Status](https://travis-ci.org/eallrich/checkniner.png)](https://travis-ci.org/eallrich/checkniner)
+
 Tracking and reporting of airstrip/aircraft checkout information for pilots.
 
 Installing
