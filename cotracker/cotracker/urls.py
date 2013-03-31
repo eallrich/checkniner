@@ -6,6 +6,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^checkouts/', include('checkouts.urls')),
 )
 
 if settings.SERVE_STATIC:
