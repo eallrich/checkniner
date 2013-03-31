@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Checkouts by Pilot{% endblock %}
+
+{% block content %}
+{% if pilot_list %}
+    <ul>
+	{% for pilot in pilot_list %}
+	<li>
+	    <a href="{% url 'checkouts_by_pilot_detail' pilot.username %}">
+	    {{ pilot.last_name }}, {{ pilot.first_name }}</a>: {{ pilot.checkouts }}
+	</li>
+	{% endfor %}
+    </ul>
+{% endif %}
+{% endblock content %}

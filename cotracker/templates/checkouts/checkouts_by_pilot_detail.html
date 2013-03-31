@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Checkouts by Pilot - Detail{% endblock %}
+
+{% block content %}
+{% if pilot %}
+    <p>Checked out at {{ checkout_data|length }} airstrip{{ checkout_data|length|pluralize }}.</p>
+    <table border="1">
+    <tr>
+	<th colspan="2">Airstrip</th>
+	<th colspan="{{ aircrafttypes|length }}">Aircraft Type</th>
+    </tr>
+    <tr>
+	<th>Ident</th><th>Name</th>
+	{% for aircraft in aircrafttypes %}
+	<th>{{ aircraft }}</th>
+	{% endfor %}
+    </tr>
+    {% for row in checkout_data %}
+    <tr>
+	<td>{{ row.ident }}</td>
+	<td>{{ row.name }}</td>
+	{% for actype in row.aircraft %}
+	<td>{{ actype }}</td>
+	{% endfor %}
+    </tr>
+    {% endfor %}
+    </table>
+{% endif %}
+{% endblock content %}

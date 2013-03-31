@@ -1,0 +1,27 @@
+<html>
+<head>
+    <meta content-type='text/html'>
+    <title>
+	{% block title %}Checkouts{% endblock title %}
+    </title>
+</head>
+<body>
+{% comment %}
+{% if messages %}
+    <ul>
+	{% for message in messages %}
+	<li id="message_{{ forloop.counter }}"
+	    {% if message.tags %} class="{{ message.tags }}" {% endif %}
+	>
+	    {{ message }}
+	</li>
+	{% endfor %}
+    </ul>
+{% endif messages %}
+{% endcomment %}
+
+{% block content %}
+    Base content from base.html
+{% endblock content %}
+</body>
+</html>
