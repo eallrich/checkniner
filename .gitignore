@@ -11,3 +11,5 @@ cotracker/*.db
 
 # Generated/collected files
 cotracker/static/
+.coverage
+htmlcov/
