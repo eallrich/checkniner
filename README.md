@@ -60,3 +60,26 @@ If foreman is installed, you should be able to run the project:
 ```shell
 $ foreman start
 ```
+
+Testing
+-------
+
+First make sure the dependencies are met:
+
+```shell
+$ cd checkniner
+$ source bin/activate
+$ pip install -r requirements/development.txt
+```
+
+Then run the tests via coverage:
+
+```shell
+$ coverage run cotracker/manage.py test --settings=cotracker.settings.test
+```
+
+A visual coverage report is available:
+
+```shell
+$ coverage html --include="./cotracker/*"
+```
