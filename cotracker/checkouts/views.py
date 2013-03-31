@@ -3,6 +3,7 @@ from django.db.models import Count
 from django.views.generic import DetailView, ListView
 
 from .models import AircraftType, Airstrip, Checkout
+import util
 
 class CheckoutsByPilotList(ListView):
     queryset = User.objects.filter(groups__name='Pilots').order_by('last_name','first_name')
@@ -26,8 +27,7 @@ class CheckoutsByPilotDetail(DetailView):
     def get_context_data(self, **kwargs):
 	context = super(CheckoutsByPilotDetail, self).get_context_data(**kwargs)
 	
-	aircrafttypes = AircraftType.objects.order_by('name')
-	context['aircrafttypes'] = [t.name for t in aircrafttypes]
+	context['aircrafttypes'] = util.get_aircrafttype_names()
 	
 	pilot_checkouts = Checkout.objects.filter(pilot=self.object).select_related()
 	
