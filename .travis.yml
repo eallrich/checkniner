@@ -2,7 +2,8 @@ language: python
 python:
   - "2.7"
 env:
-  - DATABASE_URL=ignored
-  - SECRET_KEY=supersecretkey
+  global:
+    - DATABASE_URL=ignored
+    - SECRET_KEY=supersecretkey
 install: "pip install -r requirements/development.txt --use-mirrors"
 script: "coverage run cotracker/manage.py test --settings=cotracker.settings.test"
