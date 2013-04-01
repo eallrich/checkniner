@@ -28,35 +28,6 @@ class CheckoutsByPilotDetail(DetailView):
 	context = super(CheckoutsByPilotDetail, self).get_context_data(**kwargs)
 	
 	context['aircrafttypes'] = util.get_aircrafttype_names()
-	
-	pilot_checkouts = Checkout.objects.filter(pilot=self.object).select_related()
-	
-	grouped_checkouts = {}
-	for c in pilot_checkouts:
-	    if c.airstrip.ident not in grouped_checkouts:
-		grouped_checkouts[c.airstrip.ident] = {
-		    'airstrip_name': c.airstrip.name,
-		    'aircraft': {},
-		}
-	    grouped_checkouts[c.airstrip.ident]['aircraft'][c.aircraft_type.name] = True
-	
-	checkout_data = []
-	sorted_keys = grouped_checkouts.keys()
-	sorted_keys.sort()
-	for ident in sorted_keys:
-	    name = grouped_checkouts[ident]['airstrip_name']
-	    row_data = {
-		'ident': ident, 
-		'name': name,
-		'aircraft': [],
-	    }
-	    for actype in context['aircrafttypes']:
-		if actype in grouped_checkouts[ident]['aircraft']:
-		    row_data['aircraft'].append(True)
-		else:
-		    row_data['aircraft'].append(False)
-	    checkout_data.append(row_data)
-	    
-	context['checkout_data'] = checkout_data
+	context['checkouts_by_airstrip'] = util.pilot_checkouts_grouped_by_airstrip(self.object)
 	
 	return context

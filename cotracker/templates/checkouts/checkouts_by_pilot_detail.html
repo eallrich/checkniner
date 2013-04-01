@@ -3,7 +3,7 @@
 
 {% block content %}
 {% if pilot %}
-    <p>Checked out at {{ checkout_data|length }} airstrip{{ checkout_data|length|pluralize }}.</p>
+    <p>Checked out at {{ checkouts_by_airstrip|length }} airstrip{{ checkouts_by_airstrip|length|pluralize }}.</p>
     <table border="1">
     <tr>
 	<th colspan="2">Airstrip</th>
@@ -15,7 +15,7 @@
 	<th>{{ aircraft }}</th>
 	{% endfor %}
     </tr>
-    {% for row in checkout_data %}
+    {% for row in checkouts_by_airstrip %}
     <tr>
 	<td>{{ row.ident }}</td>
 	<td>{{ row.name }}</td>
