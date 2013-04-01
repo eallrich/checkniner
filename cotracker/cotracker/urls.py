@@ -5,7 +5,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^emerald/', include(admin.site.urls)),
     url(r'^checkouts/', include('checkouts.urls')),
 )
 
