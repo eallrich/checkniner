@@ -40,73 +40,56 @@ class GetAircraftTypeNamesTests(TestCase):
 class PilotCheckoutsGroupedByAirstripTests(TestCase):
     
     def test_empty(self):
-	pilot, _ = helper.create_pilot()
+	pilot = helper.create_pilot()
 	self.assertEqual(len(util.pilot_checkouts_grouped_by_airstrip(pilot)), 0)
     
     def test_single_airstrip_single_aircrafttype(self):
-	pilot, _ = helper.create_pilot()
-	airstrip, _ = helper.create_airstrip()
-	actype, _ = helper.create_aircrafttype()
-	Checkout.objects.create(
-	    pilot=pilot,
-	    airstrip=airstrip,
-	    aircraft_type=actype,
-	    date=datetime.datetime.now(),
-	)
+	c = helper.create_checkout()
 	
 	expected = [{
-	    'ident': airstrip.ident,
-	    'name': airstrip.name,
+	    'ident': c.airstrip.ident,
+	    'name': c.airstrip.name,
 	    'aircraft': [True,],
-	},]
+	}]
 	
-	by_airstrip = util.pilot_checkouts_grouped_by_airstrip(pilot)
+	by_airstrip = util.pilot_checkouts_grouped_by_airstrip(c.pilot)
 	self.assertEqual(by_airstrip, expected)
     
-    def test_single_airstrip_multiple_aircrafttype(self):
-	pilot, _ = helper.create_pilot()
-	airstrip, _ = helper.create_airstrip()
-	actype1, _ = helper.create_aircrafttype('Name1')    
-	actype2, _ = helper.create_aircrafttype('Name2')
-	Checkout.objects.create(
-	    pilot=pilot,
-	    airstrip=airstrip,
-	    aircraft_type=actype1,
-	    date=datetime.datetime.now(),
-	)
-	Checkout.objects.create(
-	    pilot=pilot,
-	    airstrip=airstrip,
-	    aircraft_type=actype2,
-	    date=datetime.datetime.now(),
-	)
+    def test_single_airstrip_multiple_aircrafttype_single_checkout(self):
+	actype1 = helper.create_aircrafttype('Name1')    
+	actype2 = helper.create_aircrafttype('Name2')
+	
+	c = helper.create_checkout(aircraft_type=actype1)
+	expected = [{
+	    'ident': c.airstrip.ident,
+	    'name': c.airstrip.name,
+	    'aircraft': [True,False],
+	},]
+	by_airstrip = util.pilot_checkouts_grouped_by_airstrip(c.pilot)
+	self.assertEqual(by_airstrip, expected)
+    
+    def test_single_airstrip_multiple_aircrafttype_multiple_checkout(self):
+	actype1 = helper.create_aircrafttype('Name1')    
+	actype2 = helper.create_aircrafttype('Name2')
+	
+	c = helper.create_checkout(aircraft_type=actype1)
+	helper.create_checkout(pilot=c.pilot, airstrip=c.airstrip, aircraft_type=actype2)
 	
 	expected = [{
-	    'ident': airstrip.ident,
-	    'name': airstrip.name,
+	    'ident': c.airstrip.ident,
+	    'name': c.airstrip.name,
 	    'aircraft': [True,True],
 	},]
 	
-	by_airstrip = util.pilot_checkouts_grouped_by_airstrip(pilot)
+	by_airstrip = util.pilot_checkouts_grouped_by_airstrip(c.pilot)
 	self.assertEqual(by_airstrip, expected)
 	
     def test_multiple_airstrip_single_aircrafttype(self):
-	pilot, _ = helper.create_pilot()
-	airstrip1, _ = helper.create_airstrip('ID1','Airstrip1')
-	airstrip2, _ = helper.create_airstrip('ID2','Airstrip2')
-	actype, _ = helper.create_aircrafttype()    
-	Checkout.objects.create(
-	    pilot=pilot,
-	    airstrip=airstrip1,
-	    aircraft_type=actype,
-	    date=datetime.datetime.now(),
-	)
-	Checkout.objects.create(
-	    pilot=pilot,
-	    airstrip=airstrip2,
-	    aircraft_type=actype,
-	    date=datetime.datetime.now(),
-	)
+	airstrip1 = helper.create_airstrip('ID1','Airstrip1')
+	airstrip2 = helper.create_airstrip('ID2','Airstrip2')
+	
+	c = helper.create_checkout(airstrip=airstrip1)
+	helper.create_checkout(pilot=c.pilot, airstrip=airstrip2, aircraft_type=c.aircraft_type)
 	
 	expected = [
 	    {
@@ -120,39 +103,19 @@ class PilotCheckoutsGroupedByAirstripTests(TestCase):
 	    },
 	]
 	
-	by_airstrip = util.pilot_checkouts_grouped_by_airstrip(pilot)
+	by_airstrip = util.pilot_checkouts_grouped_by_airstrip(c.pilot)
 	self.assertEqual(by_airstrip, expected)
 	
     def test_multiple_airstrip_multiple_aircrafttype(self):
-	pilot, _ = helper.create_pilot()
-	airstrip1, _ = helper.create_airstrip('ID1','Airstrip1')
-	airstrip2, _ = helper.create_airstrip('ID2','Airstrip2')
-	actype1, _ = helper.create_aircrafttype('AC1')
-	actype2, _ = helper.create_aircrafttype('AC2')
-	Checkout.objects.create(
-	    pilot=pilot,
-	    airstrip=airstrip1,
-	    aircraft_type=actype1,
-	    date=datetime.datetime.now(),
-	)
-	Checkout.objects.create(
-	    pilot=pilot,
-	    airstrip=airstrip1,
-	    aircraft_type=actype2,
-	    date=datetime.datetime.now(),
-	)
-	Checkout.objects.create(
-	    pilot=pilot,
-	    airstrip=airstrip2,
-	    aircraft_type=actype1,
-	    date=datetime.datetime.now(),
-	)
-	Checkout.objects.create(
-	    pilot=pilot,
-	    airstrip=airstrip2,
-	    aircraft_type=actype2,
-	    date=datetime.datetime.now(),
-	)
+	airstrip1 = helper.create_airstrip('ID1','Airstrip1')
+	airstrip2 = helper.create_airstrip('ID2','Airstrip2')
+	actype1 = helper.create_aircrafttype('AC1')
+	actype2 = helper.create_aircrafttype('AC2')
+	
+	c = helper.create_checkout(airstrip=airstrip1, aircraft_type=actype1)
+	helper.create_checkout(pilot=c.pilot, airstrip=airstrip1, aircraft_type=actype2)
+	helper.create_checkout(pilot=c.pilot, airstrip=airstrip2, aircraft_type=actype1)
+	helper.create_checkout(pilot=c.pilot, airstrip=airstrip2, aircraft_type=actype2)
 	
 	expected = [
 	    {
@@ -166,6 +129,6 @@ class PilotCheckoutsGroupedByAirstripTests(TestCase):
 	    },
 	]
 	
-	by_airstrip = util.pilot_checkouts_grouped_by_airstrip(pilot)
+	by_airstrip = util.pilot_checkouts_grouped_by_airstrip(c.pilot)
 	self.assertEqual(by_airstrip, expected)
 	
