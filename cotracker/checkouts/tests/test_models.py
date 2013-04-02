@@ -10,14 +10,14 @@ import helper
 class AircraftTypeTests(TestCase):
     
     def test_unicode(self):
-	o, attributes = helper.create_aircrafttype()
+	o, attributes = helper.create_aircrafttype(object_only=False)
 	self.assertEqual(o.__unicode__(), attributes['name'])
 
 
 class AirstripTests(TestCase):
     
     def test_unicode(self):
-	o, attributes = helper.create_airstrip()
+	o, attributes = helper.create_airstrip(object_only=False)
 	self.assertEqual(
 	    o.__unicode__(), 
 	    "%s (%s)" % (attributes['ident'], attributes['name'])
@@ -27,9 +27,9 @@ class AirstripTests(TestCase):
 class CheckoutTests(TestCase):
     
     def setUp(self):
-	self.pilot, _ = helper.create_pilot()
-	self.aircrafttype, _ = helper.create_aircrafttype()
-	self.airstrip, _ = helper.create_airstrip()
+	self.pilot = helper.create_pilot()
+	self.aircrafttype = helper.create_aircrafttype()
+	self.airstrip = helper.create_airstrip()
 	self.date = datetime.date(2013,03,31)
 	
 	self.checkout = Checkout.objects.create(
