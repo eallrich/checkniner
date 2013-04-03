@@ -1,8 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Checkouts by Pilot - Detail{% endblock %}
+{% block title %}Checkouts by Pilot - Detail{% endblock title %}
+
+{% block content_title %}
+Checkouts for {{ pilot.last_name }}, {{ pilot.first_name }}
+{% endblock content_title %}
 
 {% block content %}
-{% if pilot %}
     <p>Checked out at {{ checkouts_by_airstrip|length }} airstrip{{ checkouts_by_airstrip|length|pluralize }}.</p>
     <table border="1">
     <tr>
@@ -19,11 +22,10 @@
     <tr>
 	<td>{{ row.ident }}</td>
 	<td>{{ row.name }}</td>
-	{% for actype in row.aircraft %}
-	<td>{{ actype }}</td>
+	{% for status in row.aircraft %}
+	<td class="{{ status }}">&nbsp;</td>
 	{% endfor %}
     </tr>
     {% endfor %}
     </table>
-{% endif %}
 {% endblock content %}

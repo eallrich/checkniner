@@ -1,11 +1,25 @@
+{% load static %}
 <html>
 <head>
     <meta content-type='text/html'>
+    <link rel="stylesheet" href="{% static "checkouts/css/styles.css" %}">
     <title>
 	{% block title %}Checkouts{% endblock title %}
     </title>
 </head>
 <body>
+<div>
+    <p>
+        <a href="#">Home</a>&nbsp;&nbsp;&nbsp;
+        <a href="#">Add/Remove</a>&nbsp;&nbsp;&nbsp;
+        <a href="#">Filter</a>&nbsp;&nbsp;&nbsp;
+        <a href="#">Pilot Reports</a>&nbsp;&nbsp;&nbsp;
+        <a href="#">Airstrip Reports</a>&nbsp;&nbsp;&nbsp;
+        <a href="#">Base Reports</a>&nbsp;&nbsp;&nbsp;
+        <a href="#">Admin</a>
+    </p>
+    <p><strong>{% block content_title %}{% endblock content_title %}</strong></p>
+</div>
 {% comment %}
 {% if messages %}
     <ul>
@@ -17,11 +31,10 @@
 	</li>
 	{% endfor %}
     </ul>
-{% endif messages %}
+{% endif %}
 {% endcomment %}
 
 {% block content %}
-    Base content from base.html
 {% endblock content %}
 </body>
 </html>
