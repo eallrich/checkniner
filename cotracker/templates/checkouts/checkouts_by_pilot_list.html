@@ -2,18 +2,15 @@
 
 {% block title %}Checkouts by Pilot{% endblock title %}
 
-{% block content_title %}Pilots{% endblock content_title %}
-
 {% block content %}
 {% if pilot_list %}
     <table border="1">
     <tr>
-	<th>Pilot</th><th>Checkouts</th>
+	<th>Pilots</th>
     </tr>
     {% for pilot in pilot_list %}
     <tr>
 	<td><a href="{% url 'checkouts_by_pilot_detail' pilot.username %}">{{ pilot.last_name }}, {{ pilot.first_name }}</a></td>
-	<td>{{ pilot.checkouts }}</td>
     </tr>
     {% endfor %}
     </table>
