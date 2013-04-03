@@ -3,10 +3,10 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
 from checkouts.views import (
-    CheckoutsByPilotList,
-    CheckoutsByPilotDetail,
-    CheckoutsByAirstripList,
-    CheckoutsByAirstripDetail,
+    PilotList,
+    PilotDetail,
+    AirstripList,
+    AirstripDetail,
 )
 
 admin.autodiscover()
@@ -18,23 +18,23 @@ urlpatterns = patterns('',
 urlpatterns += patterns('',
     url(
         regex=r'^pilots/$',
-        view=CheckoutsByPilotList.as_view(),
-        name='checkouts_by_pilot_list',
+        view=PilotList.as_view(),
+        name='pilot_list',
     ),
     url(
         regex=r'^pilots/(?P<username>\w+)/$',
-        view=CheckoutsByPilotDetail.as_view(),
-        name='checkouts_by_pilot_detail',
+        view=PilotDetail.as_view(),
+        name='pilot_detail',
     ),
     url(
         regex=r'^airstrips/$',
-        view=CheckoutsByAirstripList.as_view(),
-        name='checkouts_by_airstrip_list',
+        view=AirstripList.as_view(),
+        name='airstrip_list',
     ),
     url(
         regex=r'^airstrips/(?P<ident>\w+)/$',
-        view=CheckoutsByAirstripDetail.as_view(),
-        name='checkouts_by_airstrip_detail',
+        view=AirstripDetail.as_view(),
+        name='airstrip_detail',
     ),
 )
 
