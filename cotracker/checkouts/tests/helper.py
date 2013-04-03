@@ -32,13 +32,11 @@ def create_airstrip(ident='ABCD', name='AlphaBravoCharlieDelta', object_only=Tru
     return (o, {'ident': ident, 'name': name,})
 
 
-def create_pilot(username='kimpilot', email='kim@ex.com', password='secret', first_name='Kim', last_name='Pilot'):
+def create_pilot(username='kimpilot', first_name='Kim', last_name='Pilot', email='kim@ex.com', password='secret'):
     """Returns a new Pilot (User) with the given properties."""
     pilot_group, _ = Group.objects.get_or_create(name='Pilots')
-    pilot = User.objects.create_user(username, email, password)
+    pilot = User.objects.create_user(username, email, password, first_name=first_name, last_name=last_name)
     pilot.groups.add(pilot_group)
-    pilot.first_name = first_name
-    pilot.last_name = last_name
     
     return pilot
 
