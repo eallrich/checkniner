@@ -19,7 +19,7 @@ Checkouts for {{ airstrip.ident }} ({{ airstrip.name }})
     </tr>
     {% for row in checkouts_by_pilot %}
     <tr>
-	<td><a href="{% url 'checkouts_by_pilot_detail' row.pilot_username %}">{{ row.pilot_name }}</a></td>
+	<td><a href="{% url 'pilot_detail' row.pilot_username %}">{{ row.pilot_name }}</a></td>
 	{% for status in row.aircraft %}
 	<td class="{{ status }}">&nbsp;</td>
 	{% endfor %}

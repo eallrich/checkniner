@@ -11,7 +11,7 @@
     <tr><th>Ident</th><th>Name</th></tr>
     {% for airstrip in airstrip_list %}
     <tr>
-	<td><a href="{% url 'checkouts_by_airstrip_detail' airstrip.ident %}">{{ airstrip.ident }}</a></td>
+	<td><a href="{% url 'airstrip_detail' airstrip.ident %}">{{ airstrip.ident }}</a></td>
 	<td>{{ airstrip.name }}</td>
     </tr>
     {% endfor %}
