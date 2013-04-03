@@ -10,12 +10,6 @@ class CheckoutsByPilotList(ListView):
     context_object_name = 'pilot_list'
     template_name = 'checkouts/checkouts_by_pilot_list.html'
     
-    def get_queryset(self):
-	"""Attaches the number of checkouts for each pilot to the
-	returned queryset."""
-	queryset = super(CheckoutsByPilotList, self).get_queryset()
-	return queryset.annotate(checkouts=Count('checkout'))
-	
 
 class CheckoutsByPilotDetail(DetailView):
     model = User
@@ -29,5 +23,41 @@ class CheckoutsByPilotDetail(DetailView):
 	
 	context['aircrafttypes'] = util.get_aircrafttype_names()
 	context['checkouts_by_airstrip'] = util.pilot_checkouts_grouped_by_airstrip(self.object)
+	
+	return context
+
+
+class CheckoutsByAirstripList(ListView):
+    queryset = Airstrip.objects.all().order_by('ident')
+    context_object_name = 'airstrip_list'
+    template_name = 'checkouts/checkouts_by_airstrip_list.html'
+
+
+class CheckoutsByAirstripDetail(DetailView):
+    model = Airstrip
+    context_object_name = 'airstrip'
+    template_name = 'checkouts/checkouts_by_airstrip_detail.html'
+    slug_field = 'ident'
+    slug_url_kwarg = 'ident'
+    
+    def get_context_data(self, **kwargs):
+	context = super(CheckoutsByAirstripDetail, self).get_context_data(**kwargs)
+	
+	context['aircrafttypes'] = util.get_aircrafttype_names()
+	example = [{
+	    'pilot_name': 'Brown, Mike',
+	    'pilot_username': 'mbrown',
+	    'aircraft': ['sudah','belum','sudah'],
+	}, {
+	    'pilot_name': 'Janse, Kees',
+	    'pilot_username': 'kjanse',
+	    'aircraft': ['sudah','belum','belum'],
+	}, {
+	    'pilot_name': 'Lynne, Kevin',
+	    'pilot_username': 'klynne',
+	    'aircraft': ['sudah','belum','belum'],
+	}]
+	
+	context['checkouts_by_pilot'] = example
 	
 	return context
