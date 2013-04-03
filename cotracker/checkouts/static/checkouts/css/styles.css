@@ -1,0 +1,32 @@
+* {
+    font-family: Helvetica;
+    font-size: x-large;
+}
+
+table {
+    border-collapse:collapse;
+}
+
+table, td, th {
+    border:1px solid black;
+}
+
+th {
+    background:#93A5BB;
+    color:white;
+    font-weight:normal;
+    padding: 1px 10px 1px 10px;
+}
+
+td {
+    background:lightgray;
+    padding: 1px 30px 1px 7px;
+}
+
+.sudah {
+    background:green;
+}
+
+.unprecedented {
+    background:#FFA500;
+}
