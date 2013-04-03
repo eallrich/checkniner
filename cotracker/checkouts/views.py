@@ -44,20 +44,7 @@ class CheckoutsByAirstripDetail(DetailView):
 	context = super(CheckoutsByAirstripDetail, self).get_context_data(**kwargs)
 	
 	context['aircrafttypes'] = util.get_aircrafttype_names()
-	example = [{
-	    'pilot_name': 'Brown, Mike',
-	    'pilot_username': 'mbrown',
-	    'aircraft': ['sudah','belum','sudah'],
-	}, {
-	    'pilot_name': 'Janse, Kees',
-	    'pilot_username': 'kjanse',
-	    'aircraft': ['sudah','belum','belum'],
-	}, {
-	    'pilot_name': 'Lynne, Kevin',
-	    'pilot_username': 'klynne',
-	    'aircraft': ['sudah','belum','belum'],
-	}]
 	
-	context['checkouts_by_pilot'] = example
+	context['checkouts_by_pilot'] = util.airstrip_checkouts_grouped_by_pilot(self.object)
 	
 	return context
