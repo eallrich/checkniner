@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Checkouts by Airstrip{% endblock title %}
+
+{% block content %}
+{% if airstrip_list %}
+    <table border="1">
+    <tr>
+	<th colspan="2">Airstrips</th>
+    </tr>
+    <tr><th>Ident</th><th>Name</th></tr>
+    {% for airstrip in airstrip_list %}
+    <tr>
+	<td><a href="{% url 'checkouts_by_airstrip_detail' airstrip.ident %}">{{ airstrip.ident }}</a></td>
+	<td>{{ airstrip.name }}</td>
+    </tr>
+    {% endfor %}
+    </table>
+{% endif %}
+{% endblock content %}
