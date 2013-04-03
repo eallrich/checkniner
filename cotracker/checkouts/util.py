@@ -1,6 +1,23 @@
 from .models import AircraftType, Checkout
 
 
+"""
+Checkout States
+---------------
++ Sudah: The pilot has been checked out at the airstrip in the aircraft type
++ Belum: The pilot has not been checked out at the airstrip in the aircraft
+	 type, but another pilot has.
++ Unprecedented: No pilot has been checked out at the airstrip in the aircraft
+		 type.
+
+These states have corresponding names in the CSS file to make them easy to
+style as necessary.
+"""
+CHECKOUT_SUDAH = "sudah"
+CHECKOUT_BELUM = "belum"
+CHECKOUT_UNPRECEDENTED = "unprecedented"
+
+
 def get_aircrafttype_names(order="name"):
     """Populates a sorted list with the names of all known
     AircraftTypes"""
@@ -32,11 +49,11 @@ def pilot_checkouts_grouped_by_airstrip(pilot):
 	    row_data = {
 		'ident': c.airstrip.ident,
 		'name': c.airstrip.name,
-		'aircraft': [False,] * len(actypes),
+		'aircraft': [CHECKOUT_BELUM,] * len(actypes),
 	    }
 	
 	ac_index = actypes.index(c.aircraft_type.name)
-	row_data['aircraft'][ac_index] = True
+	row_data['aircraft'][ac_index] = CHECKOUT_SUDAH
     
     # Saving the very last airstrip record is missed by 
     # the 'is this the same airstrip as before?' check,

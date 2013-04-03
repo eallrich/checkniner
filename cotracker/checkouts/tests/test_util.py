@@ -49,7 +49,7 @@ class PilotCheckoutsGroupedByAirstripTests(TestCase):
 	expected = [{
 	    'ident': c.airstrip.ident,
 	    'name': c.airstrip.name,
-	    'aircraft': [True,],
+	    'aircraft': [util.CHECKOUT_SUDAH,],
 	}]
 	
 	by_airstrip = util.pilot_checkouts_grouped_by_airstrip(c.pilot)
@@ -63,7 +63,7 @@ class PilotCheckoutsGroupedByAirstripTests(TestCase):
 	expected = [{
 	    'ident': c.airstrip.ident,
 	    'name': c.airstrip.name,
-	    'aircraft': [True,False],
+	    'aircraft': [util.CHECKOUT_SUDAH,util.CHECKOUT_BELUM],
 	},]
 	by_airstrip = util.pilot_checkouts_grouped_by_airstrip(c.pilot)
 	self.assertEqual(by_airstrip, expected)
@@ -78,7 +78,7 @@ class PilotCheckoutsGroupedByAirstripTests(TestCase):
 	expected = [{
 	    'ident': c.airstrip.ident,
 	    'name': c.airstrip.name,
-	    'aircraft': [True,True],
+	    'aircraft': [util.CHECKOUT_SUDAH,util.CHECKOUT_SUDAH],
 	},]
 	
 	by_airstrip = util.pilot_checkouts_grouped_by_airstrip(c.pilot)
@@ -94,7 +94,7 @@ class PilotCheckoutsGroupedByAirstripTests(TestCase):
 	    {
 		'ident': airstrip1.ident,
 		'name': airstrip1.name,
-		'aircraft': [True,],
+		'aircraft': [util.CHECKOUT_SUDAH,],
 	    },
 	]
 	
@@ -112,11 +112,11 @@ class PilotCheckoutsGroupedByAirstripTests(TestCase):
 	    {
 		'ident': airstrip1.ident,
 		'name': airstrip1.name,
-		'aircraft': [True,],
+		'aircraft': [util.CHECKOUT_SUDAH,],
 	    }, {
 		'ident': airstrip2.ident,
 		'name': airstrip2.name,
-		'aircraft': [True,],
+		'aircraft': [util.CHECKOUT_SUDAH,],
 	    },
 	]
 	
@@ -138,11 +138,11 @@ class PilotCheckoutsGroupedByAirstripTests(TestCase):
 	    {
 		'ident': airstrip1.ident,
 		'name': airstrip1.name,
-		'aircraft': [True,True],
+		'aircraft': [util.CHECKOUT_SUDAH,util.CHECKOUT_SUDAH],
 	    }, {
 		'ident': airstrip2.ident,
 		'name': airstrip2.name,
-		'aircraft': [True,True],
+		'aircraft': [util.CHECKOUT_SUDAH,util.CHECKOUT_SUDAH],
 	    },
 	]
 	
