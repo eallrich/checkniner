@@ -6,7 +6,7 @@ Checkouts for {{ airstrip.ident }} ({{ airstrip.name }})
 {% endblock content_title %}
 
 {% block content %}
-    <p>There are {{ checkouts_by_pilot|length }} pilot{{ checkouts_by_pilot|length|pluralize }} checked out here.</p>
+    <p>There {{ checkouts_by_pilot|length|pluralize:"is,are" }} {{ checkouts_by_pilot|length }} pilot{{ checkouts_by_pilot|length|pluralize }} checked out here.</p>
     <table border="1">
     <tr>
 	<th rowspan="2">Pilot</th>
