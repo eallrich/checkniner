@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Base - {{ attached_state|title }}{% endblock title %}
+
+{% block content_title %}
+Airstrips {{ attached_state }} to {{ base.name }}
+{% endblock content_title %}
+
+{% block content %}
+    <p>There {{ airstrips|length|pluralize:"is,are" }} {{ airstrips|length }} airstrip{{ airstrips|length|pluralize }} {{ attached_state }}.</p>
+    <table border="1">
+    <tr>
+	<th colspan="2">Airstrip</th>
+    </tr>
+    <tr>
+	<th>Ident</th><th>Name</th>
+    </tr>
+    {% for airstrip in airstrips %}
+    <tr>
+	<td><a href="{% url 'airstrip_detail' airstrip.ident %}">{{ airstrip.ident }}</a></td>
+	<td>{{ airstrip.name }}</td>
+    </tr>
+    {% endfor %}
+    </table>
+{% endblock content %}
