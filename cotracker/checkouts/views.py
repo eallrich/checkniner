@@ -48,3 +48,51 @@ class AirstripDetail(DetailView):
 	context['checkouts_by_pilot'] = util.airstrip_checkouts_grouped_by_pilot(self.object)
 	
 	return context
+
+
+class BaseList(ListView):
+    queryset = Airstrip.objects.filter(is_base=True).order_by('name').annotate(attached=Count('airstrip'))
+    template_name = 'checkouts/base_list.html'
+    
+    def get_context_data(self, **kwargs):
+	context = super(BaseList, self).get_context_data(**kwargs)
+	
+	bases = self.object_list
+	base_list = []
+	for base in bases:
+	    unattached = Airstrip.objects.exclude(bases=base).exclude(pk=base.pk).count()
+	    base_list.append((base, base.attached, unattached))
+	
+	context['base_list'] = base_list
+	
+	return context
+
+
+class BaseAttachedDetail(DetailView):
+    model = Airstrip
+    context_object_name = 'base'
+    template_name = 'checkouts/base_detail.html'
+    slug_field = 'ident'
+    slug_url_kwarg = 'ident'
+    
+    def get_context_data(self, **kwargs):
+	context = super(BaseAttachedDetail, self).get_context_data(**kwargs)
+	context['attached_state'] = "attached"
+	context['airstrips'] = Airstrip.objects.filter(bases=self.object).order_by('ident')
+	
+	return context
+
+
+class BaseUnattachedDetail(DetailView):
+    model = Airstrip
+    context_object_name = 'base'
+    template_name = 'checkouts/base_detail.html'
+    slug_field = 'ident'
+    slug_url_kwarg = 'ident'
+    
+    def get_context_data(self, **kwargs):
+	context = super(BaseUnattachedDetail, self).get_context_data(**kwargs)
+	context['attached_state'] = "unattached"
+	context['airstrips'] = Airstrip.objects.exclude(bases=self.object).exclude(pk=self.object.pk).order_by('ident')
+	
+	return context
