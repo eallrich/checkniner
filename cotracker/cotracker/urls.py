@@ -7,6 +7,9 @@ from checkouts.views import (
     PilotDetail,
     AirstripList,
     AirstripDetail,
+    BaseList,
+    BaseAttachedDetail,
+    BaseUnattachedDetail,
 )
 
 admin.autodiscover()
@@ -35,6 +38,21 @@ urlpatterns += patterns('',
         regex=r'^airstrips/(?P<ident>\w+)/$',
         view=AirstripDetail.as_view(),
         name='airstrip_detail',
+    ),
+    url(
+        regex=r'^bases/$',
+        view=BaseList.as_view(),
+        name='base_list',
+    ),
+    url(
+        regex=r'^bases/(?P<ident>\w+)/attached/$',
+        view=BaseAttachedDetail.as_view(),
+        name='base_attached_detail',
+    ),
+    url(
+        regex=r'^bases/(?P<ident>\w+)/unattached/$',
+        view=BaseUnattachedDetail.as_view(),
+        name='base_unattached_detail',
     ),
 )
 
