@@ -19,13 +19,13 @@ def create_aircrafttype(name='FooBar1234', object_only=True):
     return (o, {'name': name,})
 
 
-def create_airstrip(ident='ABCD', name='AlphaBravoCharlieDelta', object_only=True):
+def create_airstrip(ident='ABCD', name='AlphaBravoCharlieDelta', is_base=False, object_only=True):
     """Returns a new Airstrip with the given ident and name.
     
     To also receive a dictionary of the properties set on the model, use
     object_only=False.
     """
-    o = Airstrip.objects.create(ident=ident, name=name)
+    o = Airstrip.objects.create(ident=ident, name=name, is_base=is_base)
     
     if object_only:
 	return o
