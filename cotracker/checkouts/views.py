@@ -60,7 +60,7 @@ class BaseList(ListView):
 	bases = self.object_list
 	base_list = []
 	for base in bases:
-	    unattached = Airstrip.objects.exclude(bases=base).exclude(pk=base.pk).count()
+	    unattached = base.unattached_airstrips().count()
 	    base_list.append((base, base.attached, unattached))
 	
 	context['base_list'] = base_list
@@ -78,7 +78,7 @@ class BaseAttachedDetail(DetailView):
     def get_context_data(self, **kwargs):
 	context = super(BaseAttachedDetail, self).get_context_data(**kwargs)
 	context['attached_state'] = "attached"
-	context['airstrips'] = Airstrip.objects.filter(bases=self.object).order_by('ident')
+	context['airstrips'] = self.object.attached_airstrips()
 	
 	return context
 
@@ -93,6 +93,6 @@ class BaseUnattachedDetail(DetailView):
     def get_context_data(self, **kwargs):
 	context = super(BaseUnattachedDetail, self).get_context_data(**kwargs)
 	context['attached_state'] = "unattached"
-	context['airstrips'] = Airstrip.objects.exclude(bases=self.object).exclude(pk=self.object.pk).order_by('ident')
+	context['airstrips'] = self.object.unattached_airstrips()
 	
 	return context
