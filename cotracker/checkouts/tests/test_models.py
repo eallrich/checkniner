@@ -22,6 +22,60 @@ class AirstripTests(TestCase):
 	    o.__unicode__(), 
 	    "%s (%s)" % (attributes['ident'], attributes['name'])
 	) 
+    
+    def test_attached_airstrips(self):
+	base1 = helper.create_airstrip('B1', is_base=True)
+	# Single base, no airstrips
+	self.assertEqual(base1.attached_airstrips().count(), 0)
+	
+	airstrip1 = helper.create_airstrip('A1')
+	airstrip2 = helper.create_airstrip('A2')
+	# Single base, multiple airstrips
+	self.assertEqual(base1.attached_airstrips().count(), 0)
+	
+	airstrip1.bases.add(base1)
+	# Single airstrip attached
+	self.assertEqual(base1.attached_airstrips().count(), 1)
+	
+	airstrip2.bases.add(base1)
+	# Multiple airstrips attached
+	self.assertEqual(base1.attached_airstrips().count(), 2)
+	
+	base2 = helper.create_airstrip('B2', is_base=True)
+	# Multiple bases, no attached airstrips
+	self.assertEqual(base2.attached_airstrips().count(), 0)
+	
+	airstrip1.bases.add(base2)
+	# Multiple attached bases on airstrip
+	self.assertEqual(base1.attached_airstrips().count(), 2)
+	self.assertEqual(base2.attached_airstrips().count(), 1)
+
+    def test_unattached_airstrips(self):
+	base1 = helper.create_airstrip('B1', is_base=True)
+	# Single base, no airstrips
+	self.assertEqual(base1.unattached_airstrips().count(), 0)
+	
+	airstrip1 = helper.create_airstrip('A1')
+	airstrip2 = helper.create_airstrip('A2')
+	# Single base, multiple airstrips
+	self.assertEqual(base1.unattached_airstrips().count(), 2)
+	
+	airstrip1.bases.add(base1)
+	# Single airstrip attached
+	self.assertEqual(base1.unattached_airstrips().count(), 1)
+	
+	airstrip2.bases.add(base1)
+	# Multiple airstrips attached
+	self.assertEqual(base1.unattached_airstrips().count(), 0)
+	
+	base2 = helper.create_airstrip('B2', is_base=True)
+	# Multiple bases, no attached airstrips
+	self.assertEqual(base2.unattached_airstrips().count(), 3)
+	
+	airstrip1.bases.add(base2)
+	# Multiple attached bases on airstrip
+	self.assertEqual(base1.unattached_airstrips().count(), 1)
+	self.assertEqual(base2.unattached_airstrips().count(), 2)
 
 
 class CheckoutTests(TestCase):
