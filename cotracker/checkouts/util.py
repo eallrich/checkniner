@@ -1,4 +1,6 @@
-from .models import AircraftType, Checkout
+from django.contrib.auth.models import User
+
+from .models import AircraftType, Airstrip, Checkout
 
 
 """
@@ -14,8 +16,22 @@ These states have corresponding names in the CSS file to make them easy to
 style as necessary.
 """
 CHECKOUT_SUDAH = "sudah"
+CHECKOUT_SUDAH_LABEL = "Sudah Selesai"
 CHECKOUT_BELUM = "belum"
+CHECKOUT_BELUM_LABEL = "Belum Selesai"
 CHECKOUT_UNPRECEDENTED = "unprecedented"
+
+
+def choices_checkout_status():
+    return [(CHECKOUT_SUDAH, CHECKOUT_SUDAH_LABEL), (CHECKOUT_BELUM, CHECKOUT_BELUM_LABEL)]
+
+
+def get_pilots():
+    return User.objects.filter(groups__name="Pilots").order_by('last_name','first_name')
+
+
+def get_bases():
+    return Airstrip.objects.filter(is_base=True).order_by('ident')
 
 
 def get_aircrafttype_names(order="name"):
