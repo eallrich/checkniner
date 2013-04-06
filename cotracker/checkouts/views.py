@@ -1,7 +1,12 @@
+import pprint
+import sys
+
 from django.contrib.auth.models import User
 from django.db.models import Count
-from django.views.generic import DetailView, ListView
+from django.shortcuts import render
+from django.views.generic import DetailView, ListView, View
 
+from .forms import FilterForm
 from .models import AircraftType, Airstrip, Checkout
 import util
 
@@ -96,3 +101,17 @@ class BaseUnattachedDetail(DetailView):
 	context['airstrips'] = self.object.unattached_airstrips()
 	
 	return context
+
+
+class FilterFormView(View):
+    form_class = FilterForm
+    template_name = 'checkouts/filter.html'
+    
+    def get(self, request, *args, **kwargs):
+	form = self.form_class()
+	return render(request, self.template_name, {'form': form})
+    
+    def post(self, request, *args, **kwargs):
+	pprint.pprint(request.POST, stream=sys.stderr)
+	form = self.form_class(request.POST)
+	return render(request, self.template_name, {'form': form})
