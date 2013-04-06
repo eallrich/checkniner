@@ -10,6 +10,7 @@ from checkouts.views import (
     BaseList,
     BaseAttachedDetail,
     BaseUnattachedDetail,
+    FilterFormView,
 )
 
 admin.autodiscover()
@@ -53,6 +54,11 @@ urlpatterns += patterns('',
         regex=r'^bases/(?P<ident>\w+)/unattached/$',
         view=BaseUnattachedDetail.as_view(),
         name='base_unattached_detail',
+    ),
+    url(
+	regex=r'^checkouts/$',
+	view=FilterFormView.as_view(),
+	name='checkout_filter',
     ),
 )
 
