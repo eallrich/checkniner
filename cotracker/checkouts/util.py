@@ -91,9 +91,9 @@ def airstrip_checkouts_grouped_by_pilot(airstrip):
 	ac_index = actypes.index(c.aircraft_type.name)
 	row_data['aircraft'][ac_index] = CHECKOUT_SUDAH
     
-    # Saving the very last airstrip record is missed by 
-    # the 'is this the same airstrip as before?' check,
-    # so we'll manually save it to the list (if necessary)
+    # Saving the very last pilot record is missed by the 'is this the same 
+    # pilot as before?' check, so we'll manually save it to the list (if
+    # necessary)
     if row_data != None:
         by_pilot.append(row_data)
     
