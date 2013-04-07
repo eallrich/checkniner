@@ -89,6 +89,19 @@ def checkout_filter(pilot=None, airstrip=None, base=None):
     return results
 
 
+def checkouts_selesai(**kwargs):
+    results = {
+	'populate': {
+	    'pilot': True,
+	    'airstrip': True,
+	},
+	'aircraft_types': get_aircrafttype_names(),
+	'results': checkout_filter(**kwargs),
+    }
+    
+    return results
+
+
 def pilot_checkouts_grouped_by_airstrip(pilot):
     """Organizes the pilot's checkouts by airstrips.
     
