@@ -40,41 +40,72 @@ def get_aircrafttype_names(order="name"):
     return [actype.name for actype in aircrafttypes]
 
 
+def checkout_filter(pilot=None, airstrip=None, base=None):
+    core_query = Checkout.objects.all()
+    if pilot != None:
+	core_query = core_query.filter(pilot=pilot)
+    if airstrip != None:
+	core_query = core_query.filter(airstrip=airstrip)
+    if base != None:
+	core_query = core_query.filter(airstrip__bases=base)
+	
+    checkouts = core_query.select_related(
+		    'pilot', 'airstrip', 'aircraft_type'
+		).order_by(
+		    'pilot__last_name',
+		    'pilot__first_name',
+		    'airstrip__ident',
+		    'aircraft_type__name'
+		)
+    actypes = get_aircrafttype_names()
+    results = []
+    for c in checkouts:
+	if len(results) > 0:
+	    r = results.pop()
+	    if r['pilot_slug'] == c.pilot.username and r['airstrip_ident'] == c.airstrip.ident:
+		r['actypes'][c.aircraft_type.name] = CHECKOUT_SUDAH
+		results.append(r)
+		continue
+	    else:
+		# Put the unmodified record back in the list before creating
+		# the new record
+		results.append(r)
+		
+	r = {
+	    'pilot_name': c.get_pilot_name(),
+	    'pilot_slug': c.pilot.username,
+	    'airstrip_ident': c.airstrip.ident,
+	    'airstrip_name': c.airstrip.name,
+	    'actypes': {},
+	}
+	for actype in actypes:
+	    if actype == c.aircraft_type.name:
+		# Mark the entry for the current checkout aircraft during init
+		r['actypes'][actype] = CHECKOUT_SUDAH
+	    else:
+		r['actypes'][actype] = CHECKOUT_BELUM
+	
+	results.append(r)
+    return results
+
+
 def pilot_checkouts_grouped_by_airstrip(pilot):
     """Organizes the pilot's checkouts by airstrips.
     
     Returns a list (sorted by airstrip ident) in which every airstrip at which
     the given pilot is checked out is a dictionary, with a key:value pair 
     indicating whether the pilot is checked out or not in each AircraftType."""
-    actypes = get_aircrafttype_names()
-
-    pilot_checkouts = Checkout.objects.filter(pilot=pilot).select_related('airstrip', 'aircraft_type')
-    pilot_checkouts = pilot_checkouts.order_by('airstrip__ident', 'aircraft_type__name')
     
-    by_airstrip = []
-    row_data = None
-    for c in pilot_checkouts:
-	if row_data == None or c.airstrip.ident != row_data['ident']:
-	    # Don't save on the initial loop iteration
-	    if row_data != None:
-		by_airstrip.append(row_data)
-	    
-	    row_data = {
-		'ident': c.airstrip.ident,
-		'name': c.airstrip.name,
-		'aircraft': [CHECKOUT_BELUM,] * len(actypes),
-	    }
-	
-	ac_index = actypes.index(c.aircraft_type.name)
-	row_data['aircraft'][ac_index] = CHECKOUT_SUDAH
+    results = {
+	'populate': {
+	    'pilot': False,
+	    'airstrip': True,
+	},
+	'aircraft_types': get_aircrafttype_names(),
+	'results': checkout_filter(pilot=pilot),
+    }
     
-    # Saving the very last airstrip record is missed by 
-    # the 'is this the same airstrip as before?' check,
-    # so we'll manually save it to the list (if necessary)
-    if row_data != None:
-        by_airstrip.append(row_data)
-    
-    return by_airstrip
+    return results
 
 
 def airstrip_checkouts_grouped_by_pilot(airstrip):
@@ -85,32 +116,14 @@ def airstrip_checkouts_grouped_by_pilot(airstrip):
     pair indicating whether the pilot is checked out or not in each 
     AircraftType.
     """
-    actypes = get_aircrafttype_names()
     
-    airstrip_checkouts = Checkout.objects.filter(airstrip=airstrip).select_related('pilot', 'aircraft_type')
-    airstrip_checkouts = airstrip_checkouts.order_by('pilot__last_name', 'pilot__first_name', 'aircraft_type__name')
+    results = {
+	'populate': {
+	    'pilot': True,
+	    'airstrip': False,
+	},
+	'aircraft_types': get_aircrafttype_names(),
+	'results': checkout_filter(airstrip=airstrip),
+    }
     
-    by_pilot = []
-    row_data = None
-    for c in airstrip_checkouts:
-	if row_data == None or c.pilot.username != row_data['pilot_username']:
-	    # Don't save on the initial loop iteration
-	    if row_data != None:
-		by_pilot.append(row_data)
-	    
-	    row_data = {
-		'pilot_name': c.get_pilot_name(),
-		'pilot_username': c.pilot.username,
-		'aircraft': [CHECKOUT_BELUM,] * len(actypes),
-	    }
-	
-	ac_index = actypes.index(c.aircraft_type.name)
-	row_data['aircraft'][ac_index] = CHECKOUT_SUDAH
-    
-    # Saving the very last pilot record is missed by the 'is this the same 
-    # pilot as before?' check, so we'll manually save it to the list (if
-    # necessary)
-    if row_data != None:
-        by_pilot.append(row_data)
-    
-    return by_pilot
+    return results
