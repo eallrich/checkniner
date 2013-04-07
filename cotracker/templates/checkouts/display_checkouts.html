@@ -1,6 +1,13 @@
 {% load checkouts_extras %}
 
-{% if checkouts and checkouts.results|length > 0 %}
+{% if checkouts %}
+
+{% if checkouts.results and checkouts.results|length > 0 %}
+
+{% if show_summary %}
+<p>Found {{ checkouts.results|length }} matching record{{ checkouts.results|length|pluralize }}</p>
+{% endif %}
+
 <table border="1">
 
 <tr>
@@ -39,4 +46,11 @@
 
 </table>
 
+{% else %}
+<p>Nothing matched all filter parameters</p>
+{% endif %}
+
+{% comment %}
+Leave it blank if there's no 'checkouts' data structure
+{% endcomment %}
 {% endif %}
