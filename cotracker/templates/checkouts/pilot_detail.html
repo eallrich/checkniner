@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load checkouts_extras %}
 {% block title %}Checkouts by Pilot - Detail{% endblock title %}
 
 {% block content_title %}
@@ -6,24 +7,24 @@ Checkouts for {{ pilot.last_name }}, {{ pilot.first_name }}
 {% endblock content_title %}
 
 {% block content %}
-    <p>Checked out at {{ checkouts_by_airstrip|length }} airstrip{{ checkouts_by_airstrip|length|pluralize }}.</p>
+    <p>Checked out at {{ checkouts.results|length }} airstrip{{ checkouts.results|length|pluralize }}.</p>
     <table border="1">
     <tr>
 	<th colspan="2">Airstrip</th>
-	<th colspan="{{ aircrafttypes|length }}">Aircraft Type</th>
+	<th colspan="{{ checkouts.aircraft_types|length }}">Aircraft Type</th>
     </tr>
     <tr>
 	<th>Ident</th><th>Name</th>
-	{% for aircraft in aircrafttypes %}
-	<th>{{ aircraft }}</th>
+	{% for actype in checkouts.aircraft_types %}
+	<th>{{ actype }}</th>
 	{% endfor %}
     </tr>
-    {% for row in checkouts_by_airstrip %}
+    {% for r in checkouts.results %}
     <tr>
-	<td><a href="{% url 'airstrip_detail' row.ident %}">{{ row.ident }}</a></td>
-	<td>{{ row.name }}</td>
-	{% for status in row.aircraft %}
-	<td class="{{ status }}">&nbsp;</td>
+	<td><a href="{% url 'airstrip_detail' r.airstrip_ident %}">{{ r.airstrip_ident }}</a></td>
+	<td>{{ r.airstrip_name }}</td>
+	{% for name in checkouts.aircraft_types %}
+	<td class="{{ r.actypes|get_item:name }}">&nbsp;</td>
 	{% endfor %}
     </tr>
     {% endfor %}

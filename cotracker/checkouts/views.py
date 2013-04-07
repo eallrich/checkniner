@@ -26,8 +26,7 @@ class PilotDetail(DetailView):
     def get_context_data(self, **kwargs):
 	context = super(PilotDetail, self).get_context_data(**kwargs)
 	
-	context['aircrafttypes'] = util.get_aircrafttype_names()
-	context['checkouts_by_airstrip'] = util.pilot_checkouts_grouped_by_airstrip(self.object)
+	context['checkouts'] = util.pilot_checkouts_grouped_by_airstrip(self.object)
 	
 	return context
 
@@ -48,9 +47,7 @@ class AirstripDetail(DetailView):
     def get_context_data(self, **kwargs):
 	context = super(AirstripDetail, self).get_context_data(**kwargs)
 	
-	context['aircrafttypes'] = util.get_aircrafttype_names()
-	
-	context['checkouts_by_pilot'] = util.airstrip_checkouts_grouped_by_pilot(self.object)
+	context['checkouts'] = util.airstrip_checkouts_grouped_by_pilot(self.object)
 	
 	return context
 
