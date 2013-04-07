@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load checkouts_extras %}
 {% block title %}Checkouts by Pilot - Detail{% endblock title %}
 
 {% block content_title %}
@@ -8,25 +7,5 @@ Checkouts for {{ pilot.last_name }}, {{ pilot.first_name }}
 
 {% block content %}
     <p>Checked out at {{ checkouts.results|length }} airstrip{{ checkouts.results|length|pluralize }}.</p>
-    <table border="1">
-    <tr>
-	<th colspan="2">Airstrip</th>
-	<th colspan="{{ checkouts.aircraft_types|length }}">Aircraft Type</th>
-    </tr>
-    <tr>
-	<th>Ident</th><th>Name</th>
-	{% for actype in checkouts.aircraft_types %}
-	<th>{{ actype }}</th>
-	{% endfor %}
-    </tr>
-    {% for r in checkouts.results %}
-    <tr>
-	<td><a href="{% url 'airstrip_detail' r.airstrip_ident %}">{{ r.airstrip_ident }}</a></td>
-	<td>{{ r.airstrip_name }}</td>
-	{% for name in checkouts.aircraft_types %}
-	<td class="{{ r.actypes|get_item:name }}">&nbsp;</td>
-	{% endfor %}
-    </tr>
-    {% endfor %}
-    </table>
+    {% include "checkouts/display_checkouts.html" %}
 {% endblock content %}
