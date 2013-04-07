@@ -1,5 +1,6 @@
 import datetime
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 
 from checkouts import util
@@ -312,3 +313,81 @@ class AirstripCheckoutsGroupedByPilotTests(TestCase):
 	
 	self.assertEqual(util.airstrip_checkouts_grouped_by_pilot(airstrip1), self.expected)
 	
+
+class CheckoutsSelesaiTests(TestCase):
+    
+    def setUp(self):
+	# Template for expected results
+	self.expected = {
+	    'populate': {
+		'pilot': True,
+		'airstrip': True,
+	    },
+	    'aircraft_types': [],
+	    'results': [],
+	}
+    
+    def test_empty(self):
+	self.assertEqual(util.checkouts_selesai(), self.expected)
+    
+    def test_with_checkouts(self):
+	c = helper.create_checkout()
+	
+	results = [{
+	    'pilot_name': c.get_pilot_name(),
+	    'pilot_slug': c.pilot.username,
+	    'airstrip_ident': c.airstrip.ident,
+	    'airstrip_name': c.airstrip.name,
+	    'actypes': {
+		c.aircraft_type.name: util.CHECKOUT_SUDAH,
+	    },
+	},]
+	
+	self.expected['aircraft_types'] = [c.aircraft_type.name,]
+	self.expected['results'] = results
+	
+	self.assertEqual(util.checkouts_selesai(), self.expected)
+	
+
+class ChoicesTests(TestCase):
+    
+    def test_choices_checkout_status(self):
+	expected = [(util.CHECKOUT_SUDAH, util.CHECKOUT_SUDAH_LABEL), (util.CHECKOUT_BELUM, util.CHECKOUT_BELUM_LABEL)]
+	self.assertEqual(util.choices_checkout_status(), expected)
+
+
+class QueryTests(TestCase):
+    
+    def test_get_pilots(self):
+	self.assertEqual(len(util.get_pilots()), 0)
+	
+	pilot1 = helper.create_pilot('kim','Kim','Pilot1')
+	pilot2 = helper.create_pilot('sam','Sam','Pilot2')
+	pilot3 = helper.create_pilot('ada','Ada','Pilot0')
+	
+	expected = [pilot3, pilot1, pilot2]
+	query = util.get_pilots()
+	
+	self.assertEqual([o for o in query], expected)
+	
+	user1 = User.objects.create_user('user','User','Non-Pilot')
+	
+	query = util.get_pilots()
+	self.assertEqual([o for o in query], expected)
+    
+    def test_get_bases(self):
+	self.assertEqual(len(util.get_bases()), 0)
+	
+	base1 = helper.create_airstrip('SCND','Second',is_base=True)
+	base2 = helper.create_airstrip('FRST','First',is_base=True)
+	base3 = helper.create_airstrip('THRD','Third',is_base=True)
+	
+	expected = [base2, base1, base3]
+	query = util.get_bases()
+	
+	self.assertEqual([o for o in query], expected)
+	
+	airstrip1 = helper.create_airstrip('FRTH','Fourth',is_base=False)
+	
+	query = util.get_bases()
+	self.assertEqual([o for o in query], expected)
