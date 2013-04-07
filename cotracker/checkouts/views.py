@@ -1,6 +1,3 @@
-import pprint
-import sys
-
 from django.contrib.auth.models import User
 from django.db.models import Count
 from django.shortcuts import render
@@ -109,6 +106,15 @@ class FilterFormView(View):
 	return render(request, self.template_name, {'form': form})
     
     def post(self, request, *args, **kwargs):
-	pprint.pprint(request.POST, stream=sys.stderr)
 	form = self.form_class(request.POST)
-	return render(request, self.template_name, {'form': form})
+	context = {'form': form}
+	
+	if form.is_valid():
+	    pilot = form.cleaned_data['pilot']
+	    airstrip = form.cleaned_data['airstrip']
+	    base = form.cleaned_data['base']
+	    status = form.cleaned_data['checkout_status']
+	    context['checkouts'] = util.checkouts_selesai(pilot=pilot, airstrip=airstrip, base=base)
+	    context['show_summary'] = True
+	    
+	return render(request, self.template_name, context)
