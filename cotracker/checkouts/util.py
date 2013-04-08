@@ -103,40 +103,14 @@ def checkouts_selesai(**kwargs):
 
 
 def pilot_checkouts_grouped_by_airstrip(pilot):
-    """Organizes the pilot's checkouts by airstrips.
-    
-    Returns a list (sorted by airstrip ident) in which every airstrip at which
-    the given pilot is checked out is a dictionary, with a key:value pair 
-    indicating whether the pilot is checked out or not in each AircraftType."""
-    
-    results = {
-	'populate': {
-	    'pilot': False,
-	    'airstrip': True,
-	},
-	'aircraft_types': get_aircrafttype_names(),
-	'results': checkout_filter(pilot=pilot),
-    }
-    
+    """Organizes the pilot's checkouts by airstrips."""
+    results = checkouts_selesai(pilot=pilot)
+    results['populate']['pilot'] = False
     return results
 
 
 def airstrip_checkouts_grouped_by_pilot(airstrip):
-    """Organizes the airstrip's checkouts by pilot.
-    
-    Returns a list (sorted by pilot last name then first name) in which every
-    pilot checked out at the given airstrip is a dictionary, with a key:value
-    pair indicating whether the pilot is checked out or not in each 
-    AircraftType.
-    """
-    
-    results = {
-	'populate': {
-	    'pilot': True,
-	    'airstrip': False,
-	},
-	'aircraft_types': get_aircrafttype_names(),
-	'results': checkout_filter(airstrip=airstrip),
-    }
-    
+    """Organizes the airstrip's checkouts by pilot."""
+    results = checkouts_selesai(airstrip=airstrip)
+    results['populate']['airstrip'] = False
     return results
