@@ -16,7 +16,7 @@
         <a href="{% url 'pilot_list' %}">Pilot Reports</a>&nbsp;&nbsp;&nbsp;
         <a href="{% url 'airstrip_list' %}">Airstrip Reports</a>&nbsp;&nbsp;&nbsp;
         <a href="{% url 'base_list' %}">Base Reports</a>&nbsp;&nbsp;&nbsp;
-        <a href="#">Admin</a>
+        <a href="{% url 'admin:index' %}">Admin</a>
     </p>
     <p><strong>{% block content_title %}{% endblock content_title %}</strong></p>
 </div>
