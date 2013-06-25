@@ -223,7 +223,7 @@ class CheckoutFilterTests(TestCase):
 	airstrip2 = helper.create_airstrip('ID2','Airstrip2')
 	
 	c = helper.create_checkout(airstrip=airstrip1)
-	helper.create_checkout(airstrip=airstrip2, pilot=c.pilot, aircraft_type=c.aircraft_type)
+	_ = helper.create_checkout(airstrip=airstrip2, pilot=c.pilot, aircraft_type=c.aircraft_type)
 	
 	expected = [{
 	    'pilot_name': c.get_pilot_name(),
