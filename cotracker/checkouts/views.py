@@ -114,7 +114,10 @@ class FilterFormView(View):
 	    airstrip = form.cleaned_data['airstrip']
 	    base = form.cleaned_data['base']
 	    status = form.cleaned_data['checkout_status']
-	    context['checkouts'] = util.checkouts_selesai(pilot=pilot, airstrip=airstrip, base=base)
+	    if status == util.CHECKOUT_SUDAH:
+		context['checkouts'] = util.checkouts_selesai(pilot=pilot, airstrip=airstrip, base=base)
+	    else:
+		context['checkouts'] = util.checkouts_belum_selesai(pilot=pilot, airstrip=airstrip, base=base)
 	    context['show_summary'] = True
 	    
 	return render(request, self.template_name, context)
