@@ -38,8 +38,110 @@ class GetAircraftTypeNamesTests(TestCase):
 	self.assertEqual(util.get_aircrafttype_names("-name"), names)
 
 
-class CheckoutFilterTests(TestCase):
+class GetPilotAirstripPairsTests(TestCase):
     
+    def test_empty(self):
+	self.assertEqual(util.get_pilot_airstrip_pairs(), [])
+    
+    def test_single(self):
+	pilot = helper.create_pilot()
+	airstrip = helper.create_airstrip()
+	
+	expected = [(pilot.username, airstrip.ident)]
+	self.assertEqual(util.get_pilot_airstrip_pairs(), expected)
+    
+    def test_multiple(self):
+	pilot1 = helper.create_pilot('kim','Kim','Pilot1')
+	pilot2 = helper.create_pilot('sam','Sam','Pilot2')
+	airstrip1 = helper.create_airstrip('ID1','Airstrip1')
+	airstrip2 = helper.create_airstrip('ID2','Airstrip2')
+	
+	expected = [
+	    (pilot1.username, airstrip1.ident),
+	    (pilot1.username, airstrip2.ident),
+	    (pilot2.username, airstrip1.ident),
+	    (pilot2.username, airstrip2.ident),
+	]
+	self.assertEqual(util.get_pilot_airstrip_pairs(), expected)
+	
+	# Filter on Pilot
+	expected = [
+	    (pilot1.username, airstrip1.ident),
+	    (pilot1.username, airstrip2.ident),
+	]
+	self.assertEqual(util.get_pilot_airstrip_pairs(pilot=pilot1), expected)
+	
+	# Filter on Airstrip
+	expected = [
+	    (pilot1.username, airstrip2.ident),
+	    (pilot2.username, airstrip2.ident),
+	]
+	self.assertEqual(util.get_pilot_airstrip_pairs(airstrip=airstrip2), expected)
+	
+	# Filter on Base
+	base1 = helper.create_airstrip('BASE', 'Base1', is_base=True)
+	airstrip1.bases.add(base1)
+	
+	expected = [
+	    (pilot1.username, airstrip1.ident),
+	    (pilot2.username, airstrip1.ident),
+	]
+	self.assertEqual(util.get_pilot_airstrip_pairs(base=base1), expected)
+
+
+class GetPrecedentedCheckoutsTests(TestCase):
+    
+    def test_empty(self):
+	self.assertEqual(util.get_precedented_checkouts(), {})
+    
+    def test_single_precedented(self):
+	c = helper.create_checkout()
+	
+	expected = {
+	    c.airstrip.ident: {
+		c.aircraft_type.name: True,
+	    },
+	}
+	
+	self.assertEqual(util.get_precedented_checkouts(), expected)
+    
+    def test_single_unprecedented(self):
+	pilot = helper.create_pilot()
+	airstrip = helper.create_airstrip()
+	aircraft = helper.create_aircrafttype()
+	
+	expected = {}
+	
+	self.assertEqual(util.get_precedented_checkouts(), expected)
+    
+    def test_multiple(self):
+	pilot1 = helper.create_pilot('kim','Kim','Pilot1')
+	pilot2 = helper.create_pilot('sam','Sam','Pilot2')
+	actype1 = helper.create_aircrafttype('Name1')    
+	actype2 = helper.create_aircrafttype('Name2')
+	airstrip1 = helper.create_airstrip('ID1','Airstrip1')
+	airstrip2 = helper.create_airstrip('ID2','Airstrip2')
+	airstrip3 = helper.create_airstrip('ID3','Airstrip3')
+	    
+	c1 = helper.create_checkout(pilot=pilot1, airstrip=airstrip1, aircraft_type=actype1)
+	c2 = helper.create_checkout(pilot=pilot1, airstrip=airstrip1, aircraft_type=actype2)
+	c3 = helper.create_checkout(pilot=pilot2, airstrip=airstrip2, aircraft_type=actype1)
+	
+	expected = {
+	    airstrip1.ident: {
+		actype1.name: True,
+		actype2.name: True,
+	    },
+	    airstrip2.ident: {
+		actype1.name: True,
+	    },
+	}
+	
+	self.assertEqual(util.get_precedented_checkouts(), expected)
+	
+
+class CheckoutFilterTests(TestCase):   
+ 
     def test_empty(self):
 	self.assertEqual(util.checkout_filter(), [])
     
@@ -348,6 +450,97 @@ class CheckoutsSelesaiTests(TestCase):
 	
 	self.assertEqual(util.checkouts_selesai(), self.expected)
 	
+
+class CheckoutsBelumSelesaiTests(TestCase):
+    
+    def setUp(self):
+	# Template for expected results
+	self.expected = {
+	    'populate': {
+		'pilot': True,
+		'airstrip': True,
+	    },
+	    'aircraft_types': [],
+	    'results': [],
+	}
+    
+    def test_empty(self):
+	self.assertEqual(util.checkouts_belum_selesai(), self.expected)
+    
+    def test_exclude_fully_selesai(self):
+	"""If all AircraftTypes for a Pilot/Airstrip pair have a Sudah Selesai
+	status, that Pilot/Airstrip pair should be removed from the results."""
+	c = helper.create_checkout()
+	
+	self.expected['aircraft_types'] = util.get_aircrafttype_names()
+	
+	self.assertEqual(util.checkouts_belum_selesai(), self.expected)
+	
+    def test_with_data(self):
+	pilot1 = helper.create_pilot('kim','Kim','Pilot1')
+	pilot2 = helper.create_pilot('sam','Sam','Pilot2')
+	actype1 = helper.create_aircrafttype('Name1')    
+	actype2 = helper.create_aircrafttype('Name2')
+	airstrip1 = helper.create_airstrip('ID1','Airstrip1')
+	airstrip2 = helper.create_airstrip('ID2','Airstrip2')
+	airstrip3 = helper.create_airstrip('ID3','Airstrip3')
+	
+	c1 = helper.create_checkout(pilot=pilot1, airstrip=airstrip1, aircraft_type=actype1)
+	c2 = helper.create_checkout(pilot=pilot1, airstrip=airstrip1, aircraft_type=actype2)
+	c3 = helper.create_checkout(pilot=pilot2, airstrip=airstrip2, aircraft_type=actype1)
+	
+	results = [{
+	    'pilot_name': c1.get_pilot_name(),
+	    'pilot_slug': pilot1.username,
+	    'airstrip_ident': airstrip2.ident,
+	    'airstrip_name': airstrip2.name,
+	    'actypes': {
+		actype1.name: util.CHECKOUT_BELUM,
+		actype2.name: util.CHECKOUT_UNPRECEDENTED,
+	    },
+	}, {
+	    'pilot_name': c1.get_pilot_name(),
+	    'pilot_slug': pilot1.username,
+	    'airstrip_ident': airstrip3.ident,
+	    'airstrip_name': airstrip3.name,
+	    'actypes': {
+		actype1.name: util.CHECKOUT_UNPRECEDENTED,
+		actype2.name: util.CHECKOUT_UNPRECEDENTED,
+	    },
+	}, {
+	    'pilot_name': c3.get_pilot_name(),
+	    'pilot_slug': pilot2.username,
+	    'airstrip_ident': airstrip1.ident,
+	    'airstrip_name': airstrip1.name,
+	    'actypes': {
+		actype1.name: util.CHECKOUT_BELUM,
+		actype2.name: util.CHECKOUT_BELUM,
+	    },
+	}, {
+	    'pilot_name': c3.get_pilot_name(),
+	    'pilot_slug': pilot2.username,
+	    'airstrip_ident': airstrip2.ident,
+	    'airstrip_name': airstrip2.name,
+	    'actypes': {
+		actype1.name: util.CHECKOUT_SUDAH,
+		actype2.name: util.CHECKOUT_UNPRECEDENTED,
+	    },
+	}, {
+	    'pilot_name': c3.get_pilot_name(),
+	    'pilot_slug': pilot2.username,
+	    'airstrip_ident': airstrip3.ident,
+	    'airstrip_name': airstrip3.name,
+	    'actypes': {
+		actype1.name: util.CHECKOUT_UNPRECEDENTED,
+		actype2.name: util.CHECKOUT_UNPRECEDENTED,
+	    },
+	},]
+	
+	self.expected['aircraft_types'] = util.get_aircrafttype_names()
+	self.expected['results'] = results
+	
+	self.assertEqual(util.checkouts_belum_selesai(), self.expected)
+
 
 class ChoicesTests(TestCase):
     
