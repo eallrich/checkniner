@@ -40,6 +40,54 @@ def get_aircrafttype_names(order="name"):
     return [actype.name for actype in aircrafttypes]
 
 
+def get_pilot_airstrip_pairs(pilot=None, airstrip=None, base=None):
+    """Populates a sorted list of Pilot/Airstrip tuples"""
+    pilots = get_pilots()
+    if pilot is not None:
+	# Limiting to the requested object and maintaining iterability
+	pilots = [pilots.get(pk=pilot.pk),]
+    airstrips = Airstrip.objects.all().order_by('ident')
+    if airstrip is not None:
+	# Limiting to the requested object and maintaining iterability
+	airstrips = [airstrips.get(pk=airstrip.pk),]
+    if base is not None:
+	airstrips = airstrips.filter(bases=base)
+    
+    pairs = []
+    for p in pilots:
+	for a in airstrips:
+	    pairs.append((p.username, a.ident))
+    
+    return pairs
+
+
+def get_precedented_checkouts():
+    """Provides a two-tier dictionary summarizing whether each
+    airstrip has an existing checkout entry for each aircraft.
+    
+    precedented = {
+	'airstrip_ident': {
+	    'actype': True,
+	},
+    }
+    """
+    precedented = {}
+    
+    actypes = AircraftType.objects.all()
+    for actype in actypes:
+	checkouts = Checkout.objects.filter(aircraft_type=actype).select_related('airstrip')
+	airstrips = []
+	for c in checkouts:
+	    if c.airstrip not in airstrips:
+		airstrips.append(c.airstrip)
+	for a in airstrips:
+	    if a.ident not in precedented:
+		precedented[a.ident] = {}
+	    precedented[a.ident][actype.name] = True
+    
+    return precedented
+
+
 def checkout_filter(pilot=None, airstrip=None, base=None):
     core_query = Checkout.objects.all()
     if pilot != None:
@@ -99,6 +147,91 @@ def checkouts_selesai(**kwargs):
 	'results': checkout_filter(**kwargs),
     }
     
+    return results
+
+
+def checkouts_belum_selesai(**kwargs):
+    results = {
+	'populate': {
+	    'pilot': True,
+	    'airstrip': True,
+	},
+	#'aircraft_types': get_aircrafttype_names(),
+	#'results': checkout_filter(**kwargs),
+    }
+    
+    original_checkouts = checkout_filter(**kwargs)
+    actypes = get_aircrafttype_names()
+    results['aircraft_types'] = actypes
+    pilots_v_airstrips = get_pilot_airstrip_pairs(**kwargs)
+    next_pair_index = 0
+    
+    belum_selesai_checkouts = []
+    for c in original_checkouts:
+	current_pair = (c['pilot_slug'], c['airstrip_ident'])
+	expected_pair = pilots_v_airstrips[next_pair_index]
+	while current_pair != expected_pair:
+	    # Need to insert the missing pair
+	    pilot_slug, airstrip_ident = expected_pair
+	    pilot = User.objects.get(username=pilot_slug)
+	    airstrip = Airstrip.objects.get(ident=airstrip_ident)
+	    new_result = {
+		'pilot_name': "%s, %s" % (pilot.last_name, pilot.first_name),
+		'pilot_slug': pilot_slug,
+		'airstrip_ident': airstrip_ident,
+		'airstrip_name': airstrip.name,
+		'actypes': {},
+	    }
+	    for actype in actypes:
+		new_result['actypes'][actype] = CHECKOUT_BELUM
+	    
+	    belum_selesai_checkouts.append(new_result)
+	    
+	    # Still missing a Pilot/Airstrip pair?
+	    next_pair_index += 1
+	    expected_pair = pilots_v_airstrips[next_pair_index]
+	
+	belum_selesai_checkouts.append(c)
+	# Prepare for the next check
+	next_pair_index += 1
+    
+    if next_pair_index != len(pilots_v_airstrips):
+	# Still some missing pairs
+	for i in range(next_pair_index,len(pilots_v_airstrips)):
+	    expected_pair = pilots_v_airstrips[i]
+	    pilot_slug, airstrip_ident = expected_pair
+	    pilot = User.objects.get(username=pilot_slug)
+	    airstrip = Airstrip.objects.get(ident=airstrip_ident)
+	    new_result = {
+		'pilot_name': "%s, %s" % (pilot.last_name, pilot.first_name),
+		'pilot_slug': pilot_slug,
+		'airstrip_ident': airstrip_ident,
+		'airstrip_name': airstrip.name,
+		'actypes': {},
+	    }
+	    for actype in actypes:
+		new_result['actypes'][actype] = CHECKOUT_BELUM
+	    
+	    belum_selesai_checkouts.append(new_result)
+    
+    precedented = get_precedented_checkouts()
+    checkouts = []
+    for c in belum_selesai_checkouts:
+	ident = c['airstrip_ident']
+	incomplete = False
+	for ac,status in c['actypes'].items():
+	    if status == CHECKOUT_BELUM:
+		incomplete = True
+		# A Belum should be changed to Unprecedented when no pilot has
+		# been checked out at the given location in the given AircraftType
+		if ident not in precedented or ac not in precedented[ident]:
+		    c['actypes'][ac] = CHECKOUT_UNPRECEDENTED
+	
+	# Only save entries with BELUM or UNPRECEDENTED statuses
+	if incomplete:
+	    checkouts.append(c)
+    
+    results['results'] = checkouts
     return results
 
 
