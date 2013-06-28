@@ -1,11 +1,16 @@
+import datetime
+import logging
+
 from django.contrib.auth.models import User
 from django.db.models import Count
 from django.shortcuts import render
 from django.views.generic import DetailView, ListView, View
 
-from .forms import FilterForm
+from .forms import FilterForm, CheckoutUpdateForm
 from .models import AircraftType, Airstrip, Checkout
 import util
+
+logger = logging.getLogger(__name__)
 
 class PilotList(ListView):
     queryset = User.objects.filter(groups__name='Pilots').order_by('last_name','first_name')
@@ -102,14 +107,18 @@ class FilterFormView(View):
     template_name = 'checkouts/filter.html'
     
     def get(self, request, *args, **kwargs):
+	logger.debug("=> FilterFormView.get")
 	form = self.form_class()
 	return render(request, self.template_name, {'form': form})
     
     def post(self, request, *args, **kwargs):
+	logger.debug("=> FilterFormView.post")
+	logger.debug(request.POST)
 	form = self.form_class(request.POST)
 	context = {'form': form}
 	
 	if form.is_valid():
+	    logger.debug(form.cleaned_data)
 	    pilot = form.cleaned_data['pilot']
 	    airstrip = form.cleaned_data['airstrip']
 	    base = form.cleaned_data['base']
@@ -119,5 +128,52 @@ class FilterFormView(View):
 	    else:
 		context['checkouts'] = util.checkouts_belum_selesai(pilot=pilot, airstrip=airstrip, base=base)
 	    context['show_summary'] = True
+	else:
+	    logger.debug("Unable to validate form data")
 	    
+	return render(request, self.template_name, context)
+
+
+class CheckoutUpdateFormView(View):
+    form_class = CheckoutUpdateForm
+    template_name = 'checkouts/update.html'
+    
+    def get(self, request, *args, **kwargs):
+	logger.debug("=> CheckoutUpdateFormView.get")
+	init_data = {
+	    'date': datetime.date.today().strftime("%Y-%m-%d"),
+	}
+	form = self.form_class(initial=init_data)
+	return render(request, self.template_name, {'form': form})
+    
+    def post(self, request, *args, **kwargs):
+	logger.debug("=> CheckoutUpdateFormView.post")
+	logger.debug(request.POST)
+	form = self.form_class(request.POST)
+	context = {'form': form}
+	
+	if form.is_valid():
+	    logger.debug(form.cleaned_data)
+	    pilot = form.cleaned_data['pilot']
+	    airstrip = form.cleaned_data['airstrip']
+	    aircraft_types = form.cleaned_data['aircraft_type']
+	    date = form.cleaned_data['date']
+	    
+	    delete_checkouts = False
+	    if request.POST['action'] == u'Remove Checkout':
+		delete_checkouts = True
+	    
+	    if delete_checkouts:
+		checkouts = Checkout.objects.filter(pilot=pilot, airstrip=airstrip, aircraft_type__in=aircraft_types)
+		for c in checkouts:
+		    logger.debug("Deleting '%s'" % c)
+		    c.delete()
+	    else:
+		for ac_type in aircraft_types:
+		    c = Checkout(pilot=pilot, airstrip=airstrip, aircraft_type=ac_type, date=date)
+		    logger.debug("Adding '%s'" % c)
+		    c.save()
+	else:
+	    logger.debug("Unable to validate form data")
+	
 	return render(request, self.template_name, context)
