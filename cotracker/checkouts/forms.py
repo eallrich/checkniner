@@ -52,3 +52,22 @@ class FilterForm(forms.Form):
 	initial=util.CHECKOUT_SUDAH,
 	widget=forms.RadioSelect,
     )
+
+
+class CheckoutUpdateForm(forms.Form):
+    pilot = PilotModelChoiceField(
+	queryset=util.get_pilots(), 
+	empty_label=None,
+    )
+    
+    airstrip = forms.ModelChoiceField(
+	queryset=Airstrip.objects.all().order_by('ident'),
+	empty_label=None,
+    )
+    
+    aircraft_type = forms.ModelMultipleChoiceField(
+	queryset=AircraftType.objects.all().order_by('name'),
+	widget=forms.CheckboxSelectMultiple,
+    )
+    
+    date = forms.DateField()
