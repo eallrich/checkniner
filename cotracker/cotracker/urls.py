@@ -11,6 +11,7 @@ from checkouts.views import (
     BaseAttachedDetail,
     BaseUnattachedDetail,
     FilterFormView,
+    CheckoutUpdateFormView,
 )
 
 admin.autodiscover()
@@ -59,6 +60,11 @@ urlpatterns += patterns('',
 	regex=r'^checkouts/$',
 	view=FilterFormView.as_view(),
 	name='checkout_filter',
+    ),
+    url(
+	regex=r'^update/$',
+	view=CheckoutUpdateFormView.as_view(),
+	name='checkout_update',
     ),
 )
 
