@@ -128,6 +128,7 @@ INSTALLED_APPS = (
     'checkouts',
 )
 
+"""
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
@@ -155,4 +156,56 @@ LOGGING = {
             'propagate': True,
         },
     }
+}
+"""
+
+if not os.path.isdir(os.path.join(PROJECT_ROOT, 'logs')):
+    os.mkdir(os.path.join(PROJECT_ROOT, 'logs'))
+main_header = '='*100
+sub_header = '-'*100
+verbose_format = main_header + "\n%(asctime)s [%(process)s] [%(levelname)s] (%(status_code)s) %(message)s\n" + sub_header + "\n%(request)s"
+LOGGING = {
+    'version': 1,
+    'formatters': {
+        'verbose_request': {
+            'format': verbose_format,
+        },
+        'checkouts_log': {
+            'format': '%(asctime)s | [%(process)s] [%(levelname)s] %(message)s',
+        },
+	'checkouts_console': {
+	    'format': '[%(process)s] [%(levelname)s] %(message)s',
+	},
+    },
+    'handlers': {
+        'logfile_requests': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(PROJECT_ROOT, 'logs', 'requests.log'),
+            'formatter': 'verbose_request',
+        },
+        'logfile_checkouts': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(PROJECT_ROOT, 'logs', 'checkouts.log'),
+            'formatter': 'checkouts_log',
+        },
+	'console_checkouts': {
+	    'level': 'DEBUG',
+	    'class': 'logging.StreamHandler',
+	    'formatter': 'checkouts_console',
+	},
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['logfile_requests'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+	'checkouts': {
+	    'handlers': ['logfile_checkouts', 'console_checkouts'],
+	    'level': 'DEBUG',
+	    'propagate': True,
+	},
+    },
 }
