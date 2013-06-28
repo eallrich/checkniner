@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Update Airstrip Checkouts{% endblock title %}
+
+{% block content_title %}Update Airstrip Checkouts{% endblock content_title %}
+
+{% block content %}
+<form action="{% url 'checkout_update' %}" method="post">
+{% csrf_token %}
+{{ form.non_field_errors }}
+
+<p>{{ form.pilot.errors }}</p>
+<p>{{ form.pilot.label_tag }}: {{ form.pilot }}</p>
+
+<p>{{ form.airstrip.errors }}</p>
+<p>{{ form.airstrip.label_tag }}: {{ form.airstrip }}</p>
+
+<p>{{ form.aircraft_type.errors }}</p>
+<p>{{ form.aircraft_type.label_tag }}:</p>
+{{ form.aircraft_type }}
+<p>{{ form.date.errors }}</p>
+<p>Date of checkout: {{ form.date }}</p>
+{%comment%}
+{% for item in form.aircraft_type %}
+    {{ item }}
+{% endfor %}
+{%endcomment%}
+<p>
+    <input type="submit" name="action" class="enlarged-button" value="Add Checkout" />
+    <input type="submit" name="action" class="enlarged-button" value="Remove Checkout" />
+</p>
+
+</form>
+{% endblock content %}
