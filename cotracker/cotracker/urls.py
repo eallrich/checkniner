@@ -62,7 +62,7 @@ urlpatterns += patterns('',
 	name='checkout_filter',
     ),
     url(
-	regex=r'^update/$',
+	regex=r'^checkouts/edit/$',
 	view=CheckoutUpdateFormView.as_view(),
 	name='checkout_update',
     ),
