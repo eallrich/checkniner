@@ -15,16 +15,12 @@
 <p>{{ form.airstrip.errors }}</p>
 <p>{{ form.airstrip.label_tag }}: {{ form.airstrip }}</p>
 
+<div id='aircraft_type_list'>
 <p>{{ form.aircraft_type.errors }}</p>
-<p>{{ form.aircraft_type.label_tag }}:</p>
-{{ form.aircraft_type }}
+<p>{{ form.aircraft_type.label_tag }}: {{ form.aircraft_type }}</p>
+</div>
 <p>{{ form.date.errors }}</p>
 <p>Date of checkout: {{ form.date }}</p>
-{%comment%}
-{% for item in form.aircraft_type %}
-    {{ item }}
-{% endfor %}
-{%endcomment%}
 <p>
     <input type="submit" name="action" class="enlarged-button" value="Add Checkout" />
     <input type="submit" name="action" class="enlarged-button" value="Remove Checkout" />
