@@ -7,7 +7,7 @@ from django.db.models import Count
 from django.shortcuts import render
 from django.views.generic import DetailView, ListView, View
 
-from .forms import FilterForm, CheckoutUpdateForm
+from .forms import FilterForm, CheckoutEditForm
 from .models import AircraftType, Airstrip, Checkout
 import util
 
@@ -135,12 +135,12 @@ class FilterFormView(View):
 	return render(request, self.template_name, context)
 
 
-class CheckoutUpdateFormView(View):
-    form_class = CheckoutUpdateForm
-    template_name = 'checkouts/update.html'
+class CheckoutEditFormView(View):
+    form_class = CheckoutEditForm
+    template_name = 'checkouts/edit.html'
     
     def get(self, request, *args, **kwargs):
-	logger.debug("=> CheckoutUpdateFormView.get")
+	logger.debug("=> CheckoutEditFormView.get")
 	init_data = {
 	    'date': datetime.date.today().strftime("%Y-%m-%d"),
 	}
@@ -148,7 +148,7 @@ class CheckoutUpdateFormView(View):
 	return render(request, self.template_name, {'form': form})
     
     def post(self, request, *args, **kwargs):
-	logger.debug("=> CheckoutUpdateFormView.post")
+	logger.debug("=> CheckoutEditFormView.post")
 	logger.debug(request.POST)
 	form = self.form_class(request.POST)
 	context = {'form': form}
@@ -177,8 +177,7 @@ class CheckoutUpdateFormView(View):
 		    c.save()
 		    messages.add_message(request, messages.SUCCESS, "Added '%s'" % c)
 	else:
-	    logger.debug("Unable to validate form data")
-	    logger.debug("Errors: %s" % form.errors)
+	    logger.debug("Unable to validate form data: %s" % form.errors)
 	    messages.add_message(request, messages.ERROR, "Unable to complete your request - please check the error message(s) below.")
 	
 	return render(request, self.template_name, context)

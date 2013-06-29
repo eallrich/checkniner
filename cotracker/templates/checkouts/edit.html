@@ -5,7 +5,7 @@
 {% block content_title %}Update Airstrip Checkouts{% endblock content_title %}
 
 {% block content %}
-<form action="{% url 'checkout_update' %}" method="post">
+<form action="{% url 'checkout_edit' %}" method="post">
 {% csrf_token %}
 {{ form.non_field_errors }}
 

@@ -54,7 +54,7 @@ class FilterForm(forms.Form):
     )
 
 
-class CheckoutUpdateForm(forms.Form):
+class CheckoutEditForm(forms.Form):
     pilot = PilotModelChoiceField(
 	queryset=util.get_pilots(), 
 	empty_label=None,
