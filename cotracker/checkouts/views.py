@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Count
 from django.shortcuts import render
@@ -166,14 +167,18 @@ class CheckoutUpdateFormView(View):
 	    if delete_checkouts:
 		checkouts = Checkout.objects.filter(pilot=pilot, airstrip=airstrip, aircraft_type__in=aircraft_types)
 		for c in checkouts:
-		    logger.debug("Deleting '%s'" % c)
+		    logger.info("Deleting '%s'" % c)
+		    messages.add_message(request, messages.SUCCESS, "Deleted '%s'" % c)
 		    c.delete()
 	    else:
 		for ac_type in aircraft_types:
 		    c = Checkout(pilot=pilot, airstrip=airstrip, aircraft_type=ac_type, date=date)
-		    logger.debug("Adding '%s'" % c)
+		    logger.info("Adding '%s'" % c)
 		    c.save()
+		    messages.add_message(request, messages.SUCCESS, "Added '%s'" % c)
 	else:
 	    logger.debug("Unable to validate form data")
+	    logger.debug("Errors: %s" % form.errors)
+	    messages.add_message(request, messages.ERROR, "Unable to complete your request - please check the error message(s) below.")
 	
 	return render(request, self.template_name, context)
