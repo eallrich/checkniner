@@ -3,6 +3,45 @@
     font-size: x-large;
 }
 
+body {
+    margin:0px;
+    padding:0px;
+}
+
+div#aircraft_type_list p,
+div#aircraft_type_list ul {
+    display:inline;
+}
+
+div#aircraft_type_list ul {
+    padding: 0px;
+}
+
+div#content {
+    padding: 8px;
+}
+
+div#header {
+    background:#86D3FF;
+    border-bottom-color:#0B73F7;
+    border-bottom-style:solid;
+    border-bottom-width:2px;
+    margin:0px;
+    padding: 1px 20px 1px 20px;
+}
+
+div#messages li.success {
+    color:green;
+}
+
+div#messages li.error {
+    color:red;
+}
+
+form ul li {
+    display:inline;
+}
+
 table {
     border-collapse:collapse;
 }
@@ -21,6 +60,14 @@ th {
 td {
     background:lightgray;
     padding: 1px 30px 1px 7px;
+}
+
+div#messages ul, form ul {
+    list-style-type:none;
+}
+
+.errorlist {
+    color:red;
 }
 
 .sudah {
