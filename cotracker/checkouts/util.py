@@ -50,7 +50,7 @@ def get_pilot_airstrip_pairs(pilot=None, airstrip=None, base=None):
     if airstrip is not None:
 	# Limiting to the requested object and maintaining iterability
 	airstrips = [airstrips.get(pk=airstrip.pk),]
-    if base is not None:
+    elif base is not None:
 	airstrips = airstrips.filter(bases=base)
     
     pairs = []
