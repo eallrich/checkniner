@@ -8,7 +8,7 @@
     </title>
 </head>
 <body>
-<div>
+<div id="header">
     <p>
         <a href="#">Home</a>&nbsp;&nbsp;&nbsp;
         <a href="{% url 'checkout_update' %}">Add/Remove</a>&nbsp;&nbsp;&nbsp;
@@ -18,10 +18,13 @@
         <a href="{% url 'base_list' %}">Base Reports</a>&nbsp;&nbsp;&nbsp;
         <a href="{% url 'admin:index' %}">Admin</a>
     </p>
-    <p><strong>{% block content_title %}{% endblock content_title %}</strong></p>
 </div>
-{% comment %}
+
+<div id="content">
+    <p><strong>{% block content_title %}{% endblock content_title %}</strong></p>
+
 {% if messages %}
+<div id="messages">
     <ul>
 	{% for message in messages %}
 	<li id="message_{{ forloop.counter }}"
@@ -31,10 +34,11 @@
 	</li>
 	{% endfor %}
     </ul>
+</div>
 {% endif %}
-{% endcomment %}
 
 {% block content %}
 {% endblock content %}
+</div>
 </body>
 </html>
