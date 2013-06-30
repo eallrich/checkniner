@@ -9,6 +9,10 @@ import dj_database_url
 # From checkniner/cotracker/cotracker/settings/base.py to checkniner/cotracker/
 PROJECT_ROOT = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir, os.pardir)
 
+LOGS_PATH = os.path.join(PROJECT_ROOT, 'logs')
+if not os.path.isdir(LOGS_PATH):
+    os.mkdir(LOGS_PATH)
+
 
 def get_env_var(name):
     """Attempts to retrieve the named environment variable. If the name does
@@ -26,6 +30,10 @@ if get_env_var('DATABASE_URL'):
     }
 
 SERVE_STATIC = bool(os.environ.get('SERVE_STATIC'))
+
+LOGIN_URL = '/login/'
+# Default 'successful login' URL redirect if an alternative is not specified
+LOGIN_REDIRECT_URL = '/checkouts/'
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -128,12 +136,9 @@ INSTALLED_APPS = (
     'checkouts',
 )
 
-"""
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error when DEBUG=False.
-# See http://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
+main_header = '='*100
+sub_header = '-'*100
+verbose_format = main_header + "\n%(asctime)s [%(process)s] [%(levelname)s] (%(status_code)s) %(message)s\n" + sub_header + "\n%(request)s"
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -142,30 +147,6 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-    }
-}
-"""
-
-if not os.path.isdir(os.path.join(PROJECT_ROOT, 'logs')):
-    os.mkdir(os.path.join(PROJECT_ROOT, 'logs'))
-main_header = '='*100
-sub_header = '-'*100
-verbose_format = main_header + "\n%(asctime)s [%(process)s] [%(levelname)s] (%(status_code)s) %(message)s\n" + sub_header + "\n%(request)s"
-LOGGING = {
-    'version': 1,
     'formatters': {
         'verbose_request': {
             'format': verbose_format,
@@ -181,13 +162,13 @@ LOGGING = {
         'logfile_requests': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': os.path.join(PROJECT_ROOT, 'logs', 'requests.log'),
+            'filename': os.path.join(LOGS_PATH, 'requests.log'),
             'formatter': 'verbose_request',
         },
         'logfile_checkouts': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': os.path.join(PROJECT_ROOT, 'logs', 'checkouts.log'),
+            'filename': os.path.join(LOGS_PATH, 'checkouts.log'),
             'formatter': 'checkouts_log',
         },
 	'console_checkouts': {
@@ -195,10 +176,15 @@ LOGGING = {
 	    'class': 'logging.StreamHandler',
 	    'formatter': 'checkouts_console',
 	},
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        }
     },
     'loggers': {
         'django.request': {
-            'handlers': ['logfile_requests'],
+            'handlers': ['logfile_requests', 'mail_admins'],
             'level': 'DEBUG',
             'propagate': True,
         },
