@@ -1,4 +1,5 @@
 *.py[cod]
+*.swp
 
 # Virtualenv
 bin/
@@ -13,3 +14,4 @@ cotracker/*.db
 cotracker/static/
 .coverage
 htmlcov/
+logs/
