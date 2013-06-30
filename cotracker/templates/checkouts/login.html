@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Checkouts Login{% endblock title%}
+
+{% block content_title %}Checkouts Login{% endblock content_title %}
+
+{% block content %}
+
+{% if form.errors %}
+<p class="errorlist">Oops, your username and password didn't match. Please try again.</p>
+{% endif %}
+
+<div id="authentication_form">
+<form method="post" action="{% url 'django.contrib.auth.views.login' %}">
+{% csrf_token %}
+<input type="hidden" name="next" value="{{ next }}" />
+
+<div id="authentication_fields">
+<p>{{ form.username.label_tag }}: {{ form.username }}</p>
+<p>{{ form.password.label_tag }}: {{ form.password }}</p>
+</div>
+
+<input type="submit" value="Login" />
+</form>
+</div>
+
+{% endblock %}
