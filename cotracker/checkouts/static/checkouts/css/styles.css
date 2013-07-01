@@ -22,12 +22,38 @@ div#content {
 }
 
 div#header {
+    /* Light Blue */
     background:#86D3FF;
+    /* Dark Blue */
     border-bottom-color:#0B73F7;
     border-bottom-style:solid;
     border-bottom-width:2px;
     margin:0px;
-    padding: 1px 20px 1px 20px;
+    padding: 1px 0px 1px 0px;
+}
+
+div#header a {
+    color: #000000;
+    text-decoration: none;
+}
+
+div#header li {
+    /* Dark Blue */
+    border-right-color: #0B73F7;
+    border-right-width: 1px;
+    border-right-style: solid;
+    display: inline;
+    padding: 25 10 26 10;
+}
+
+div#header li:hover {
+    /* Light Yellow */
+    background: #FFFFBA;
+}
+
+div#header ul {
+    list-style-type: none;
+    padding: 0px;
 }
 
 div#messages li.success {

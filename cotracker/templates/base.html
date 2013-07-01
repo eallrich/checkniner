@@ -9,24 +9,46 @@
 </head>
 <body>
 <div id="header">
-    <p>
+    <ul>
     {% if user.is_authenticated %}
-        <a href="#">Home</a>&nbsp;&nbsp;&nbsp;
+	<li>
+	    <a href="#">Home</a>
+	</li>
+	
 	{% if user.is_superuser or user.is_pilot %}
-	    <a href="{% url 'checkout_edit' %}">Add/Remove</a>&nbsp;&nbsp;&nbsp;
+	<li>
+	    <a href="{% url 'checkout_edit' %}">Add/Remove</a>
+	</li>
 	{% endif %}
-        <a href="{% url 'checkout_filter' %}">Filter</a>&nbsp;&nbsp;&nbsp;
-        <a href="{% url 'pilot_list' %}">Pilot Reports</a>&nbsp;&nbsp;&nbsp;
-        <a href="{% url 'airstrip_list' %}">Airstrip Reports</a>&nbsp;&nbsp;&nbsp;
-        <a href="{% url 'base_list' %}">Base Reports</a>&nbsp;&nbsp;&nbsp;
+	
+	<li>
+	    <a href="{% url 'checkout_filter' %}">Filter</a>
+	</li>
+	<li>
+	    <a href="{% url 'pilot_list' %}">Pilot Reports</a>
+	</li>
+	<li>
+	    <a href="{% url 'airstrip_list' %}">Airstrip Reports</a>
+	</li>
+	<li>
+	    <a href="{% url 'base_list' %}">Base Reports</a>
+	</li>
+	
 	{% if user.is_superuser %}
-	    <a href="{% url 'admin:index' %}">Admin</a>&nbsp;&nbsp;&nbsp;
+	<li>
+	    <a href="{% url 'admin:index' %}">Admin</a>
+	</li>
 	{% endif %}
-        <a href="{% url 'django.contrib.auth.views.logout_then_login' %}">Logout</a>
+	
+	<li>
+	    <a href="{% url 'django.contrib.auth.views.logout_then_login' %}">Logout</a>
+	</li>
     {% else %}
-        <a href="{% url 'django.contrib.auth.views.login' %}">Login</a>
+	<li>
+	    <a href="{% url 'django.contrib.auth.views.login' %}">Login</a>
+	</li>
     {% endif %}
-    </p>
+    </ul>
 </div>
 
 <div id="content">
