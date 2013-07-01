@@ -56,6 +56,8 @@ class FilterForm(forms.Form):
 
 class CheckoutEditForm(forms.Form):
     pilot = PilotModelChoiceField(
+	# We're defaulting to the full list, but it may be trimmed down to the
+	# request's authenticated user in the view
 	queryset=util.get_pilots(), 
 	empty_label=None,
     )
