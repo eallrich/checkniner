@@ -138,6 +138,19 @@ class GetPrecedentedCheckoutsTests(TestCase):
 	}
 	
 	self.assertEqual(util.get_precedented_checkouts(), expected)
+
+
+class IsPilotTests(TestCase):
+    
+    def setUp(self):
+	self.normal_user = User.objects.create_user('username','normal@example.com','secret',first_name='Normal',last_name='User')
+	self.pilot_user = helper.create_pilot('pilot','Pilot','User')
+    
+    def test_normal(self):
+	self.assertFalse(util.is_pilot(self.normal_user))
+    
+    def test_pilot(self):
+	self.assertTrue(util.is_pilot(self.pilot_user))
 	
 
 class CheckoutFilterTests(TestCase):   

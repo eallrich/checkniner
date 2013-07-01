@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 from .models import AircraftType, Airstrip, Checkout
 
@@ -86,6 +86,13 @@ def get_precedented_checkouts():
 	    precedented[a.ident][actype.name] = True
     
     return precedented
+
+
+def is_pilot(user):
+    """Returns True if the given user is a member of the Pilots group"""
+    pilot_group = Group.objects.get(name='Pilots')
+    user_groups = user.groups.all()
+    return (pilot_group in user_groups)
 
 
 def checkout_filter(pilot=None, airstrip=None, base=None):
