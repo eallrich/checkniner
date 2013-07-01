@@ -141,14 +141,47 @@ class CheckoutEditFormView(View):
     
     def get(self, request, *args, **kwargs):
 	logger.debug("=> CheckoutEditFormView.get")
+	
+	# Security Check
+	# --------------
+	# This would be unusual, but just in case: make sure that the request
+	# is from a superuser or a pilot (normal users may not edit checkouts).
+	if not request.user.is_superuser and not request.user.is_pilot():
+	    logger.warn("Forbidden: '%s' is neither a pilot nor a superuser" % request.user.username)
+	    context = {
+		'reason': "Only pilots may edit checkouts.",
+	    }
+	    return render(request, 'checkouts/forbidden.html', context, status=403)
+	
 	init_data = {
 	    'date': datetime.date.today().strftime("%Y-%m-%d"),
 	}
+	
+	if request.user.is_pilot():
+	    init_data['pilot'] = request.user
+	
 	form = self.form_class(initial=init_data)
+	
+	if not request.user.is_superuser:
+	    form['pilot'].field.queryset = User.objects.filter(pk=request.user.id)
+	
 	return render(request, self.template_name, {'form': form})
     
     def post(self, request, *args, **kwargs):
 	logger.debug("=> CheckoutEditFormView.post")
+	
+	# Security Check
+	# --------------
+	# This would be unusual, but just in case: make sure that the request
+	# is from a superuser or a pilot (normal users may not edit checkouts).
+	if not request.user.is_superuser and not request.user.is_pilot():
+	    username = request.user.username
+	    logger.warn("Forbidden: '%s' is neither a pilot nor a superuser" % username)
+	    context = {
+		'reason': "Only pilots may edit checkouts.",
+	    }
+	    return render(request, 'checkouts/forbidden.html', context, status=403)
+	
 	logger.debug(request.POST)
 	form = self.form_class(request.POST)
 	context = {'form': form}
@@ -156,6 +189,19 @@ class CheckoutEditFormView(View):
 	if form.is_valid():
 	    logger.debug(form.cleaned_data)
 	    pilot = form.cleaned_data['pilot']
+	    
+	    # Security Check
+	    # --------------
+	    # This would be unusual, but just in case: if the user is not a
+	    # superuser, they may only edit their own checkouts
+	    if pilot != request.user and not request.user.is_superuser:
+		username = request.user.username
+		logger.warn("Forbidden: '%s' is not a superuser and may only edit their own checkouts" % username)
+		context = {
+		    'reason': "Pilots may only edit their own checkouts.",
+		}
+		return render(request, 'checkouts/forbidden.html', context, status=403)
+	    
 	    airstrip = form.cleaned_data['airstrip']
 	    aircraft_types = form.cleaned_data['aircraft_type']
 	    date = form.cleaned_data['date']
