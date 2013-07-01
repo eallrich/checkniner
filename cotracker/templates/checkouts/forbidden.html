@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}403 Forbidden{% endblock title%}
+
+{% block content_title %}403 Forbidden{% endblock content_title %}
+
+{% block content %}
+
+{% if reason %}
+    <p>{{ reason }}</p>
+{% else %}
+    <p>Sorry, you can't do that. :(</p>
+    <p>If you feel that you've reached this page in error, please contact your manager or system administrator.</p>
+{% endif %}
+
+{% endblock %}
