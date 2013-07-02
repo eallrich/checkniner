@@ -17,12 +17,12 @@
 	
 	{% if user.is_superuser or user.is_pilot %}
 	<li>
-	    <a href="{% url 'checkout_edit' %}">Add/Remove</a>
+	    <a href="{% url 'checkout_edit' %}">Edit Checkouts</a>
 	</li>
 	{% endif %}
 	
 	<li>
-	    <a href="{% url 'checkout_filter' %}">Filter</a>
+	    <a href="{% url 'checkout_filter' %}">Filter Checkouts</a>
 	</li>
 	<li>
 	    <a href="{% url 'pilot_list' %}">Pilot Reports</a>
