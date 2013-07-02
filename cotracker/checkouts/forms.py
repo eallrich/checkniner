@@ -71,5 +71,3 @@ class CheckoutEditForm(forms.Form):
 	queryset=AircraftType.objects.all().order_by('name'),
 	widget=forms.CheckboxSelectMultiple,
     )
-    
-    date = forms.DateField()

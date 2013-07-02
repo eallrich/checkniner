@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %}Update Airstrip Checkouts{% endblock title %}
+{% block title %}Edit Airstrip Checkouts{% endblock title %}
 
-{% block content_title %}Update Airstrip Checkouts{% endblock content_title %}
+{% block content_title %}Edit Airstrip Checkouts{% endblock content_title %}
 
 {% block content %}
 <form action="{% url 'checkout_edit' %}" method="post">
@@ -19,8 +19,6 @@
 <p>{{ form.aircraft_type.errors }}</p>
 <p>{{ form.aircraft_type.label_tag }}: {{ form.aircraft_type }}</p>
 </div>
-<p>{{ form.date.errors }}</p>
-<p>Date of checkout: {{ form.date }}</p>
 <p>
     <input type="submit" name="action" class="enlarged-button" value="Add Checkout" />
     <input type="submit" name="action" class="enlarged-button" value="Remove Checkout" />

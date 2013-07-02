@@ -204,7 +204,9 @@ class CheckoutEditFormView(View):
 	    
 	    airstrip = form.cleaned_data['airstrip']
 	    aircraft_types = form.cleaned_data['aircraft_type']
-	    date = form.cleaned_data['date']
+	    # Todo: Mark Checkout.date as required=False and default=today()
+	    # Then this line won't be necessary to ensure the model validates
+	    date = datetime.date.today()
 	    
 	    delete_checkouts = False
 	    if request.POST['action'] == u'Remove Checkout':
