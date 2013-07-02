@@ -1,16 +1,20 @@
 * {
     font-family: Helvetica;
-    font-size: x-large;
+    font-size:   x-large;
 }
 
+/* ==============================================
+   == Elements
+   ============================================== */
+
 body {
-    margin:0px;
-    padding:0px;
+    margin:  0px;
+    padding: 0px;
 }
 
 div#aircraft_type_list p,
 div#aircraft_type_list ul {
-    display:inline;
+    display: inline;
 }
 
 div#aircraft_type_list ul {
@@ -18,92 +22,113 @@ div#aircraft_type_list ul {
 }
 
 div#content {
-    padding: 8px;
+    /* Resets content indentation since 'body' has neither margin nor padding */
+    padding-left: 8px;
 }
 
 div#header {
     /* Light Blue */
-    background:#86D3FF;
+    background:          #86D3FF;
     /* Dark Blue */
-    border-bottom-color:#0B73F7;
-    border-bottom-style:solid;
-    border-bottom-width:2px;
-    margin:0px;
-    padding: 1px 0px 1px 0px;
+    border-bottom-color: #0B73F7;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+    margin:              0px;
+    /* Minimum width derived via experiments */
+    min-width:           1240px;
+    padding:             1px 0px 1px 0px;
+    width:               100%;
 }
 
 div#header a {
-    color: #000000;
-    text-decoration: none;
-}
-
-div#header li {
     /* Dark Blue */
-    border-right-color: #0B73F7;
-    border-right-width: 1px;
-    border-right-style: solid;
-    display: inline;
-    padding: 25 10 26 10;
+    border-right-color:  #0B73F7;
+    border-right-style:  solid;
+    border-right-width:  1px;
+    color:               #000000;
+    /* The -6 Left offsets the +6 Left padding on 'div#header ul' */
+    margin:              0px 0px 0px -6px;
+    padding:             25px 15px 26px 15px;
+    text-decoration:     none;
 }
 
-div#header li:hover {
+div#header a:hover {
     /* Light Yellow */
     background: #FFFFBA;
 }
 
+div#header li {
+    display: inline;
+}
+
 div#header ul {
     list-style-type: none;
-    padding: 0px;
+    /* Properly left-aligns the header links */
+    padding-left:    6px;
 }
 
 div#messages li.success {
-    color:green;
+    color: green;
 }
 
 div#messages li.error {
-    color:red;
+    color: red;
+}
+
+div#messages ul {
+    list-style-type: none;
+}
+
+form ul {
+    list-style-type: none;
 }
 
 form ul li {
-    display:inline;
+    display: inline;
 }
 
 table {
-    border-collapse:collapse;
+    border-collapse: collapse;
 }
 
-table, td, th {
-    border:1px solid black;
+table,
+td,
+th {
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
 }
 
 th {
-    background:#93A5BB;
-    color:white;
-    font-weight:normal;
-    padding: 1px 10px 1px 10px;
+    /* Blue-Gray */
+    background:  #93A5BB;
+    color:       #FFFFFF;
+    font-weight: normal;
+    padding:     1px 10px 1px 10px;
 }
 
 td {
-    background:lightgray;
-    padding: 1px 30px 1px 7px;
+    background:  lightgray;
+    padding:     1px 30px 1px 7px;
 }
 
-div#messages ul, form ul {
-    list-style-type:none;
-}
-
-.errorlist {
-    color:red;
-}
-
-.sudah {
-    background:green;
-}
-
-.unprecedented {
-    background:#FFA500;
-}
+/* ==============================================
+   == Classes
+   ============================================== */
 
 .enlarged-button {
     padding: 5px 10px 5px 10px;
+}
+
+.errorlist {
+    color: red;
+}
+
+.sudah {
+    background: green;
+}
+
+.unprecedented {
+    /* Orange */
+    background: #FFA500;
 }
