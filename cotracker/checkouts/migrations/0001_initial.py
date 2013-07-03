@@ -44,7 +44,7 @@ class Migration(SchemaMigration):
             ('pilot', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
             ('airstrip', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['checkouts.Airstrip'])),
             ('aircraft_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['checkouts.AircraftType'])),
-            ('date', self.gf('django.db.models.fields.DateField')()),
+            ('date', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
         ))
         db.send_create_signal(u'checkouts', ['Checkout'])
 
@@ -115,7 +115,7 @@ class Migration(SchemaMigration):
             'aircraft_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['checkouts.AircraftType']"}),
             'airstrip': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['checkouts.Airstrip']"}),
             'created': ('model_utils.fields.AutoCreatedField', [], {'default': 'datetime.datetime.now'}),
-            'date': ('django.db.models.fields.DateField', [], {}),
+            'date': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'modified': ('model_utils.fields.AutoLastModifiedField', [], {'default': 'datetime.datetime.now'}),
             'pilot': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"})
