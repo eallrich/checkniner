@@ -38,7 +38,21 @@ class Checkout(TimeStampedModel):
     pilot = models.ForeignKey(User, limit_choices_to={'groups__name': 'Pilots'})
     airstrip = models.ForeignKey(Airstrip)
     aircraft_type = models.ForeignKey(AircraftType)
-    date = models.DateField('Checked out on')
+    
+    # =========================================================================
+    # TL;DR: Field is hidden from users; we keep it to avoid losing user data
+    #
+    # Historically, this field was exposed to users when they were editing
+    # their checkouts. Since the field is never shown in any reports, though,
+    # it makes little sense to require users to look at it, so it has been
+    # changed to use a default date and is no longer presented to users for
+    # modification. But, since some users have already made use of the date
+    # field when entering checkouts, it's been decided that completely removing
+    # the field would be a bad idea (data loss and all that). Instead, it has
+    # become a hidden piece of the model schema: Existing checkouts maintain
+    # their date data when imported, while new checkouts default to 'today.'
+    # =========================================================================
+    date = models.DateField(auto_now_add=True)
 
     def get_pilot_name(self):
         return '%s, %s' % (self.pilot.last_name, self.pilot.first_name)
@@ -46,4 +60,4 @@ class Checkout(TimeStampedModel):
     get_pilot_name.admin_order_field = 'pilot'
 
     def __unicode__(self):
-        return '%s was checked out at %s in a %s on %s' % (self.get_pilot_name(), self.airstrip, self.aircraft_type, self.date)
+        return '%s is checked out at %s in a %s' % (self.get_pilot_name(), self.airstrip, self.aircraft_type)
