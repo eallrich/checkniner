@@ -7,19 +7,21 @@ from django.db.models import Count
 from django.shortcuts import render
 from django.views.generic import DetailView, ListView, View
 
+from braces.views import LoginRequiredMixin
+
 from .forms import FilterForm, CheckoutEditForm
 from .models import AircraftType, Airstrip, Checkout
 import util
 
 logger = logging.getLogger(__name__)
 
-class PilotList(ListView):
+class PilotList(LoginRequiredMixin, ListView):
     queryset = User.objects.filter(groups__name='Pilots').order_by('last_name','first_name')
     context_object_name = 'pilot_list'
     template_name = 'checkouts/pilot_list.html'
     
 
-class PilotDetail(DetailView):
+class PilotDetail(LoginRequiredMixin, DetailView):
     model = User
     context_object_name = 'pilot'
     template_name = 'checkouts/pilot_detail.html'
@@ -34,13 +36,13 @@ class PilotDetail(DetailView):
 	return context
 
 
-class AirstripList(ListView):
+class AirstripList(LoginRequiredMixin, ListView):
     queryset = Airstrip.objects.all().order_by('ident')
     context_object_name = 'airstrip_list'
     template_name = 'checkouts/airstrip_list.html'
 
 
-class AirstripDetail(DetailView):
+class AirstripDetail(LoginRequiredMixin, DetailView):
     model = Airstrip
     context_object_name = 'airstrip'
     template_name = 'checkouts/airstrip_detail.html'
@@ -55,7 +57,7 @@ class AirstripDetail(DetailView):
 	return context
 
 
-class BaseList(ListView):
+class BaseList(LoginRequiredMixin, ListView):
     queryset = Airstrip.objects.filter(is_base=True).order_by('name').annotate(attached=Count('airstrip'))
     template_name = 'checkouts/base_list.html'
     
@@ -73,7 +75,7 @@ class BaseList(ListView):
 	return context
 
 
-class BaseAttachedDetail(DetailView):
+class BaseAttachedDetail(LoginRequiredMixin, DetailView):
     model = Airstrip
     context_object_name = 'base'
     template_name = 'checkouts/base_detail.html'
@@ -88,7 +90,7 @@ class BaseAttachedDetail(DetailView):
 	return context
 
 
-class BaseUnattachedDetail(DetailView):
+class BaseUnattachedDetail(LoginRequiredMixin, DetailView):
     model = Airstrip
     context_object_name = 'base'
     template_name = 'checkouts/base_detail.html'
@@ -103,7 +105,7 @@ class BaseUnattachedDetail(DetailView):
 	return context
 
 
-class FilterFormView(View):
+class FilterFormView(LoginRequiredMixin, View):
     form_class = FilterForm
     template_name = 'checkouts/filter.html'
     
@@ -135,7 +137,7 @@ class FilterFormView(View):
 	return render(request, self.template_name, context)
 
 
-class CheckoutEditFormView(View):
+class CheckoutEditFormView(LoginRequiredMixin, View):
     form_class = CheckoutEditForm
     template_name = 'checkouts/edit.html'
     
