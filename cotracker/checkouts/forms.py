@@ -4,15 +4,6 @@ from .models import AircraftType, Airstrip
 import util
 
 
-class PilotModelChoiceField(forms.ModelChoiceField):
-    """Because a pilot instance is really a Django User model instance, we 
-    can't handle this by overriding __unicode__ at the model level (which would
-    be ideal).
-    """
-    def label_from_instance(self, pilot):
-	return "%s, %s" % (pilot.last_name, pilot.first_name)
-
-
 class BaseModelChoiceField(forms.ModelChoiceField):
     """Airstrips are generally represented as an 'Ident (Name)' string, but for
     the Filter form only the Name component should be shown.
@@ -22,7 +13,7 @@ class BaseModelChoiceField(forms.ModelChoiceField):
 
 
 class FilterForm(forms.Form):
-    pilot = PilotModelChoiceField(
+    pilot = forms.ModelChoiceField(
 	queryset=util.get_pilots(), 
 	empty_label="All", 
 	required=False,
@@ -55,7 +46,7 @@ class FilterForm(forms.Form):
 
 
 class CheckoutEditForm(forms.Form):
-    pilot = PilotModelChoiceField(
+    pilot = forms.ModelChoiceField(
 	# We're defaulting to the full list, but it may be trimmed down to the
 	# request's authenticated user in the view
 	queryset=util.get_pilots(), 
