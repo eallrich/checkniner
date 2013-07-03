@@ -1,6 +1,7 @@
 Django==1.5
 South==0.7.6
 dj-database-url==0.2.1
+django-braces==1.0.0
 django-debug-toolbar==0.9.4
 django-model-utils==1.2.0
 gunicorn==0.17.2
