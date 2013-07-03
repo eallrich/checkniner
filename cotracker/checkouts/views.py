@@ -1,4 +1,3 @@
-import datetime
 import logging
 
 from django.contrib import messages
@@ -155,10 +154,7 @@ class CheckoutEditFormView(LoginRequiredMixin, View):
 	    }
 	    return render(request, 'checkouts/forbidden.html', context, status=403)
 	
-	init_data = {
-	    'date': datetime.date.today().strftime("%Y-%m-%d"),
-	}
-	
+	init_data = {}
 	if request.user.is_pilot():
 	    init_data['pilot'] = request.user
 	
@@ -206,9 +202,6 @@ class CheckoutEditFormView(LoginRequiredMixin, View):
 	    
 	    airstrip = form.cleaned_data['airstrip']
 	    aircraft_types = form.cleaned_data['aircraft_type']
-	    # Todo: Mark Checkout.date as required=False and default=today()
-	    # Then this line won't be necessary to ensure the model validates
-	    date = datetime.date.today()
 	    
 	    delete_checkouts = False
 	    if request.POST['action'] == u'Remove Checkout':
@@ -222,7 +215,7 @@ class CheckoutEditFormView(LoginRequiredMixin, View):
 		    c.delete()
 	    else:
 		for ac_type in aircraft_types:
-		    c = Checkout(pilot=pilot, airstrip=airstrip, aircraft_type=ac_type, date=date)
+		    c = Checkout(pilot=pilot, airstrip=airstrip, aircraft_type=ac_type)
 		    logger.info("Adding '%s'" % c)
 		    c.save()
 		    messages.add_message(request, messages.SUCCESS, "Added '%s'" % c)
