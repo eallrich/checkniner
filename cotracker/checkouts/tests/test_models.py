@@ -1,6 +1,7 @@
+from django.contrib.auth.models import User
 from django.test import TestCase
 
-from checkouts.models import Checkout
+from checkouts.models import (Checkout, user_full_name, user_is_pilot)
 
 import helper
 
@@ -90,10 +91,53 @@ class CheckoutTests(TestCase):
 	)
     
     def test_unicode(self):
-	expected = '%s is checked out at %s in a %s' % (self.checkout.get_pilot_name(), self.airstrip, self.aircrafttype) 
+	expected = '%s is checked out at %s in a %s' % (self.pilot.full_name, self.airstrip, self.aircrafttype) 
 	self.assertEqual(self.checkout.__unicode__(), expected)
     
-    def test_get_pilot_name(self):
-	expected = '%s, %s' % (self.pilot.last_name, self.pilot.first_name)
-	self.assertEqual(self.checkout.get_pilot_name(), expected)
 
+class ModelFunctionTests(TestCase):
+    
+    def test_user_full_name(self):
+	user = helper.create_pilot()
+	expected = '%s, %s' % (user.last_name, user.first_name)
+	self.assertEqual(user_full_name(user), expected)
+	
+	user.first_name = ''
+	expected = user.username
+	self.assertEqual(user_full_name(user), expected)
+	
+	user.first_name = 'Foo'
+	user.last_name = ''
+	self.assertEqual(user_full_name(user), expected)
+	
+	user.first_name = ''
+	self.assertEqual(user_full_name(user), expected)
+    
+    def test_user_is_pilot(self):
+        pilot_user = helper.create_pilot('pilot','Pilot','User')
+        self.assertTrue(user_is_pilot(pilot_user))
+	
+        normal_user = User.objects.create_user(
+			'username',
+			'normal@example.com',
+			'secret',
+			first_name='Normal',
+			last_name='User')
+        self.assertFalse(user_is_pilot(normal_user))
+
+
+class VerifyPatchedUserModelTests(TestCase):
+    
+    def setUp(self):
+	self.user = helper.create_pilot()
+    
+    def test_full_name(self):
+	expected = '%s, %s' % (self.user.last_name, self.user.first_name)
+	self.assertEqual(self.user.full_name, expected) 
+    
+    def test_is_pilot(self):
+	self.assertTrue(self.user.is_pilot())
+    
+    def test_unicode(self):
+	expected = '%s, %s' % (self.user.last_name, self.user.first_name)
+	self.assertEqual(self.user.__unicode__(), expected)
