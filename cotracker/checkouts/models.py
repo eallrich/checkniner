@@ -4,6 +4,34 @@ from django.contrib.auth.models import User
 from model_utils.models import TimeStampedModel
 
 
+# =============================================================================
+# == Patching the built-in User model
+# =============================================================================
+
+# User names are desired in 'Last, First' format
+def user_full_name(user):
+    """Returns the user's name in 'Last, First' order. If neither last_name 
+    nor first_name are set for the user, the username field will be returned.
+    """
+    if user.get_full_name() != "":
+	return '%s, %s' % (user.last_name, user.first_name)
+    return user.username
+User.full_name = property(user_full_name)
+
+# Default representation for users should be the 'Last, First' name format
+User.__unicode__ = user_full_name
+
+# Desire an easy, globally usable way to detect pilot vs non-pilot users
+def user_is_pilot(user):
+    """Returns True if the given user is a member of the Pilots group"""
+    return user.groups.filter(name='Pilots').exists()
+User.is_pilot = user_is_pilot
+
+
+# =============================================================================
+# == Proper checkouts app models
+# =============================================================================
+
 class Airstrip(TimeStampedModel):
     ident = models.CharField(max_length=4, unique=True)
     name = models.CharField(max_length=255)
@@ -54,10 +82,5 @@ class Checkout(TimeStampedModel):
     # =========================================================================
     date = models.DateField(auto_now_add=True)
 
-    def get_pilot_name(self):
-        return '%s, %s' % (self.pilot.last_name, self.pilot.first_name)
-    get_pilot_name.short_description = 'Pilot'
-    get_pilot_name.admin_order_field = 'pilot'
-
     def __unicode__(self):
-        return '%s is checked out at %s in a %s' % (self.get_pilot_name(), self.airstrip, self.aircraft_type)
+        return '%s is checked out at %s in a %s' % (self.pilot, self.airstrip, self.aircraft_type)
