@@ -13,7 +13,7 @@ def user_full_name(user):
     """Returns the user's name in 'Last, First' order. If neither last_name 
     nor first_name are set for the user, the username field will be returned.
     """
-    if user.get_full_name() != "":
+    if user.last_name != '' and user.first_name != '':
 	return '%s, %s' % (user.last_name, user.first_name)
     return user.username
 User.full_name = property(user_full_name)
