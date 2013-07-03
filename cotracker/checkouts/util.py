@@ -88,13 +88,6 @@ def get_precedented_checkouts():
     return precedented
 
 
-def is_pilot(user):
-    """Returns True if the given user is a member of the Pilots group"""
-    pilot_group = Group.objects.get(name='Pilots')
-    user_groups = user.groups.all()
-    return (pilot_group in user_groups)
-
-
 def checkout_filter(pilot=None, airstrip=None, base=None):
     core_query = Checkout.objects.all()
     if pilot != None:
@@ -127,7 +120,7 @@ def checkout_filter(pilot=None, airstrip=None, base=None):
 		results.append(r)
 		
 	r = {
-	    'pilot_name': c.get_pilot_name(),
+	    'pilot_name': c.pilot.full_name,
 	    'pilot_slug': c.pilot.username,
 	    'airstrip_ident': c.airstrip.ident,
 	    'airstrip_name': c.airstrip.name,
@@ -183,7 +176,7 @@ def checkouts_belum_selesai(**kwargs):
 	    pilot = User.objects.get(username=pilot_slug)
 	    airstrip = Airstrip.objects.get(ident=airstrip_ident)
 	    new_result = {
-		'pilot_name': "%s, %s" % (pilot.last_name, pilot.first_name),
+		'pilot_name': pilot.full_name,
 		'pilot_slug': pilot_slug,
 		'airstrip_ident': airstrip_ident,
 		'airstrip_name': airstrip.name,
@@ -210,7 +203,7 @@ def checkouts_belum_selesai(**kwargs):
 	    pilot = User.objects.get(username=pilot_slug)
 	    airstrip = Airstrip.objects.get(ident=airstrip_ident)
 	    new_result = {
-		'pilot_name': "%s, %s" % (pilot.last_name, pilot.first_name),
+		'pilot_name': pilot.full_name,
 		'pilot_slug': pilot_slug,
 		'airstrip_ident': airstrip_ident,
 		'airstrip_name': airstrip.name,
