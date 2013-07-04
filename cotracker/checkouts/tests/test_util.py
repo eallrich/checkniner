@@ -430,7 +430,7 @@ class CheckoutsSelesaiTests(TestCase):
 	}
     
     def test_empty(self):
-	self.assertEqual(util.checkouts_selesai(), self.expected)
+	self.assertEqual(util.sudah_selesai(), self.expected)
     
     def test_with_checkouts(self):
 	c = helper.create_checkout()
@@ -448,7 +448,7 @@ class CheckoutsSelesaiTests(TestCase):
 	self.expected['aircraft_types'] = [c.aircraft_type.name,]
 	self.expected['results'] = results
 	
-	self.assertEqual(util.checkouts_selesai(), self.expected)
+	self.assertEqual(util.sudah_selesai(), self.expected)
 	
 
 class CheckoutsBelumSelesaiTests(TestCase):
@@ -465,7 +465,7 @@ class CheckoutsBelumSelesaiTests(TestCase):
 	}
     
     def test_empty(self):
-	self.assertEqual(util.checkouts_belum_selesai(), self.expected)
+	self.assertEqual(util.belum_selesai(), self.expected)
     
     def test_exclude_fully_selesai(self):
 	"""If all AircraftTypes for a Pilot/Airstrip pair have a Sudah Selesai
@@ -474,7 +474,7 @@ class CheckoutsBelumSelesaiTests(TestCase):
 	
 	self.expected['aircraft_types'] = util.get_aircrafttype_names()
 	
-	self.assertEqual(util.checkouts_belum_selesai(), self.expected)
+	self.assertEqual(util.belum_selesai(), self.expected)
 	
     def test_with_data(self):
 	pilot1 = helper.create_pilot('kim','Kim','Pilot1')
@@ -539,7 +539,7 @@ class CheckoutsBelumSelesaiTests(TestCase):
 	self.expected['aircraft_types'] = util.get_aircrafttype_names()
 	self.expected['results'] = results
 	
-	self.assertEqual(util.checkouts_belum_selesai(), self.expected)
+	self.assertEqual(util.belum_selesai(), self.expected)
 
 
 class ChoicesTests(TestCase):
