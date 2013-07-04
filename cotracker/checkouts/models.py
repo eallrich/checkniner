@@ -15,7 +15,7 @@ def user_full_name(user):
     nor first_name are set for the user, the username field will be returned.
     """
     if user.last_name != '' and user.first_name != '':
-	return '%s, %s' % (user.last_name, user.first_name)
+        return '%s, %s' % (user.last_name, user.first_name)
     return user.username
 User.full_name = property(user_full_name)
 
@@ -43,17 +43,17 @@ class Airstrip(TimeStampedModel):
         return "%s (%s)" % (self.ident, self.name)
     
     def attached_airstrips(self):
-	"""Retrieves the set of Airstrips which reference this instance as a
-	base
-	"""
-	return Airstrip.objects.filter(bases=self).order_by('ident')
+        """Retrieves the set of Airstrips which reference this instance as a
+        base
+        """
+        return Airstrip.objects.filter(bases=self).order_by('ident')
     
     def unattached_airstrips(self):
-	"""Retrieves the set of Airstrips which do not reference this instance
-	as a base
-	"""
-	# Note that the 'self' instance is specifically removed from the list
-	return Airstrip.objects.exclude(pk=self.pk).exclude(bases=self).order_by('ident')
+        """Retrieves the set of Airstrips which do not reference this instance
+        as a base
+        """
+        # Note that the 'self' instance is specifically removed from the list
+        return Airstrip.objects.exclude(pk=self.pk).exclude(bases=self).order_by('ident')
 
 
 class AircraftType(TimeStampedModel):

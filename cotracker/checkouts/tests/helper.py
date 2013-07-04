@@ -15,7 +15,7 @@ def create_aircrafttype(name='FooBar1234', object_only=True):
     o = AircraftType.objects.create(name=name)
     
     if object_only:
-	return o
+        return o
     return (o, {'name': name,})
 
 
@@ -28,7 +28,7 @@ def create_airstrip(ident='ABCD', name='AlphaBravoCharlieDelta', is_base=False, 
     o = Airstrip.objects.create(ident=ident, name=name, is_base=is_base)
     
     if object_only:
-	return o
+        return o
     return (o, {'ident': ident, 'name': name,})
 
 
@@ -50,19 +50,19 @@ def create_checkout(**kwargs):
     argument is not set, a default instance will be created and used.
     
     Possible keyword args:
-	pilot
-	airstrip
-	aircraft_type
-	date
+        pilot
+        airstrip
+        aircraft_type
+        date
     """
     if 'pilot' not in kwargs:
-	kwargs['pilot'] = create_pilot()
+        kwargs['pilot'] = create_pilot()
     if 'airstrip' not in kwargs:
-	kwargs['airstrip'] = create_airstrip()
+        kwargs['airstrip'] = create_airstrip()
     if 'aircraft_type' not in kwargs:
-	kwargs['aircraft_type'] = create_aircrafttype()
+        kwargs['aircraft_type'] = create_aircrafttype()
     if 'date' not in kwargs:
-	kwargs['date'] = datetime.datetime.now()
+        kwargs['date'] = datetime.datetime.now()
     
     return Checkout.objects.create(**kwargs)
     

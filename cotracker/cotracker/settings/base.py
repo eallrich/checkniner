@@ -26,7 +26,7 @@ def get_env_var(name):
 
 if get_env_var('DATABASE_URL'):
     DATABASES = {
-	'default': dj_database_url.config(),
+        'default': dj_database_url.config(),
     }
 
 SERVE_STATIC = bool(os.environ.get('SERVE_STATIC'))
@@ -154,9 +154,9 @@ LOGGING = {
         'checkouts_log': {
             'format': '%(asctime)s | [%(process)s] [%(levelname)s] %(message)s',
         },
-	'checkouts_console': {
-	    'format': '[%(process)s] [%(levelname)s] %(message)s',
-	},
+        'checkouts_console': {
+            'format': '[%(process)s] [%(levelname)s] %(message)s',
+        },
     },
     'handlers': {
         'logfile_requests': {
@@ -171,11 +171,11 @@ LOGGING = {
             'filename': os.path.join(LOGS_PATH, 'checkouts.log'),
             'formatter': 'checkouts_log',
         },
-	'console_checkouts': {
-	    'level': 'DEBUG',
-	    'class': 'logging.StreamHandler',
-	    'formatter': 'checkouts_console',
-	},
+        'console_checkouts': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'checkouts_console',
+        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -188,10 +188,10 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
-	'checkouts': {
-	    'handlers': ['logfile_checkouts', 'console_checkouts'],
-	    'level': 'DEBUG',
-	    'propagate': True,
-	},
+        'checkouts': {
+            'handlers': ['logfile_checkouts', 'console_checkouts'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
     },
 }

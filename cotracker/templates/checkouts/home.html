@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Airstrip Checkout App{% endblock title %}
+
+{% block content_title %}Airstrip Checkout App{% endblock content_title %}
+
+{% block content %}
+<div id='latest'>
+<p><strong>Recent checkouts:</strong></p>
+<ul id='latest_checkouts'>
+{% for c in checkout_list %}
+    <li>{{ c }}</li>
+{% endfor %}
+</ul>
+</div>
+{% endblock content %}

@@ -3,6 +3,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
 from checkouts.views import (
+    Home,
     PilotList,
     PilotDetail,
     AirstripList,
@@ -23,6 +24,11 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += patterns('',
+    url(
+        regex=r'^$',
+        view=Home.as_view(),
+        name='home',
+    ),
     url(
         regex=r'^pilots/$',
         view=PilotList.as_view(),
@@ -59,19 +65,19 @@ urlpatterns += patterns('',
         name='base_unattached_detail',
     ),
     url(
-	regex=r'^checkouts/$',
-	view=FilterFormView.as_view(),
-	name='checkout_filter',
+        regex=r'^checkouts/$',
+        view=FilterFormView.as_view(),
+        name='checkout_filter',
     ),
     url(
-	regex=r'^checkouts/edit/$',
-	view=CheckoutEditFormView.as_view(),
-	name='checkout_edit',
+        regex=r'^checkouts/edit/$',
+        view=CheckoutEditFormView.as_view(),
+        name='checkout_edit',
     ),
 )
 
 if settings.SERVE_STATIC:
     urlpatterns += patterns('',
-	url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT,})
+        url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT,})
     )
 

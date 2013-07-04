@@ -4,7 +4,7 @@
     <meta content-type='text/html'>
     <link rel="stylesheet" href="{% static "checkouts/css/styles.css" %}">
     <title>
-	{% block title %}Checkouts{% endblock title %}
+        {% block title %}Checkouts{% endblock title %}
     </title>
     {% block header_script %}{% endblock header_script %}
 </head>
@@ -12,42 +12,42 @@
 <div id="header">
     <ul>
     {% if user.is_authenticated %}
-	<li>
-	    <a href="#">Home</a>
-	</li>
-	
-	{% if user.is_superuser or user.is_pilot %}
-	<li>
-	    <a href="{% url 'checkout_edit' %}">Edit Checkouts</a>
-	</li>
-	{% endif %}
-	
-	<li>
-	    <a href="{% url 'checkout_filter' %}">Filter Checkouts</a>
-	</li>
-	<li>
-	    <a href="{% url 'pilot_list' %}">Pilot Reports</a>
-	</li>
-	<li>
-	    <a href="{% url 'airstrip_list' %}">Airstrip Reports</a>
-	</li>
-	<li>
-	    <a href="{% url 'base_list' %}">Base Reports</a>
-	</li>
-	
-	{% if user.is_superuser %}
-	<li>
-	    <a href="{% url 'admin:index' %}">Admin</a>
-	</li>
-	{% endif %}
-	
-	<li>
-	    <a href="{% url 'logout' %}">Logout</a>
-	</li>
+        <li>
+            <a href="{% url 'home' %}">Home</a>
+        </li>
+        
+        {% if user.is_superuser or user.is_pilot %}
+        <li>
+            <a href="{% url 'checkout_edit' %}">Edit Checkouts</a>
+        </li>
+        {% endif %}
+        
+        <li>
+            <a href="{% url 'checkout_filter' %}">Filter Checkouts</a>
+        </li>
+        <li>
+            <a href="{% url 'pilot_list' %}">Pilot Reports</a>
+        </li>
+        <li>
+            <a href="{% url 'airstrip_list' %}">Airstrip Reports</a>
+        </li>
+        <li>
+            <a href="{% url 'base_list' %}">Base Reports</a>
+        </li>
+        
+        {% if user.is_superuser %}
+        <li>
+            <a href="{% url 'admin:index' %}">Admin</a>
+        </li>
+        {% endif %}
+        
+        <li>
+            <a href="{% url 'logout' %}">Logout</a>
+        </li>
     {% else %}
-	<li>
-	    <a href="{% url 'login' %}">Login</a>
-	</li>
+        <li>
+            <a href="{% url 'login' %}">Login</a>
+        </li>
     {% endif %}
     </ul>
 </div>
@@ -58,13 +58,13 @@
 {% if messages %}
 <div id="messages">
     <ul>
-	{% for message in messages %}
-	<li id="message_{{ forloop.counter }}"
-	    {% if message.tags %} class="{{ message.tags }}" {% endif %}
-	>
-	    {{ message }}
-	</li>
-	{% endfor %}
+        {% for message in messages %}
+        <li id="message_{{ forloop.counter }}"
+            {% if message.tags %} class="{{ message.tags }}" {% endif %}
+        >
+            {{ message }}
+        </li>
+        {% endfor %}
     </ul>
 </div>
 {% endif %}
