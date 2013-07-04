@@ -136,7 +136,7 @@ class VerifyPatchedUserModelTests(TestCase):
 	self.assertEqual(self.user.full_name, expected) 
     
     def test_is_pilot(self):
-	self.assertTrue(self.user.is_pilot())
+	self.assertTrue(self.user.is_pilot)
     
     def test_unicode(self):
 	expected = '%s, %s' % (self.user.last_name, self.user.first_name)
