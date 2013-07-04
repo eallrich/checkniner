@@ -1,10 +1,11 @@
+"""View definitions for the Checkouts app"""
 import logging
 
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Count
-from django.shortcuts import render
-from django.views.generic import DetailView, ListView, View
+from django.shortcuts import render # Used for rendering 403 Forbidden
+from django.views.generic import DetailView, ListView, TemplateView
 
 from braces.views import LoginRequiredMixin
 
@@ -15,12 +16,14 @@ import util
 logger = logging.getLogger(__name__)
 
 class PilotList(LoginRequiredMixin, ListView):
-    queryset = User.objects.filter(groups__name='Pilots').order_by('last_name','first_name')
+    """List of current pilots"""
+    queryset = util.get_pilots()
     context_object_name = 'pilot_list'
     template_name = 'checkouts/pilot_list.html'
     
 
 class PilotDetail(LoginRequiredMixin, DetailView):
+    """All checkout information for a particular pilot"""
     model = User
     context_object_name = 'pilot'
     template_name = 'checkouts/pilot_detail.html'
@@ -36,12 +39,14 @@ class PilotDetail(LoginRequiredMixin, DetailView):
 
 
 class AirstripList(LoginRequiredMixin, ListView):
+    """List of current airstrips"""
     queryset = Airstrip.objects.all().order_by('ident')
     context_object_name = 'airstrip_list'
     template_name = 'checkouts/airstrip_list.html'
 
 
 class AirstripDetail(LoginRequiredMixin, DetailView):
+    """All checkout information for a particular airstrip"""
     model = Airstrip
     context_object_name = 'airstrip'
     template_name = 'checkouts/airstrip_detail.html'
@@ -57,7 +62,8 @@ class AirstripDetail(LoginRequiredMixin, DetailView):
 
 
 class BaseList(LoginRequiredMixin, ListView):
-    queryset = Airstrip.objects.filter(is_base=True).order_by('name').annotate(attached=Count('airstrip'))
+    """List of airstrips which are bases"""
+    queryset = util.get_bases().annotate(attached=Count('airstrip'))
     template_name = 'checkouts/base_list.html'
     
     def get_context_data(self, **kwargs):
@@ -75,6 +81,7 @@ class BaseList(LoginRequiredMixin, ListView):
 
 
 class BaseAttachedDetail(LoginRequiredMixin, DetailView):
+    """List of airstrips which are attached to a given base"""
     model = Airstrip
     context_object_name = 'base'
     template_name = 'checkouts/base_detail.html'
@@ -90,6 +97,7 @@ class BaseAttachedDetail(LoginRequiredMixin, DetailView):
 
 
 class BaseUnattachedDetail(LoginRequiredMixin, DetailView):
+    """List of airstrips which are not attached to a given base"""
     model = Airstrip
     context_object_name = 'base'
     template_name = 'checkouts/base_detail.html'
@@ -104,89 +112,116 @@ class BaseUnattachedDetail(LoginRequiredMixin, DetailView):
 	return context
 
 
-class FilterFormView(LoginRequiredMixin, View):
+class FilterFormView(LoginRequiredMixin, TemplateView):
+    """Provides an interface for filtering the set of checkout records
+    
+    Not limited to existing records: it's possible to query for 'which
+    checkouts have not been completed?'
+    """
     form_class = FilterForm
     template_name = 'checkouts/filter.html'
     
     def get(self, request, *args, **kwargs):
+	"""Renders a fresh filter form"""
 	logger.debug("=> FilterFormView.get")
-	form = self.form_class()
-	return render(request, self.template_name, {'form': form})
+	context = {'form': self.form_class(),}
+	return self.render_to_response(context)
     
     def post(self, request, *args, **kwargs):
+	"""If the filter is valid, renders the filtered checkout data"""
 	logger.debug("=> FilterFormView.post")
 	logger.debug(request.POST)
 	form = self.form_class(request.POST)
 	context = {'form': form}
 	
-	if form.is_valid():
+	if not form.is_valid():
+	    logger.debug("Unable to validate form data")
+	else:
 	    logger.debug(form.cleaned_data)
-	    pilot = form.cleaned_data['pilot']
-	    airstrip = form.cleaned_data['airstrip']
-	    base = form.cleaned_data['base']
 	    status = form.cleaned_data['checkout_status']
 	    if status == util.CHECKOUT_SUDAH:
-		context['checkouts'] = util.checkouts_selesai(pilot=pilot, airstrip=airstrip, base=base)
+		context['checkouts'] = util.sudah_selesai(**form.cleaned_data)
 	    else:
-		context['checkouts'] = util.checkouts_belum_selesai(pilot=pilot, airstrip=airstrip, base=base)
-	    context['show_summary'] = True
-	else:
-	    logger.debug("Unable to validate form data")
+		context['checkouts'] = util.belum_selesai(**form.cleaned_data)
 	    
-	return render(request, self.template_name, context)
+	    context['show_summary'] = True
+	    
+	return self.render_to_response(context)
 
 
-class CheckoutEditFormView(LoginRequiredMixin, View):
+class CheckoutEditFormView(LoginRequiredMixin, TemplateView):
+    """Provides an interface for adding and removing checkouts"""
     form_class = CheckoutEditForm
     template_name = 'checkouts/edit.html'
     
+    def forbidden(self, request, message="Sorry, you can't do that."):
+	"""Shortcut for rendering an 'access denied' page"""
+	template = 'checkouts/forbidden.html'
+	context = {
+	    'reason': message,
+	}
+	return render(request, template, context, status=403)
+    
     def get(self, request, *args, **kwargs):
+	"""Renders a fresh form instance"""
 	logger.debug("=> CheckoutEditFormView.get")
 	
 	# Security Check
 	# --------------
 	# This would be unusual, but just in case: make sure that the request
 	# is from a superuser or a pilot (normal users may not edit checkouts).
-	if not request.user.is_superuser and not request.user.is_pilot():
-	    logger.warn("Forbidden: '%s' is neither a pilot nor a superuser" % request.user.username)
-	    context = {
-		'reason': "Only pilots may edit checkouts.",
-	    }
-	    return render(request, 'checkouts/forbidden.html', context, status=403)
+	if not request.user.is_superuser and not request.user.is_pilot:
+	    username = request.user.username
+	    logger.warn("Forbidden: '%s' is neither a pilot nor a superuser" % username)
+	    message = 'Only pilots may edit checkouts.'
+	    return self.forbidden(request, message)
 	
-	init_data = {}
-	if request.user.is_pilot():
-	    init_data['pilot'] = request.user
+	# Help out a pilot by pre-selecting their name
+	if request.user.is_pilot:
+	    form = self.form_class(initial={'pilot': request.user})
+	else:
+	    form = self.form_class()
 	
-	form = self.form_class(initial=init_data)
-	
+	# Pilots may only edit their own checkouts if they are not a superuser
 	if not request.user.is_superuser:
 	    form['pilot'].field.queryset = User.objects.filter(pk=request.user.id)
 	
-	return render(request, self.template_name, {'form': form})
+	return self.render_to_response({'form': form})
     
     def post(self, request, *args, **kwargs):
+	"""Given a valid form, performs the requested add/remove action and
+	then renders the same view again."""
 	logger.debug("=> CheckoutEditFormView.post")
 	
 	# Security Check
 	# --------------
 	# This would be unusual, but just in case: make sure that the request
 	# is from a superuser or a pilot (normal users may not edit checkouts).
-	if not request.user.is_superuser and not request.user.is_pilot():
+	if not request.user.is_superuser and not request.user.is_pilot:
 	    username = request.user.username
 	    logger.warn("Forbidden: '%s' is neither a pilot nor a superuser" % username)
-	    context = {
-		'reason': "Only pilots may edit checkouts.",
-	    }
-	    return render(request, 'checkouts/forbidden.html', context, status=403)
+	    message = 'Only pilots may edit checkouts.'
+	    return self.forbidden(request, message)
 	
+	# Note that we're not doing anything with the submitted data until
+	# _after_ the user has been verified as someone who can access this
+	# view.
 	logger.debug(request.POST)
 	form = self.form_class(request.POST)
 	context = {'form': form}
 	
-	if form.is_valid():
+	if not form.is_valid():
+	    logger.debug("Unable to validate form data: %s" % form.errors)
+	    messages.add_message(
+			request, 
+			messages.ERROR, 
+			"Sorry, please check below for any error messages.")
+	else:
 	    logger.debug(form.cleaned_data)
 	    pilot = form.cleaned_data['pilot']
+	    airstrip = form.cleaned_data['airstrip']
+	    aircraft_types = form.cleaned_data['aircraft_type']
+	    action = request.POST['action']
 	    
 	    # Security Check
 	    # --------------
@@ -194,43 +229,58 @@ class CheckoutEditFormView(LoginRequiredMixin, View):
 	    # superuser, they may only edit their own checkouts
 	    if pilot != request.user and not request.user.is_superuser:
 		username = request.user.username
-		logger.warn("Forbidden: '%s' is not a superuser and may only edit their own checkouts" % username)
-		context = {
-		    'reason': "Pilots may only edit their own checkouts.",
-		}
-		return render(request, 'checkouts/forbidden.html', context, status=403)
+		logger.warn("Forbidden: '%s' may not edit for '%s'" % (username, pilot.username))
+		message = 'Pilots may only edit their own checkouts.'
+		return self.forbidden(request, message)
 	    
-	    airstrip = form.cleaned_data['airstrip']
-	    aircraft_types = form.cleaned_data['aircraft_type']
-	    
-	    delete_checkouts = False
-	    if request.POST['action'] == u'Remove Checkout':
-		delete_checkouts = True
-	    
-	    if delete_checkouts:
-		checkouts = Checkout.objects.filter(pilot=pilot, airstrip=airstrip, aircraft_type__in=aircraft_types)
+	    if action == u'Remove Checkout':
+		checkouts = Checkout.objects.filter(
+				pilot=pilot, 
+				airstrip=airstrip, 
+				aircraft_type__in=aircraft_types)
+		
 		for c in checkouts:
 		    logger.info("Deleting '%s'" % c)
+		    # We'll be pretending that all of the requested checkouts
+		    # were deleted, even if they never existed, so we need to
+		    # keep track of which ones haven't really been deleted.
+		    # Then we'll use those remaining 'checkouts' to construct
+		    # 'delete successful' messages for the user.
 		    aircraft_types = aircraft_types.exclude(name=c.aircraft_type)
 		    c.delete()
 		    messages.add_message(request, messages.SUCCESS, "Deleted '%s'" % c)
+		
+		# Now that all the checkouts which actually existed have been
+		# deleted, we'll build 'delete successful' messages for each
+		# of the remainders.
 		if len(aircraft_types) > 0:
 		    for ac_type in aircraft_types:
-			logger.info("Pretending to delete non-existent checkout '%s is checked out at %s in a %s'" % (pilot, airstrip, ac_type))
-			messages.add_message(request, messages.SUCCESS, "Deleted '%s is checked out at %s in a %s'" % (pilot, airstrip, ac_type))
+			c = "%s is checked out at %s in a %s" % (pilot, airstrip, ac_type)
+			logger.info("Pretending to delete non-existent checkout '%s'" % c)
+			messages.add_message(request, messages.SUCCESS, "Deleted '%s'" % c)
+		
 	    else:
 		for ac_type in aircraft_types:
-		    existing = Checkout.objects.filter(pilot=pilot, airstrip=airstrip, aircraft_type=ac_type)
+		    existing = Checkout.objects.filter(
+				    pilot=pilot, 
+				    airstrip=airstrip, 
+				    aircraft_type=ac_type)
+		    
+		    # Don't allow a duplicate checkout to be created. Unlike
+		    # the 'delete checkout' version, here we'll actually tell
+		    # the user that we found a duplicate (although it's still
+		    # styled as a 'success' message).
 		    if existing.exists():
-			logger.debug("Prevented duplicate '%s'" % existing[0])
-			messages.add_message(request, messages.SUCCESS, "Already exists: '%s'" % existing[0])
+			c = existing[0]
+			logger.debug("Prevented duplicate '%s'" % c)
+			messages.add_message(
+				    request, 
+				    messages.SUCCESS, 
+				    "Already exists: '%s'" % c)
 		    else:
 			c = Checkout(pilot=pilot, airstrip=airstrip, aircraft_type=ac_type)
 			logger.info("Adding '%s'" % c)
 			c.save()
 			messages.add_message(request, messages.SUCCESS, "Added '%s'" % c)
-	else:
-	    logger.debug("Unable to validate form data: %s" % form.errors)
-	    messages.add_message(request, messages.ERROR, "Unable to complete your request - please check the error message(s) below.")
 	
-	return render(request, self.template_name, context)
+	return self.render_to_response(context)
