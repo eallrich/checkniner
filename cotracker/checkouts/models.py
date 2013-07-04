@@ -1,3 +1,4 @@
+"""Model definitions for the Checkouts app"""
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -25,7 +26,7 @@ User.__unicode__ = user_full_name
 def user_is_pilot(user):
     """Returns True if the given user is a member of the Pilots group"""
     return user.groups.filter(name='Pilots').exists()
-User.is_pilot = user_is_pilot
+User.is_pilot = property(user_is_pilot)
 
 
 # =============================================================================
