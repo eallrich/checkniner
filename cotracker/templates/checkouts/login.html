@@ -2,6 +2,18 @@
 
 {% block title %}Checkouts Login{% endblock title%}
 
+{% block header_script %}
+<script>
+    window.onload = function() {
+    {% if not form.errors %}
+	document.getElementById('id_username').focus();
+    {% else %}
+	document.getElementById('id_password').focus();
+    {% endif %}
+    }
+</script>
+{% endblock header_script %}
+
 {% block content_title %}Checkouts Login{% endblock content_title %}
 
 {% block content %}
