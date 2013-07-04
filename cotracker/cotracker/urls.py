@@ -17,8 +17,8 @@ from checkouts.views import (
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'checkouts/login.html',}),
-    url(r'^logout/$', 'django.contrib.auth.views.logout_then_login'),
+    url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'checkouts/login.html',}, name='login'),
+    url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', name='logout'),
     url(r'^emerald/', include(admin.site.urls)),
 )
 
