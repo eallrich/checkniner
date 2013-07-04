@@ -211,14 +211,24 @@ class CheckoutEditFormView(LoginRequiredMixin, View):
 		checkouts = Checkout.objects.filter(pilot=pilot, airstrip=airstrip, aircraft_type__in=aircraft_types)
 		for c in checkouts:
 		    logger.info("Deleting '%s'" % c)
-		    messages.add_message(request, messages.SUCCESS, "Deleted '%s'" % c)
+		    aircraft_types = aircraft_types.exclude(name=c.aircraft_type)
 		    c.delete()
+		    messages.add_message(request, messages.SUCCESS, "Deleted '%s'" % c)
+		if len(aircraft_types) > 0:
+		    for ac_type in aircraft_types:
+			logger.info("Pretending to delete non-existent checkout '%s is checked out at %s in a %s'" % (pilot, airstrip, ac_type))
+			messages.add_message(request, messages.SUCCESS, "Deleted '%s is checked out at %s in a %s'" % (pilot, airstrip, ac_type))
 	    else:
 		for ac_type in aircraft_types:
-		    c = Checkout(pilot=pilot, airstrip=airstrip, aircraft_type=ac_type)
-		    logger.info("Adding '%s'" % c)
-		    c.save()
-		    messages.add_message(request, messages.SUCCESS, "Added '%s'" % c)
+		    existing = Checkout.objects.filter(pilot=pilot, airstrip=airstrip, aircraft_type=ac_type)
+		    if existing.exists():
+			logger.debug("Prevented duplicate '%s'" % existing[0])
+			messages.add_message(request, messages.SUCCESS, "Already exists: '%s'" % existing[0])
+		    else:
+			c = Checkout(pilot=pilot, airstrip=airstrip, aircraft_type=ac_type)
+			logger.info("Adding '%s'" % c)
+			c.save()
+			messages.add_message(request, messages.SUCCESS, "Added '%s'" % c)
 	else:
 	    logger.debug("Unable to validate form data: %s" % form.errors)
 	    messages.add_message(request, messages.ERROR, "Unable to complete your request - please check the error message(s) below.")
