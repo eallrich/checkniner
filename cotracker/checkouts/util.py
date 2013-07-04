@@ -40,7 +40,7 @@ def get_aircrafttype_names(order="name"):
     return [actype.name for actype in aircrafttypes]
 
 
-def get_pilot_airstrip_pairs(pilot=None, airstrip=None, base=None):
+def get_pilot_airstrip_pairs(pilot=None, airstrip=None, base=None, **kwargs):
     """Populates a sorted list of Pilot/Airstrip tuples"""
     pilots = get_pilots()
     if pilot is not None:
@@ -88,7 +88,7 @@ def get_precedented_checkouts():
     return precedented
 
 
-def checkout_filter(pilot=None, airstrip=None, base=None):
+def checkout_filter(pilot=None, airstrip=None, base=None, **kwargs):
     core_query = Checkout.objects.all()
     if pilot != None:
 	core_query = core_query.filter(pilot=pilot)
@@ -137,7 +137,7 @@ def checkout_filter(pilot=None, airstrip=None, base=None):
     return results
 
 
-def checkouts_selesai(**kwargs):
+def sudah_selesai(**kwargs):
     results = {
 	'populate': {
 	    'pilot': True,
@@ -150,7 +150,7 @@ def checkouts_selesai(**kwargs):
     return results
 
 
-def checkouts_belum_selesai(**kwargs):
+def belum_selesai(**kwargs):
     results = {
 	'populate': {
 	    'pilot': True,
@@ -237,13 +237,13 @@ def checkouts_belum_selesai(**kwargs):
 
 def pilot_checkouts_grouped_by_airstrip(pilot):
     """Organizes the pilot's checkouts by airstrips."""
-    results = checkouts_selesai(pilot=pilot)
+    results = sudah_selesai(pilot=pilot)
     results['populate']['pilot'] = False
     return results
 
 
 def airstrip_checkouts_grouped_by_pilot(airstrip):
     """Organizes the airstrip's checkouts by pilot."""
-    results = checkouts_selesai(airstrip=airstrip)
+    results = sudah_selesai(airstrip=airstrip)
     results['populate']['airstrip'] = False
     return results
