@@ -40,7 +40,8 @@ $ echo "export SECRET_KEY=aV3ryLong14c0mpl1ca73dStRin9" >> bin/activate
 Optional environment variables:
 + ALLOWED_HOST (e.g. example.com) -- Required when DEBUG is False
 + FORCE_DEBUG_MODE (e.g. true) -- Override the DEBUG flag when using settings.production
-+ INTERNAL_IP (e.g. 10.31.41.59) -- Required to view django-debug-toolbar; DEBUG must be True
++ INTERNAL_IPS (e.g. 10.31.41.59) -- Required to view django-debug-toolbar; DEBUG must be True
+    - A comma-separated list is acceptable: 10.31.41.59,10.27.182.8
 + SERVE_STATIC (when present and true, the URLconf will route static asset requests)
 
 Once the env vars are configured, activate the virtualenv and install the dependencies:
