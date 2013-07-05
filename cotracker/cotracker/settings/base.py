@@ -199,12 +199,12 @@ LOGGING = {
     'loggers': {
         'django.request': {
             'handlers': ['logfile_requests', 'mail_admins'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': True,
         },
         'checkouts': {
             'handlers': ['logfile_checkouts', 'console_checkouts'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': True,
         },
         'analytics': {
