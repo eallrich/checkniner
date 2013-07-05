@@ -11,33 +11,48 @@
 <body>
 <div id="header">
     <ul>
+    {% with requested=request.path %}
     {% if user.is_authenticated %}
         <li>
-            <a href="{% url 'home' %}">Home</a>
+            {% url 'home' as current %}
+            <a{% if current == requested %} class="current" {% endif %}
+                href="{{ current }}">Home</a>
         </li>
         
         {% if user.is_superuser or user.is_pilot %}
         <li>
-            <a href="{% url 'checkout_edit' %}">Edit Checkouts</a>
+            {% url 'checkout_edit' as current %}
+            <a{% if current == requested %} class="current" {% endif %}
+                href="{{ current }}">Edit Checkouts</a>
         </li>
         {% endif %}
         
         <li>
-            <a href="{% url 'checkout_filter' %}">Filter Checkouts</a>
+            {% url 'checkout_filter' as current %}
+            <a{% if current == requested %} class="current" {% endif %}
+                href="{{ current }}">Filter Checkouts</a>
         </li>
         <li>
-            <a href="{% url 'pilot_list' %}">Pilot Reports</a>
+            {% url 'pilot_list' as current %}
+            <a{% if current == requested %} class="current" {% endif %}
+                href="{{ current }}">Pilot Reports</a>
         </li>
         <li>
-            <a href="{% url 'airstrip_list' %}">Airstrip Reports</a>
+            {% url 'airstrip_list' as current %}
+            <a{% if current == requested %} class="current" {% endif %}
+                href="{{ current }}">Airstrip Reports</a>
         </li>
         <li>
-            <a href="{% url 'base_list' %}">Base Reports</a>
+            {% url 'base_list' as current %}
+            <a{% if current == requested %} class="current" {% endif %}
+                href="{{ current }}">Base Reports</a>
         </li>
         
         {% if user.is_superuser %}
         <li>
-            <a href="{% url 'admin:index' %}">Admin</a>
+            {% url 'admin:index' as current %}
+            <a{% if current == requested %} class="current" {% endif %}
+                href="{{ current }}">Admin</a>
         </li>
         {% endif %}
         
@@ -46,9 +61,12 @@
         </li>
     {% else %}
         <li>
-            <a href="{% url 'login' %}">Login</a>
+            {% url 'login' as current %}
+            <a{% if current == requested %} class="current" {% endif %}
+                href="{{ current }}">Login</a>
         </li>
     {% endif %}
+    {% endwith %}
     </ul>
 </div>
 

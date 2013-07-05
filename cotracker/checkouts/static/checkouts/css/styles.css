@@ -52,7 +52,15 @@ div#header a {
     text-decoration:     none;
 }
 
-div#header a:hover {
+div#header .current {
+    background: #FFFFFF;
+    border-bottom-color: #FFFFFF;
+    border-bottom-style: solid;
+    border-bottom-width: 2px;
+}
+
+div#header a:hover,
+div#header .current:hover {
     /* Light Yellow */
     background: #FFFFBA;
 }
