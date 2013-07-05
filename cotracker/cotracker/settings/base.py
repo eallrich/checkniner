@@ -2,6 +2,7 @@
 
 import os
 
+from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as DEFAULT_TCP
 from django.core.exceptions import ImproperlyConfigured
 
 import dj_database_url
@@ -122,6 +123,10 @@ TEMPLATE_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     os.path.join(PROJECT_ROOT, 'templates'),
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_TCP + (
+    'django.core.context_processors.request',
 )
 
 INSTALLED_APPS = (
