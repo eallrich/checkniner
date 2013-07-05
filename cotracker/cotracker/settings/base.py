@@ -111,6 +111,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'checkouts.middleware.Analytics',
 )
 
 ROOT_URLCONF = 'cotracker.urls'
@@ -162,6 +163,9 @@ LOGGING = {
         'checkouts_console': {
             'format': '[%(process)s] [%(levelname)s] %(message)s',
         },
+        'analytics_log': {
+            'format': '%(asctime)s | %(message)s',
+        },
     },
     'handlers': {
         'logfile_requests': {
@@ -185,7 +189,13 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        'logfile_analytics': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGS_PATH, 'analytics.log'),
+            'formatter': 'analytics_log',
+        },
     },
     'loggers': {
         'django.request': {
@@ -196,6 +206,11 @@ LOGGING = {
         'checkouts': {
             'handlers': ['logfile_checkouts', 'console_checkouts'],
             'level': 'DEBUG',
+            'propagate': True,
+        },
+        'analytics': {
+            'handlers': ['logfile_analytics',],
+            'level': 'INFO',
             'propagate': True,
         },
     },
