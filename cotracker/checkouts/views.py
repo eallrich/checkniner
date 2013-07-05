@@ -163,7 +163,7 @@ class CheckoutEditFormView(LoginRequiredMixin, TemplateView):
     
     def forbidden(self, request, message="Sorry, you can't do that."):
         """Shortcut for rendering an 'access denied' page"""
-        template = 'checkouts/forbidden.html'
+        template = '403.html'
         context = {
             'reason': message,
         }
