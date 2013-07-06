@@ -32,6 +32,10 @@ if get_env_var('DATABASE_URL'):
 
 SERVE_STATIC = bool(os.environ.get('SERVE_STATIC'))
 
+RAVEN_CONFIG = {
+    'dsn': get_env_var('SENTRY_DSN'),
+}
+
 LOGIN_URL = '/login/'
 # Default 'successful login' URL redirect if an alternative is not specified
 LOGIN_REDIRECT_URL = '/checkouts/'
@@ -139,6 +143,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'south',
     'checkouts',
+    'raven.contrib.django.raven_compat',
 )
 
 main_header = '='*100
