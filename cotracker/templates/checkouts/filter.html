@@ -2,6 +2,34 @@
 
 {% block title %}Airstrip Checkout Filter{% endblock title %}
 
+{% block header_script %}
+<script>
+window.onload = function() {
+    /* Ensures that the Airstrip and Base selectors are not contradictory. */
+    airstrips = document.getElementById('id_airstrip');
+    bases = document.getElementById('id_base');
+    
+    airstrips.onchange = function() {
+        if(this.selectedIndex != 0) {
+            if(bases.selectedIndex != 0) {
+                console.debug('Resetting selection index on id_base');
+                bases.selectedIndex = 0;
+            }
+        }
+    }
+    
+    bases.onchange = function() {
+        if(this.selectedIndex != 0) {
+            if(airstrips.selectedIndex != 0) {
+                console.debug('Resetting selection index on id_airstrip');
+                airstrips.selectedIndex = 0;
+            }
+        }
+    }
+}
+</script>
+{% endblock header_script %}
+
 {% block content_title %}Airstrip Checkout Filter{% endblock content_title %}
 
 {% block content %}
