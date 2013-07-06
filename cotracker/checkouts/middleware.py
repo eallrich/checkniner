@@ -19,12 +19,12 @@ class Analytics():
             'ip':        request.META['REMOTE_ADDR'],
             'method':    request.method,
             'path':      request.path,
-            'user':      request.user.username,
             'useragent': request.META['HTTP_USER_AGENT'],
         }
         
-        # Fall-back if the user is not recognized
-        if not request.user.is_authenticated():
+        if hasattr(request, 'user') and request.user.is_authenticated():
+            context['user'] = request.user.username
+        else:
             context['user'] = 'anonymous'
         
         return context
@@ -38,12 +38,12 @@ class Analytics():
         context = self.collect_request_details(request)
         context['status'] = response.status_code
         
-        if not request._analytics_start_time:
-            logger.error("Unable to provide timing data for request")
-            context['elapsed'] = -1.0
-        else:
+        if hasattr(request, '_analytics_start_time'):
             elapsed = (time.time() - request._analytics_start_time) * 1000.0
             context['elapsed'] = elapsed
+        else:
+            logger.error("Unable to provide timing data for request")
+            context['elapsed'] = -1.0
         
         template = "%(user)s@%(ip)s: %(method)s %(path)s %(elapsed).03fms %(status)s \"%(useragent)s\""
         logger.info(template % context)
