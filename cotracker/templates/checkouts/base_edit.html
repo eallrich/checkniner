@@ -17,8 +17,7 @@
 <tr>
     <td>{{ airstrip.ident }}</td>
     <td>{{ airstrip.name }}</td>
-    <td><input type="checkbox" name="airstrip" value="{{ airstrip.ident }}"
-        {% if airstrip in attached %} checked="checked" {% endif %}></input></td>
+    <td align="center"><input type="checkbox" name="airstrip" value="{{ airstrip.ident }}" class="large-checkbox" {% if airstrip in attached %}checked="checked"{% endif %}></input></td>
 </tr>
 {% endfor %}
 <tr>
