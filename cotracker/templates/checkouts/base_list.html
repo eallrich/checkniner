@@ -8,6 +8,9 @@
     <tr>
         <th rowspan="2">Bases</th>
         <th colspan="2">Airstrips</th>
+        {% if user.is_superuser %}
+        <th rowspan="2"></th>
+        {% endif %}
     </tr>
     <tr><th>Attached</th><th>Unattached</th></tr>
     {% for base, attached_count, unattached_count in base_list %}
@@ -15,6 +18,9 @@
         <td>{{ base.name }}</td>
         <td><a href="{% url 'base_attached_detail' base.ident %}">{{ attached_count }}</a></td>
         <td><a href="{% url 'base_unattached_detail' base.ident %}">{{ unattached_count }}</a></td>
+        {% if user.is_superuser %}
+        <td><a href="{% url 'base_edit' base.ident %}">Edit</a></td>
+        {% endif %}
     </tr>
     {% endfor %}
     </table>
