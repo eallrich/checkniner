@@ -1,0 +1,7 @@
+/* Thanks to http://thepcspy.com/read/doing-cool-things-with-djangos-admin/
+for the idea to build the nav-global list like this. */
+.admin-app-nav {
+    display: block;
+    float:   left;
+    margin:  0px 10px 10px 10px;
+}

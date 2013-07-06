@@ -1,0 +1,27 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ title }} | {% trans 'Checkouts administration' %}{% endblock %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static "checkouts/css/admin.css" %}"/>
+{% endblock extrastyle %}
+
+{% block branding %}
+<h1 id="site-name">{% trans 'Checkouts administration' %}</h1>
+{% endblock %}
+
+{% block nav-global %}
+    {% comment %}
+        It will only be an issue if is_staff==True when is_superuser==False
+        and is_pilot==False, but just in case: hide the link unless it's valid.
+    {% endcomment %}
+    {% if user.is_superuser or user.is_pilot %}
+        <a href="{% url 'checkout_edit' %}" class="admin-app-nav">Edit Checkouts</a>
+    {% endif %}
+    <a href="{% url 'checkout_filter' %}" class="admin-app-nav">Filter Checkouts</a>
+    <a href="{% url 'pilot_list' %}" class="admin-app-nav">Pilot Reports</a>
+    <a href="{% url 'airstrip_list' %}" class="admin-app-nav">Airstrip Reports</a>
+    <a href="{% url 'base_list' %}" class="admin-app-nav">Base Reports</a>
+{% endblock %}
