@@ -1,9 +1,9 @@
 from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
+from django.shortcuts import redirect
 
 from checkouts.views import (
-    Home,
     PilotList,
     PilotDetail,
     AirstripList,
@@ -26,8 +26,9 @@ urlpatterns = patterns('',
 urlpatterns += patterns('',
     url(
         regex=r'^$',
-        view=Home.as_view(),
-        name='home',
+        # No 'home' view at this time, but we may want to add one later. For
+        # now, provide a redirect to a popular view instead.
+        view=lambda x: redirect('checkout_filter', permanent=False),
     ),
     url(
         regex=r'^pilots/$',

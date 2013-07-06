@@ -13,14 +13,9 @@ from .forms import FilterForm, CheckoutEditForm
 from .models import AircraftType, Airstrip, Checkout
 import util
 
+
 logger = logging.getLogger(__name__)
 
-
-class Home(LoginRequiredMixin, ListView):
-    """List of latest checkouts"""
-    queryset = Checkout.objects.all().order_by('-date')[:20]
-    context_object_name = 'checkout_list'
-    template_name = 'checkouts/home.html'
 
 class PilotList(LoginRequiredMixin, ListView):
     """List of current pilots"""

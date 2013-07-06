@@ -13,12 +13,6 @@
     <ul>
     {% with requested=request.path %}
     {% if user.is_authenticated %}
-        <li>
-            {% url 'home' as current %}
-            <a{% if current == requested %} class="current" {% endif %}
-                href="{{ current }}">Home</a>
-        </li>
-        
         {% if user.is_superuser or user.is_pilot %}
         <li>
             {% url 'checkout_edit' as current %}
