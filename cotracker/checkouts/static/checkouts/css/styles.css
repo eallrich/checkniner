@@ -35,7 +35,7 @@ div#header {
     border-bottom-width: 2px;
     margin:              0px;
     /* Minimum width derived via experiments */
-    min-width:           1240px;
+    min-width:           1150px;
     padding:             1px 0px 1px 0px;
     width:               100%;
 }
