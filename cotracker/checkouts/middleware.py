@@ -45,7 +45,7 @@ class Analytics():
             elapsed = (time.time() - request._analytics_start_time) * 1000.0
             context['elapsed'] = elapsed
         
-        template = "%(user)s@%(ip)s: %(method)s %(path)s %(elapsed)fms %(status)s \"%(useragent)s\""
+        template = "%(user)s@%(ip)s: %(method)s %(path)s %(elapsed).03fms %(status)s \"%(useragent)s\""
         logger.info(template % context)
         
         return response
