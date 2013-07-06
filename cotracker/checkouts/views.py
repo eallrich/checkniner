@@ -114,6 +114,112 @@ class BaseUnattachedDetail(LoginRequiredMixin, DetailView):
         return context
 
 
+class BaseEditAttached(LoginRequiredMixin, DetailView):
+    """Allows users to edit the set of airstrips attached to a base"""
+    context_object_name = 'base'
+    model = Airstrip
+    # Only bases can have attached airstrips
+    queryset = util.get_bases()
+    slug_field = 'ident'
+    slug_url_kwarg = 'ident'
+    template_name = 'checkouts/base_edit.html'
+    
+    def forbidden(self, request, message="Sorry, you can't do that."):
+        """Shortcut for rendering an 'access denied' page"""
+        template = '403.html'
+        context = {
+            'reason': message,
+        }
+        return render(request, template, context, status=403)
+    
+    def get(self, request, *args, **kwargs):
+        """Renders a fresh form for editing, assuming the user is authorized"""
+        logger.debug("=> BaseEditAttached.get")
+        
+        # Security Check
+        # --------------
+        # This would be unusual, but just in case: make sure that the request
+        # is from a superuser.
+        if request.user.is_superuser:
+            return super(BaseEditAttached, self).get(request, *args, **kwargs)
+        else:
+            username = request.user.username
+            logger.warn("Forbidden: '%s' attempted to edit base attachments without 'superuser' status" % username)
+            message = "Only admins may modify which airstrips are attached to a base."""
+            return self.forbidden(request, message)
+    
+    def get_context_data(self, **kwargs):
+        """The form needs the full set of airstrips (excluding the 'self' base),
+        and the set of airstrips currently attached to the 'self' base."""
+        context = super(BaseEditAttached, self).get_context_data(**kwargs)
+        context['airstrips'] = Airstrip.objects.exclude(pk=self.object.id).order_by('ident')
+        context['attached'] = self.object.attached_airstrips()
+        
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        """Updates the set of airstrips attached to the given base."""
+        base = self.get_object()
+        logger.debug("=> BaseEditAttached.post for %s" % base.ident)
+        
+        # Security Check
+        # --------------
+        # This would be unusual, but just in case: make sure that the request
+        # is from a superuser.
+        if not request.user.is_superuser:
+            username = request.user.username
+            logger.warn("Forbidden: '%s' attempted to save base attachments without 'superuser' status" % username)
+            message = "Only admins may modify which airstrips are attached to a base."""
+            return self.forbidden(request, message)
+        
+        logger.debug(request.POST)
+        
+        current = base.attached_airstrips()
+        logger.debug("Current: %d attached airstrips" % current.count())
+        proposed = Airstrip.objects.filter(ident__in=request.POST.getlist('airstrip', []))
+        logger.debug("Proposed: %d attached airstrips" % proposed.count())
+        
+        # We can figure out what changes to make by comparing the 'current'
+        # attachments with the 'proposed' list.
+        to_add = [airstrip for airstrip in proposed]
+        to_delete = []
+        for airstrip in current:
+            if airstrip in to_add:
+                to_add.remove(airstrip)
+            else:
+                to_delete.append(airstrip)
+        
+        # Prevent the user from adding a self-loop on a base
+        if base in to_add:
+            message = "Unable to set attachment for '%s' to itself" % base.name
+            messages.add_message(request, messages.ERROR, message)
+            to_add.remove(base)
+        
+        logger.debug("Add: %r" % to_add)
+        logger.debug("Delete: %r" % to_delete)
+        
+        if not to_add and not to_delete:
+            message = "Nothing updated; No changes necessary."
+            messages.add_message(request, messages.SUCCESS, message)
+        else:
+            if to_add:
+                for airstrip in to_add:
+                    airstrip.bases.add(base)
+                updates = ', '.join([airstrip.name for airstrip in to_add])
+                message = "Attached: %s" % updates
+                messages.add_message(request, messages.SUCCESS, message)
+            
+            if to_delete:
+                for airstrip in to_delete:
+                    airstrip.bases.remove(base)
+                updates = ', '.join([airstrip.name for airstrip in to_delete])
+                message = "Unattached: %s" % updates 
+                messages.add_message(request, messages.SUCCESS, message)
+        
+        # We'll render a fresh view of the editing form which will have all
+        # the updates in place.
+        return self.get(request, *args, **kwargs)
+
 class FilterFormView(LoginRequiredMixin, TemplateView):
     """Provides an interface for filtering the set of checkout records
     

@@ -11,6 +11,7 @@ from checkouts.views import (
     BaseList,
     BaseAttachedDetail,
     BaseUnattachedDetail,
+    BaseEditAttached,
     FilterFormView,
     CheckoutEditFormView,
 )
@@ -64,6 +65,11 @@ urlpatterns += patterns('',
         regex=r'^bases/(?P<ident>\w+)/unattached/$',
         view=BaseUnattachedDetail.as_view(),
         name='base_unattached_detail',
+    ),
+    url(
+        regex=r'^bases/(?P<ident>\w+)/edit/$',
+        view=BaseEditAttached.as_view(),
+        name='base_edit',
     ),
     url(
         regex=r'^checkouts/$',
