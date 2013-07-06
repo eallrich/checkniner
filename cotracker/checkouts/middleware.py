@@ -1,6 +1,7 @@
 """Checkouts application middleware"""
 
 import logging
+import time
 
 logger = logging.getLogger('analytics')
 
@@ -12,8 +13,8 @@ class Analytics():
     in the project settings.
     """
     
-    def process_request(self, request):
-        """Organizes info from each request and saves it to a log."""
+    def collect_request_details(self, request):
+        """Gathers information of interest from the request and returns a dictionary."""
         context = {
             'ip':        request.META['REMOTE_ADDR'],
             'method':    request.method,
@@ -26,5 +27,25 @@ class Analytics():
         if not request.user.is_authenticated():
             context['user'] = 'anonymous'
         
-        template = "%(user)s@%(ip)s: %(method)s %(path)s \"%(useragent)s\""
+        return context
+    
+    def process_request(self, request):
+        """Captures the current time and saves it to the request object."""
+        request._analytics_start_time = time.time()
+    
+    def process_response(self, request, response):
+        """Organizes info from each request/response and saves it to a log."""
+        context = self.collect_request_details(request)
+        context['status'] = response.status_code
+        
+        if not request._analytics_start_time:
+            logger.error("Unable to provide timing data for request")
+            context['elapsed'] = -1.0
+        else:
+            elapsed = (time.time() - request._analytics_start_time) * 1000.0
+            context['elapsed'] = elapsed
+        
+        template = "%(user)s@%(ip)s: %(method)s %(path)s %(elapsed)fms %(status)s \"%(useragent)s\""
         logger.info(template % context)
+        
+        return response
