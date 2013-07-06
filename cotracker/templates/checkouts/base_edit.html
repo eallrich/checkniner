@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Airstrips Attached to Base{% endblock title %}
+
+{% block content_title %}Edit Attachments for {{ base.name }}{% endblock content_title %}
+
+{% block content %}
+<form action="{% url 'base_edit' base.ident %}" method="post">
+{% csrf_token %}
+<table border="1">
+<tr>
+    <th colspan="2">Airstrips</th>
+    <th rowspan="2"><input type="submit" class="enlarged-button" value="Apply Changes" /></th>
+</tr>
+<tr><th>Ident</th><th>Name</th></tr>
+{% for airstrip in airstrips %}
+<tr>
+    <td>{{ airstrip.ident }}</td>
+    <td>{{ airstrip.name }}</td>
+    <td><input type="checkbox" name="airstrip" value="{{ airstrip.ident }}"
+        {% if airstrip in attached %} checked="checked" {% endif %}></input></td>
+</tr>
+{% endfor %}
+<tr>
+    <td></td>
+    <td></td>
+    <td><input type="submit" class="enlarged-button" value="Apply Changes" /></th>
+</tr>
+</table>
+</form>
+{% endblock content %}
