@@ -12,7 +12,7 @@ window.onload = function() {
     airstrips.onchange = function() {
         if(this.selectedIndex != 0) {
             if(bases.selectedIndex != 0) {
-                console.debug('Resetting selection index on id_base');
+                console.log('Resetting selection index on id_base');
                 bases.selectedIndex = 0;
             }
         }
@@ -21,7 +21,7 @@ window.onload = function() {
     bases.onchange = function() {
         if(this.selectedIndex != 0) {
             if(airstrips.selectedIndex != 0) {
-                console.debug('Resetting selection index on id_airstrip');
+                console.log('Resetting selection index on id_airstrip');
                 airstrips.selectedIndex = 0;
             }
         }
