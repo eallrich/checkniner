@@ -195,9 +195,6 @@ class BaseEditAttached(LoginRequiredMixin, DetailView):
             messages.add_message(request, messages.ERROR, message)
             to_add.remove(base)
         
-        logger.debug("Add: %r" % to_add)
-        logger.debug("Delete: %r" % to_delete)
-        
         if not to_add and not to_delete:
             message = "Nothing updated; No changes necessary."
             messages.add_message(request, messages.SUCCESS, message)
@@ -206,6 +203,7 @@ class BaseEditAttached(LoginRequiredMixin, DetailView):
                 for airstrip in to_add:
                     airstrip.bases.add(base)
                 updates = ', '.join([airstrip.name for airstrip in to_add])
+                logger.info("%s is attaching the following to %s: %s" % (request.user.username, base.ident, updates))
                 message = "Attached: %s" % updates
                 messages.add_message(request, messages.SUCCESS, message)
             
@@ -213,6 +211,7 @@ class BaseEditAttached(LoginRequiredMixin, DetailView):
                 for airstrip in to_delete:
                     airstrip.bases.remove(base)
                 updates = ', '.join([airstrip.name for airstrip in to_delete])
+                logger.info("%s is detaching the following from %s: %s" % (request.user.username, base.ident, updates))
                 message = "Unattached: %s" % updates 
                 messages.add_message(request, messages.SUCCESS, message)
         
@@ -348,7 +347,7 @@ class CheckoutEditFormView(LoginRequiredMixin, TemplateView):
                                 aircraft_type__in=aircraft_types)
                 
                 for c in checkouts:
-                    logger.info("Deleting '%s'" % c)
+                    logger.info("%s is deleting '%s'" % (request.user.username, c))
                     # We'll be pretending that all of the requested checkouts
                     # were deleted, even if they never existed, so we need to
                     # keep track of which ones haven't really been deleted.
@@ -387,7 +386,7 @@ class CheckoutEditFormView(LoginRequiredMixin, TemplateView):
                                     "Already exists: '%s'" % c)
                     else:
                         c = Checkout(pilot=pilot, airstrip=airstrip, aircraft_type=ac_type)
-                        logger.info("Adding '%s'" % c)
+                        logger.info("%s is adding '%s'" % (request.user.username, c))
                         c.save()
                         messages.add_message(request, messages.SUCCESS, "Added '%s'" % c)
         
