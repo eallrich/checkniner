@@ -48,8 +48,14 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'checkouts', ['Checkout'])
 
+        # Adding unique constraint on 'Checkout', fields ['pilot', 'airstrip', 'aircraft_type']
+        db.create_unique(u'checkouts_checkout', ['pilot_id', 'airstrip_id', 'aircraft_type_id'])
+
 
     def backwards(self, orm):
+        # Removing unique constraint on 'Checkout', fields ['pilot', 'airstrip', 'aircraft_type']
+        db.delete_unique(u'checkouts_checkout', ['pilot_id', 'airstrip_id', 'aircraft_type_id'])
+
         # Deleting model 'Airstrip'
         db.delete_table(u'checkouts_airstrip')
 
@@ -111,7 +117,7 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'})
         },
         u'checkouts.checkout': {
-            'Meta': {'object_name': 'Checkout'},
+            'Meta': {'unique_together': "(('pilot', 'airstrip', 'aircraft_type'),)", 'object_name': 'Checkout'},
             'aircraft_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['checkouts.AircraftType']"}),
             'airstrip': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['checkouts.Airstrip']"}),
             'created': ('model_utils.fields.AutoCreatedField', [], {'default': 'datetime.datetime.now'}),

@@ -82,6 +82,10 @@ class Checkout(TimeStampedModel):
     # their date data when imported, while new checkouts default to 'today.'
     # =========================================================================
     date = models.DateField(auto_now_add=True)
-
+    
     def __unicode__(self):
         return '%s is checked out at %s in a %s' % (self.pilot, self.airstrip, self.aircraft_type)
+    
+    class Meta:
+        unique_together = (('pilot', 'airstrip', 'aircraft_type'),)
+
