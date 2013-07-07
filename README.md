@@ -36,6 +36,7 @@ $ echo "export DATABASE_URL=sqlite:////home/user/checkniner/cotracker/dev.db" >>
 $ echo "export DJANGO_SETTINGS_MODULE=cotracker.settings.development" >> bin/activate
 $ echo "export PYTHONPATH=/home/user/checkniner/cotracker/" >> bin/activate
 $ echo "export SECRET_KEY=aV3ryLong14c0mpl1ca73dStRin9" >> bin/activate
+$ echo "export SENTRY_DSN=https://secret:password@example.com/2" >> bin/activate
 ```
 
 Optional environment variables:
