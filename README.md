@@ -26,6 +26,7 @@ The following environment variables are expected:
 + DJANGO_SETTINGS_MODULE (e.g. cotracker.settings.production)
 + PYTHONPATH (e.g. /home/user/checkniner/cotracker/)
 + SECRET_KEY (e.g. aV3ryLong14c0mpl1ca73dStRin9)
++ SENTRY_DSN (e.g. https://user:key@host.com/3)
 
 These can be set in checkniner/bin/activate to ensure that they will always be available
 when running in the virtualenv.
