@@ -360,7 +360,7 @@ class CheckoutEditFormView(LoginRequiredMixin, TemplateView):
                 # Now that all the checkouts which actually existed have been
                 # deleted, we'll build 'delete successful' messages for each
                 # of the remainders.
-                if len(aircraft_types) > 0:
+                if aircraft_types.count() > 0:
                     for ac_type in aircraft_types:
                         c = "%s is checked out at %s in a %s" % (pilot, airstrip, ac_type)
                         logger.info("Pretending to delete non-existent checkout '%s'" % c)
@@ -378,7 +378,7 @@ class CheckoutEditFormView(LoginRequiredMixin, TemplateView):
                     # the user that we found a duplicate (although it's still
                     # styled as a 'success' message).
                     if existing.exists():
-                        c = existing[0]
+                        c = existing.get()
                         logger.debug("Prevented duplicate '%s'" % c)
                         messages.add_message(
                                     request, 
