@@ -37,6 +37,7 @@ class Analytics():
         """Organizes info from each request/response and saves it to a log."""
         context = self.collect_request_details(request)
         context['status'] = response.status_code
+        context['bytes'] = len(response.content)
         
         if hasattr(request, '_analytics_start_time'):
             elapsed = (time.time() - request._analytics_start_time) * 1000.0
@@ -45,7 +46,7 @@ class Analytics():
             logger.error("Unable to provide timing data for request")
             context['elapsed'] = -1.0
         
-        template = "%(user)s@%(ip)s: %(method)s %(path)s %(elapsed).03fms %(status)s \"%(useragent)s\""
+        template = "client=%(user)s@%(ip)s method=%(method)s path=%(path)s real=%(elapsed).0fms status=%(status)s bytes=%(bytes)s useragent=\"%(useragent)s\""
         logger.info(template % context)
         
         return response
