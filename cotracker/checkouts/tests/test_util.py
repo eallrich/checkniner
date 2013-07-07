@@ -497,15 +497,6 @@ class CheckoutsBelumSelesaiTests(TestCase):
                 actype2.name: util.CHECKOUT_UNPRECEDENTED,
             },
         }, {
-            'pilot_name': c1.pilot.full_name,
-            'pilot_slug': pilot1.username,
-            'airstrip_ident': airstrip3.ident,
-            'airstrip_name': airstrip3.name,
-            'actypes': {
-                actype1.name: util.CHECKOUT_UNPRECEDENTED,
-                actype2.name: util.CHECKOUT_UNPRECEDENTED,
-            },
-        }, {
             'pilot_name': c3.pilot.full_name,
             'pilot_slug': pilot2.username,
             'airstrip_ident': airstrip1.ident,
@@ -521,15 +512,6 @@ class CheckoutsBelumSelesaiTests(TestCase):
             'airstrip_name': airstrip2.name,
             'actypes': {
                 actype1.name: util.CHECKOUT_SUDAH,
-                actype2.name: util.CHECKOUT_UNPRECEDENTED,
-            },
-        }, {
-            'pilot_name': c3.pilot.full_name,
-            'pilot_slug': pilot2.username,
-            'airstrip_ident': airstrip3.ident,
-            'airstrip_name': airstrip3.name,
-            'actypes': {
-                actype1.name: util.CHECKOUT_UNPRECEDENTED,
                 actype2.name: util.CHECKOUT_UNPRECEDENTED,
             },
         },]
