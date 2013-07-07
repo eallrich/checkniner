@@ -1,6 +1,11 @@
+import logging
+
 from django.contrib.auth.models import User, Group
 
 from .models import AircraftType, Airstrip, Checkout
+
+
+logger = logging.getLogger(__name__)
 
 
 """
@@ -23,14 +28,17 @@ CHECKOUT_UNPRECEDENTED = "unprecedented"
 
 
 def choices_checkout_status():
+    """Provides a consistent method for getting the list of choice tuples."""
     return [(CHECKOUT_SUDAH, CHECKOUT_SUDAH_LABEL), (CHECKOUT_BELUM, CHECKOUT_BELUM_LABEL)]
 
 
 def get_pilots():
+    """Returns an ordered queryset of Users in the Pilots group"""
     return User.objects.filter(groups__name="Pilots").order_by('last_name','first_name')
 
 
 def get_bases():
+    """Returns an ordered queryset of Airstrips which are bases"""
     return Airstrip.objects.filter(is_base=True).order_by('ident')
 
 
@@ -62,8 +70,8 @@ def get_pilot_airstrip_pairs(pilot=None, airstrip=None, base=None, **kwargs):
 
 
 def get_precedented_checkouts():
-    """Provides a two-tier dictionary summarizing whether each
-    airstrip has an existing checkout entry for each aircraft.
+    """Provides a two-tier dictionary summarizing whether each airstrip has an
+    existing checkout entry for each aircraft.
     
     precedented = {
         'airstrip_ident': {
@@ -89,6 +97,7 @@ def get_precedented_checkouts():
 
 
 def checkout_filter(pilot=None, airstrip=None, base=None, **kwargs):
+    """Core function for collecting a set of checkout objects"""
     core_query = Checkout.objects.all()
     if pilot != None:
         core_query = core_query.filter(pilot=pilot)
@@ -108,7 +117,7 @@ def checkout_filter(pilot=None, airstrip=None, base=None, **kwargs):
     actypes = get_aircrafttype_names()
     results = []
     for c in checkouts:
-        if len(results) > 0:
+        if results:
             r = results.pop()
             if r['pilot_slug'] == c.pilot.username and r['airstrip_ident'] == c.airstrip.ident:
                 r['actypes'][c.aircraft_type.name] = CHECKOUT_SUDAH
@@ -138,6 +147,8 @@ def checkout_filter(pilot=None, airstrip=None, base=None, **kwargs):
 
 
 def sudah_selesai(**kwargs):
+    """Gathers complete checkouts and returns them in a dictionary format as
+    expected by the display_checkouts template."""
     results = {
         'populate': {
             'pilot': True,
@@ -151,13 +162,13 @@ def sudah_selesai(**kwargs):
 
 
 def belum_selesai(**kwargs):
+    """Gathers incomplete checkouts and returns them in a dictionary format as
+    expected by the display_checkouts template."""
     results = {
         'populate': {
             'pilot': True,
             'airstrip': True,
         },
-        #'aircraft_types': get_aircrafttype_names(),
-        #'results': checkout_filter(**kwargs),
     }
     
     original_checkouts = checkout_filter(**kwargs)
@@ -197,7 +208,7 @@ def belum_selesai(**kwargs):
     
     if next_pair_index != len(pilots_v_airstrips):
         # Still some missing pairs
-        for i in range(next_pair_index,len(pilots_v_airstrips)):
+        for i in range(next_pair_index, len(pilots_v_airstrips)):
             expected_pair = pilots_v_airstrips[i]
             pilot_slug, airstrip_ident = expected_pair
             pilot = User.objects.get(username=pilot_slug)
@@ -219,17 +230,25 @@ def belum_selesai(**kwargs):
     for c in belum_selesai_checkouts:
         ident = c['airstrip_ident']
         incomplete = False
-        for ac,status in c['actypes'].items():
+        unprecedented_count = 0
+        for ac, status in c['actypes'].items():
             if status == CHECKOUT_BELUM:
                 incomplete = True
                 # A Belum should be changed to Unprecedented when no pilot has
                 # been checked out at the given location in the given AircraftType
                 if ident not in precedented or ac not in precedented[ident]:
                     c['actypes'][ac] = CHECKOUT_UNPRECEDENTED
+                    unprecedented_count += 1
         
         # Only save entries with BELUM or UNPRECEDENTED statuses
         if incomplete:
-            checkouts.append(c)
+            # But only if the airstrip has at least one valid checkout. If it
+            # doesn't have any existing checkouts, then we're not going to show
+            # it at as a 'belum selesai' airstrip.
+            if unprecedented_count == len(actypes):
+                logger.debug("Dropping %s: airstrip is globally unprecedented" % ident)
+            else:
+                checkouts.append(c)
     
     results['results'] = checkouts
     return results
