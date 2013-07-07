@@ -168,7 +168,8 @@ LOGGING = {
             'format': '[%(process)s] [%(levelname)s] %(message)s',
         },
         'analytics_log': {
-            'format': '%(asctime)s: at=%(levelname)s worker=%(process)s %(message)s',
+            'format': '%(asctime)s [%(process)s]: at=%(levelname)s %(message)s',
+            'datefmt': "%Y-%m-%dT%H:%M:%S%z",
         },
     },
     'handlers': {
