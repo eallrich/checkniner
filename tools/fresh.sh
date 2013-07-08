@@ -65,23 +65,22 @@ python cotracker/manage.py collectstatic --noinput
 
 # Ensure we'll be asked for the password
 sudo -k
-echo $PASSWORD | sudo -S -v
 
 cd /etc/supervisor/conf.d/
-sudo cp $SITE_ROOT/etc/supervisor.gunicorn.conf gunicorn.conf
+echo $PASSWORD | sudo -S cp $SITE_ROOT/etc/supervisor.gunicorn.conf gunicorn.conf
 ORIGINAL=\\/home\\/ubuntu\\/checkniner\\/
-sudo sed -i s/$ORIGINAL/$SITE_ROOT/g gunicorn.conf
-sudo service supervisor stop
-sudo service supervisor start
+echo $PASSWORD | sudo -S sed -i s/$ORIGINAL/$SITE_ROOT/g gunicorn.conf
+echo $PASSWORD | sudo -S service supervisor stop
+echo $PASSWORD | sudo -S service supervisor start
 
 cd /etc/nginx/sites-enabled/
-sudo rm default
-sudo cp $SITE_ROOT/etc/nginx.checkniner ../sites-available/checkniner
-sudo ln -s ../sites-available/checkniner
+echo $PASSWORD | sudo -S rm default
+echo $PASSWORD | sudo -S cp $SITE_ROOT/etc/nginx.checkniner ../sites-available/checkniner
+echo $PASSWORD | sudo -S ln -s ../sites-available/checkniner
 ORIGINAL=\\/home\\/ubuntu\\/checkniner\\/
-sudo sed -i s/$ORIGINAL/$SITE_ROOT/g checkniner
-sudo sed -i s/example.com/$ALLOWED_HOST/g checkniner
-sudo service nginx restart
+echo $PASSWORD | sudo -S sed -i s/$ORIGINAL/$SITE_ROOT/g checkniner
+echo $PASSWORD | sudo -S sed -i s/example.com/$ALLOWED_HOST/g checkniner
+echo $PASSWORD | sudo -S service nginx restart
 
 echo ""
 echo "Fresh deployment script complete"
