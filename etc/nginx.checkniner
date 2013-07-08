@@ -1,0 +1,29 @@
+# Template configuration. Replace:
+# + /home/ubuntu/checkniner with the site root
+# + example.com with ALLOWED_HOST
+
+upstream gunicorn {
+    server unix:/home/ubuntu/checkniner/sock/gunicorn;
+}
+
+server {
+    listen 80;
+    server_name example.com;
+    access_log /var/log/nginx/example.com.access.log;
+    error_log /var/log/nginx/example.com.error.log;
+    
+    try_files $uri @gunicorn;
+    
+    # Nginx should serve static assets directly
+    location /static/ {
+        alias /home/ubuntu/checkniner/cotracker/static/;
+    }
+    
+    location @gunicorn {
+        proxy_pass http://gunicorn;
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
