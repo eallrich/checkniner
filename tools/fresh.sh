@@ -63,9 +63,24 @@ python cotracker/manage.py syncdb --noinput --no-initial-data
 python cotracker/manage.py migrate
 python cotracker/manage.py collectstatic --noinput
 
-# TODO: Supervisor setup
+# Ensure we'll be asked for the password
+sudo -k
 
-# TODO: Nginx setup
+cd /etc/supervisor/conf.d/
+echo $PASSWORD | sudo -S cp $SITE_ROOT/etc/supervisor.gunicorn.conf gunicorn.conf
+ORIGINAL=\\/home\\/ubuntu\\/checkniner\\/
+sudo sed -i s/$ORIGINAL/$SITE_ROOT/g gunicorn.conf
+sudo service supervisor stop
+sudo service supervisor start
+
+cd /etc/nginx/sites-enabled/
+sudo rm default
+sudo cp $SITE_ROOT/etc/nginx.checkniner ../sites-available/checkniner
+sudo ln -s ../sites-available/checkniner
+ORIGINAL=\\/home\\/ubuntu\\/checkniner\\/
+sudo sed -i s/$ORIGINAL/$SITE_ROOT/g checkniner
+sudo sed -i s/example.com/$ALLOWED_HOST/g checkniner
+sudo service nginx restart
 
 echo ""
 echo "Fresh deployment script complete"
