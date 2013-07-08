@@ -127,6 +127,7 @@ $ checkniner/tools/bootstrap.sh user@example.com example.com https://access:key@
 + The domain name for the site is example.com
 + The user is 'ubuntu' with HOME at /home/ubuntu/
 + The following commands, or equivalents, have already been run:
+
 ```shell
 $ sudo apt-get update && sudo apt-get dist-upgrade
 $ sudo apt-get install language-pack-en
