@@ -46,8 +46,8 @@ div#header a {
     border-right-style:  solid;
     border-right-width:  1px;
     color:               #000000;
-    /* The -6 Left offsets the +6 Left padding on 'div#header ul' */
-    margin:              0px 0px 0px -6px;
+    /* The -7 Left offsets the +6 Left padding on 'div#header ul' */
+    margin:              0px 0px 0px -7px;
     padding:             25px 15px 26px 15px;
     text-decoration:     none;
 }
@@ -57,6 +57,12 @@ div#header .current {
     border-bottom-color: #FFFFFF;
     border-bottom-style: solid;
     border-bottom-width: 2px;
+    /* Dark Blue */
+    border-top-color: #0B73F7;
+    border-top-style: solid;
+    border-top-width: 3px;
+    /* Giving the border a bit of room to peek through */
+    padding-top: 22px;
 }
 
 div#header a:hover,
