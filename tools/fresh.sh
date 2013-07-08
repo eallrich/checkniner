@@ -65,9 +65,10 @@ python cotracker/manage.py collectstatic --noinput
 
 # Ensure we'll be asked for the password
 sudo -k
+echo $PASSWORD | sudo -S -v
 
 cd /etc/supervisor/conf.d/
-echo $PASSWORD | sudo -S cp $SITE_ROOT/etc/supervisor.gunicorn.conf gunicorn.conf
+sudo cp $SITE_ROOT/etc/supervisor.gunicorn.conf gunicorn.conf
 ORIGINAL=\\/home\\/ubuntu\\/checkniner\\/
 sudo sed -i s/$ORIGINAL/$SITE_ROOT/g gunicorn.conf
 sudo service supervisor stop
