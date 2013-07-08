@@ -24,7 +24,7 @@ SENTRY_DSN=$2
 PG_DATABASE=checkniner
 PG_USERNAME=`whoami`
 SECRET_KEY=$(python -c "import base64, os; print base64.b64encode(os.urandom(40))")
-SITE_ROOT=~/checkniner/
+SITE_ROOT=~/checkniner
 
 # For sudo
 # When called by bootstrap.sh, the password is provided automatically
@@ -68,7 +68,7 @@ sudo -k
 
 cd /etc/supervisor/conf.d/
 echo $PASSWORD | sudo -S cp $SITE_ROOT/etc/supervisor.gunicorn.conf gunicorn.conf
-ORIGINAL=\\/home\\/ubuntu\\/checkniner\\/
+ORIGINAL=\\/home\\/ubuntu\\/checkniner
 echo $PASSWORD | sudo -S sed -i s/$ORIGINAL/$SITE_ROOT/g gunicorn.conf
 echo $PASSWORD | sudo -S service supervisor stop
 echo $PASSWORD | sudo -S service supervisor start
@@ -77,7 +77,7 @@ cd /etc/nginx/sites-enabled/
 echo $PASSWORD | sudo -S rm default
 echo $PASSWORD | sudo -S cp $SITE_ROOT/etc/nginx.checkniner ../sites-available/checkniner
 echo $PASSWORD | sudo -S ln -s ../sites-available/checkniner
-ORIGINAL=\\/home\\/ubuntu\\/checkniner\\/
+ORIGINAL=\\/home\\/ubuntu\\/checkniner
 echo $PASSWORD | sudo -S sed -i s/$ORIGINAL/$SITE_ROOT/g checkniner
 echo $PASSWORD | sudo -S sed -i s/example.com/$ALLOWED_HOST/g checkniner
 echo $PASSWORD | sudo -S service nginx restart
