@@ -105,7 +105,6 @@ These steps walk through a single-node deployment on Ubuntu 12.04 using:
 
 If you're already connected to the target server:
 ```shell
-$ cd ~
 $ sudo apt-get update && sudo apt-get dist-upgrade
 # Postgres installation will fail if locales are not set correctly, so set them
 $ sudo apt-get install git language-pack-en
