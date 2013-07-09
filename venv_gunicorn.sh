@@ -8,7 +8,7 @@
 # up and running.
 # ============================================================================
 
-SITE_ROOT=`pwd`
+SITE_ROOT=$(dirname $0)
 SOCKET=$SITE_ROOT/sock/gunicorn
 SOCKET_DIRECTORY=$(dirname $SOCKET)
 WORKERS=3
