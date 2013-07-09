@@ -21,7 +21,8 @@ SENTRY_DSN=$3
 # + byobu because it's awesome and if I have to SSH in I'll want it
 # + git to retrieve the repository
 # + language-pack-en to resolve locale issues in some environments (e.g. LXC)
-CORE="byobu git language-pack-en"
+# + fail2ban to provide desirable defense against some attacks
+CORE="byobu git language-pack-en fail2ban"
 
 REPOSITORY=https://github.com/eallrich/checkniner.git
 SSH_ID=~/.ssh/id_rsa.pub
