@@ -19,6 +19,15 @@ server {
         alias /home/ubuntu/checkniner/cotracker/static/;
     }
     
+    # The favicon will not have the /static/ prefix used by django
+    location /favicon.ico {
+        alias /home/ubuntu/checkniner/cotracker/static/favicon.ico;
+    }
+    
+    location /robots.txt {
+        alias /home/ubuntu/checkniner/cotracker/static/robots.txt;
+    }
+    
     location @gunicorn {
         proxy_pass http://gunicorn;
         proxy_redirect off;
