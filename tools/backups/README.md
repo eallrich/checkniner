@@ -8,7 +8,7 @@ The backup process should:
 
 1. Run automatically
 2. Provide a data resolution of five minutes
-3. Save an archive if the data has changed since the last iteration
+3. Save an archive if the business data has changed since the last iteration
 4. Distribute saved archives to a secondary location
 
 Stages
@@ -20,6 +20,6 @@ Stages
     + Using django's dumpdata command to get JSON fixtures for each app
 3. If a prior archive does not exist, assume this is the first run and go to 5
 4. If the new dataset is identical to the existing one, exit the backup script
-    + Comparing via SHA1 hashes of the new and existing pg\_dump outputs
+    + Comparing via SHA1 hashes of the new/existing auth and checkouts fixtures
 5. Package the archive into a single .tar.gz
 6. Upload the file to S3 via boto
