@@ -15,3 +15,6 @@ cotracker/static/
 .coverage
 htmlcov/
 logs/
+
+# Exceptions to the rules
+!cotracker/static/favicon.ico
