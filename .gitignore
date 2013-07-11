@@ -16,5 +16,3 @@ cotracker/static/
 htmlcov/
 logs/
 
-# Exceptions to the rules
-!cotracker/static/favicon.ico
