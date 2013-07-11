@@ -19,8 +19,12 @@ class Analytics():
             'ip':        request.META['REMOTE_ADDR'],
             'method':    request.method,
             'path':      request.path,
-            'useragent': request.META['HTTP_USER_AGENT'],
         }
+        
+        try:
+            context['useragent'] = request.META['HTTP_USER_AGENT']
+        except KeyError:
+            context['useragent'] = 'None'
         
         if hasattr(request, 'user') and request.user.is_authenticated():
             context['user'] = request.user.username
