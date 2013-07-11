@@ -18,7 +18,7 @@
 #   ./fresh.sh example.com https://access:key@example.com/2
 # ============================================================================
 
-ALLOWED_HOST=$1
+ALLOWED_HOSTS=$1
 SENTRY_DSN=$2
 
 PG_DATABASE=checkniner
@@ -50,7 +50,7 @@ virtualenv .
 source bin/activate
 pip install -r requirements.txt
 
-echo "export ALLOWED_HOST=$ALLOWED_HOST" >> bin/activate
+echo "export ALLOWED_HOSTS=$ALLOWED_HOSTS" >> bin/activate
 echo "export DATABASE_URL=postgres://$PG_USERNAME@/$PG_DATABASE" >> bin/activate
 echo "export DJANGO_SETTINGS_MODULE=cotracker.settings.production" >> bin/activate
 echo "export PYTHONPATH=$SITE_ROOT/cotracker/" >> bin/activate
@@ -80,7 +80,10 @@ echo $PASSWORD | sudo -S rm default
 echo $PASSWORD | sudo -S cp $SITE_ROOT/etc/nginx.checkniner ../sites-available/checkniner
 echo $PASSWORD | sudo -S ln -s ../sites-available/checkniner
 echo $PASSWORD | sudo -S sed -i s@$DEFAULT_SITE_ROOT@$SITE_ROOT@g checkniner
-echo $PASSWORD | sudo -S sed -i s/example.com/$ALLOWED_HOST/g checkniner
+# Note that if ALLOWED_HOSTS contains comma-seperated entries such as 
+# 'example.com,www.example.com' this sed call will incorrectly replace the 
+# nginx server_name config.
+echo $PASSWORD | sudo -S sed -i s/example.com/$ALLOWED_HOSTS/g checkniner
 echo $PASSWORD | sudo -S service nginx restart
 
 echo ""

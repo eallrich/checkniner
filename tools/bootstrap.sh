@@ -15,7 +15,7 @@
 # ============================================================================
 
 CONNECTION=$1
-ALLOWED_HOST=$2
+ALLOWED_HOSTS=$2
 SENTRY_DSN=$3
 
 # + byobu because it's awesome and if I have to SSH in I'll want it
@@ -42,7 +42,7 @@ ssh $CONNECTION "git clone $REPOSITORY"
 echo ""
 echo "Bootstrap complete, initiating fresh deployment"
 
-echo $PASSWORD | ssh $CONNECTION "~/checkniner/tools/fresh.sh $ALLOWED_HOST $SENTRY_DSN"
+echo $PASSWORD | ssh $CONNECTION "~/checkniner/tools/fresh.sh $ALLOWED_HOSTS $SENTRY_DSN"
 
 echo ""
 echo "Done!"

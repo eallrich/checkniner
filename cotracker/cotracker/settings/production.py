@@ -9,4 +9,4 @@ TEMPLATE_DEBUG = DEBUG
 ADMINS = ()
 MANAGERS = ADMINS
 
-ALLOWED_HOSTS = [get_env_var('ALLOWED_HOST'),]
+ALLOWED_HOSTS = tuple(get_env_var('ALLOWED_HOSTS').split(','))

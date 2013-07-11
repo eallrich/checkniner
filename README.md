@@ -40,7 +40,7 @@ $ echo "export SENTRY_DSN=https://access:key@example.com/2" >> bin/activate
 ```
 
 When running in a production configuration (i.e. DEBUG is False), the following env vars are also required:
-+ ALLOWED_HOST (e.g. example.com)
++ ALLOWED_HOSTS (e.g. example.com or example.com,www.example.com)
 
 Optional environment variables:
 + FORCE_DEBUG_MODE (e.g. true) -- Override the DEBUG flag when using settings.production
@@ -109,7 +109,7 @@ $ sudo apt-get update && sudo apt-get dist-upgrade
 # Postgres installation will fail if locales are not set correctly, so set them
 $ sudo apt-get install git language-pack-en
 $ git clone https://github.com/eallrich/checkniner.git
-# Call fresh.sh with the ALLOWED_HOST value and the SENTRY_DSN
+# Call fresh.sh with the ALLOWED\_HOST value and the SENTRY\_DSN
 $ ~/checkniner/tools/fresh.sh example.com https://access:key@example.com/2
 ```
 
@@ -117,7 +117,7 @@ If you want to set up the app on a different server:
 ```shell
 # Assuming you already have a copy of the repository locally
 # Call bootstrap.sh with the SSH connection string of the target server, the
-# ALLOWED_HOST value, and the SENTRY_DSN
+# ALLOWED\_HOST value, and the SENTRY\_DSN
 $ checkniner/tools/bootstrap.sh user@example.com example.com https://access:key@example.com/2
 ```
 
@@ -181,7 +181,7 @@ I think it's easiest to save these to the virtualenv's activation script so
 that they're always defined when we need them:
 
 ```shell
-$ echo "export ALLOWED_HOST=example.com" >> bin/activate
+$ echo "export ALLOWED_HOSTS=example.com" >> bin/activate
 $ echo "export DATABASE_URL=postgres://ubuntu@/checkniner" >> bin/activate
 $ echo "export DJANGO_SETTINGS_MODULE=cotracker.settings.production" >> bin/activate
 $ echo "export PYTHONPATH=/home/ubuntu/checkniner/cotracker/" >> bin/activate
