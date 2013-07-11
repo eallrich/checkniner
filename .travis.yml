@@ -7,4 +7,4 @@ env:
     - SECRET_KEY=supersecretkey
     - SENTRY_DSN=ignored
 install: "pip install -r requirements/development.txt --use-mirrors"
-script: "coverage run cotracker/manage.py test --settings=cotracker.settings.test"
+script: "cd cotracker && coverage run manage.py test --settings=cotracker.settings.test"
