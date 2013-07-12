@@ -23,3 +23,10 @@ Stages
     + Comparing via SHA1 hashes of the new/existing auth and checkouts fixtures
 5. Package the archive into a single .tar.gz
 6. Upload the file to S3 via boto
+
+Dependencies
+------------
+
++ dj\_database\_url to parse the database connection parameters
++ envoy to run commands outside python
++ S3 access and secret keys for boto
