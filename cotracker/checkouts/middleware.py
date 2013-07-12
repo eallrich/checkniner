@@ -47,7 +47,6 @@ class Analytics():
             elapsed = (time.time() - request._analytics_start_time) * 1000.0
             context['elapsed'] = elapsed
         else:
-            logger.error("Unable to provide timing data for request")
             context['elapsed'] = -1.0
         
         template = "client=%(user)s@%(ip)s method=%(method)s path=%(path)s real=%(elapsed).0fms status=%(status)s bytes=%(bytes)s useragent=\"%(useragent)s\""
