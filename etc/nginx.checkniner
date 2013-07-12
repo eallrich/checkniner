@@ -9,8 +9,8 @@ upstream gunicorn {
 server {
     listen 80;
     server_name example.com;
-    access_log /var/log/nginx/example.com.access.log;
-    error_log /var/log/nginx/example.com.error.log;
+    access_log /var/log/nginx/checkniner.access.log;
+    error_log /var/log/nginx/checkniner.error.log;
     
     try_files $uri @gunicorn;
     
