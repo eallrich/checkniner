@@ -139,13 +139,13 @@ class BaseEditAttached(LoginRequiredMixin, DetailView):
         # Security Check
         # --------------
         # This would be unusual, but just in case: make sure that the request
-        # is from a superuser.
-        if request.user.is_superuser:
+        # is from a superuser or flight scheduler.
+        if request.user.is_superuser or request.user.is_flight_scheduler:
             return super(BaseEditAttached, self).get(request, *args, **kwargs)
         else:
             username = request.user.username
-            logger.warn("Forbidden: '%s' attempted to edit base attachments without 'superuser' status" % username)
-            message = "Only admins may modify which airstrips are attached to a base."""
+            logger.warn("Forbidden: '%s' attempted to edit base attachments without 'superuser' or 'flight scheduler' status" % username)
+            message = "Only flight schedulers may modify which airstrips are attached to a base."""
             return self.forbidden(request, message)
     
     def get_context_data(self, **kwargs):
@@ -165,11 +165,11 @@ class BaseEditAttached(LoginRequiredMixin, DetailView):
         # Security Check
         # --------------
         # This would be unusual, but just in case: make sure that the request
-        # is from a superuser.
-        if not request.user.is_superuser:
+        # is from a superuser or flight scheduler.
+        if not request.user.is_superuser and not request.user.is_flight_scheduler:
             username = request.user.username
-            logger.warn("Forbidden: '%s' attempted to save base attachments without 'superuser' status" % username)
-            message = "Only admins may modify which airstrips are attached to a base."""
+            logger.warn("Forbidden: '%s' attempted to save base attachments without 'superuser' or 'flight scheduler' status" % username)
+            message = "Only flight schedulers may modify which airstrips are attached to a base."""
             return self.forbidden(request, message)
         
         logger.debug(request.POST)
@@ -276,10 +276,11 @@ class CheckoutEditFormView(LoginRequiredMixin, TemplateView):
         # Security Check
         # --------------
         # This would be unusual, but just in case: make sure that the request
-        # is from a superuser or a pilot (normal users may not edit checkouts).
-        if not request.user.is_superuser and not request.user.is_pilot:
+        # is from a superuser, pilot, or flight scheduler (normal users may
+        # not edit checkouts).
+        if not request.user.is_superuser and not request.user.is_pilot and not request.user.is_flight_scheduler:
             username = request.user.username
-            logger.warn("Forbidden: '%s' is neither a pilot nor a superuser" % username)
+            logger.warn("Forbidden: '%s' is not a pilot, flight scheduler, nor superuser" % username)
             message = 'Only pilots may edit checkouts.'
             return self.forbidden(request, message)
         
@@ -290,7 +291,8 @@ class CheckoutEditFormView(LoginRequiredMixin, TemplateView):
             form = self.form_class()
         
         # Pilots may only edit their own checkouts if they are not a superuser
-        if not request.user.is_superuser:
+        # nor a flight scheduler.
+        if not request.user.is_superuser and not request.user.is_flight_scheduler:
             form['pilot'].field.queryset = User.objects.filter(pk=request.user.id)
         
         return self.render_to_response({'form': form})
@@ -303,10 +305,11 @@ class CheckoutEditFormView(LoginRequiredMixin, TemplateView):
         # Security Check
         # --------------
         # This would be unusual, but just in case: make sure that the request
-        # is from a superuser or a pilot (normal users may not edit checkouts).
-        if not request.user.is_superuser and not request.user.is_pilot:
+        # is from a superuser, pilot, or flight scheduler (normal users may
+        # not edit checkouts).
+        if not request.user.is_superuser and not request.user.is_pilot and not request.user.is_flight_scheduler:
             username = request.user.username
-            logger.warn("Forbidden: '%s' is neither a pilot nor a superuser" % username)
+            logger.warn("Forbidden: '%s' is not a pilot, flight scheduler, nor superuser" % username)
             message = 'Only pilots may edit checkouts.'
             return self.forbidden(request, message)
         
@@ -333,8 +336,8 @@ class CheckoutEditFormView(LoginRequiredMixin, TemplateView):
             # Security Check
             # --------------
             # This would be unusual, but just in case: if the user is not a
-            # superuser, they may only edit their own checkouts
-            if pilot != request.user and not request.user.is_superuser:
+            # superuser or flight scheduler, they may only edit their own checkouts
+            if pilot != request.user and not request.user.is_superuser and not request.user.is_flight_scheduler:
                 username = request.user.username
                 logger.warn("Forbidden: '%s' may not edit for '%s'" % (username, pilot.username))
                 message = 'Pilots may only edit their own checkouts.'
