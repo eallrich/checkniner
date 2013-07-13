@@ -8,7 +8,7 @@
     <tr>
         <th rowspan="2">Bases</th>
         <th colspan="2">Airstrips</th>
-        {% if user.is_superuser %}
+        {% if user.is_superuser or user.is_flight_scheduler %}
         <th rowspan="2"></th>
         {% endif %}
     </tr>
