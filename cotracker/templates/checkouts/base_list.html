@@ -18,7 +18,7 @@
         <td>{{ base.name }}</td>
         <td><a href="{% url 'base_attached_detail' base.ident %}">{{ attached_count }}</a></td>
         <td><a href="{% url 'base_unattached_detail' base.ident %}">{{ unattached_count }}</a></td>
-        {% if user.is_superuser %}
+        {% if user.is_superuser or user.is_flight_scheduler %}
         <td><a href="{% url 'base_edit' base.ident %}">Edit</a></td>
         {% endif %}
     </tr>

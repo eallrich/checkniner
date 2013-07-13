@@ -15,7 +15,7 @@
     <ul>
     {% with requested=request.path %}
     {% if user.is_authenticated %}
-        {% if user.is_superuser or user.is_pilot %}
+        {% if user.is_superuser or user.is_pilot or user.is_flight_scheduler %}
         <li>
             {% url 'checkout_edit' as current %}
             <a{% if current == requested %} class="current" {% endif %}
