@@ -28,6 +28,13 @@ def user_is_pilot(user):
     return user.groups.filter(name='Pilots').exists()
 User.is_pilot = property(user_is_pilot)
 
+# Similar to the need for an 'is_pilot' property, we need to recognize
+# flight schedulers.
+def user_is_flight_scheduler(user):
+    """Returns True if the given user is a member of the Flight Schedulers group"""
+    return user.groups.filter(name='Flight Schedulers').exists()
+User.is_flight_scheduler = property(user_is_flight_scheduler)
+
 
 # =============================================================================
 # == Proper checkouts app models
