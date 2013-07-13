@@ -1,7 +1,12 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from checkouts.models import (Checkout, user_full_name, user_is_pilot)
+from checkouts.models import (
+    Checkout,
+    user_full_name,
+    user_is_pilot,
+    user_is_flight_scheduler,
+)
 
 import helper
 
@@ -125,19 +130,35 @@ class ModelFunctionTests(TestCase):
                         last_name='User')
         self.assertFalse(user_is_pilot(normal_user))
 
+    def test_user_is_flight_scheduler(self):
+        flightsched_user = helper.create_flight_scheduler('scheduler','Flight','Scheduler')
+        self.assertTrue(user_is_flight_scheduler(flightsched_user))
+        
+        normal_user = User.objects.create_user(
+                        'username',
+                        'normal@example.com',
+                        'secret',
+                        first_name='Normal',
+                        last_name='User')
+        self.assertFalse(user_is_flight_scheduler(normal_user))
+
 
 class VerifyPatchedUserModelTests(TestCase):
     
     def setUp(self):
-        self.user = helper.create_pilot()
+        self.pilot = helper.create_pilot()
+        self.scheduler = helper.create_flight_scheduler()
     
     def test_full_name(self):
-        expected = '%s, %s' % (self.user.last_name, self.user.first_name)
-        self.assertEqual(self.user.full_name, expected) 
+        expected = '%s, %s' % (self.pilot.last_name, self.pilot.first_name)
+        self.assertEqual(self.pilot.full_name, expected) 
     
     def test_is_pilot(self):
-        self.assertTrue(self.user.is_pilot)
+        self.assertTrue(self.pilot.is_pilot)
+    
+    def test_is_flight_scheduler(self):
+        self.assertTrue(self.scheduler.is_flight_scheduler)
     
     def test_unicode(self):
-        expected = '%s, %s' % (self.user.last_name, self.user.first_name)
-        self.assertEqual(self.user.__unicode__(), expected)
+        expected = '%s, %s' % (self.pilot.last_name, self.pilot.first_name)
+        self.assertEqual(self.pilot.__unicode__(), expected)
