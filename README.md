@@ -109,7 +109,7 @@ $ sudo apt-get update && sudo apt-get dist-upgrade
 # Postgres installation will fail if locales are not set correctly, so set them
 $ sudo apt-get install git language-pack-en
 $ git clone https://github.com/eallrich/checkniner.git
-# Call fresh.sh with the ALLOWED\_HOST value and the SENTRY\_DSN
+# Call fresh.sh with the ALLOWED_HOST value and the SENTRY_DSN
 $ ~/checkniner/tools/fresh.sh example.com https://access:key@example.com/2
 ```
 
@@ -117,7 +117,7 @@ If you want to set up the app on a different server:
 ```shell
 # Assuming you already have a copy of the repository locally
 # Call bootstrap.sh with the SSH connection string of the target server, the
-# ALLOWED\_HOST value, and the SENTRY\_DSN
+# ALLOWED_HOST value, and the SENTRY_DSN
 $ checkniner/tools/bootstrap.sh user@example.com example.com https://access:key@example.com/2
 ```
 
