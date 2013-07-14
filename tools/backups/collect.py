@@ -11,18 +11,23 @@ from boto.s3.key import Key
 import dj_database_url
 import envoy
 
+
+# ISO 8601 YYYY-MM-DDTHH:MM:SS
 DATE_FORMAT = "%Y-%m-%dT%H:%M:%S"
+
 
 # Would be '[]' without the '--indent=4' argument to dumpdata
 EMPTY_FIXTURE = '[\n]\n'
 
+
 logging.basicConfig(
-    filename='collect.log',
+    filename='backup.log',
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s]: %(message)s",
     datefmt=DATE_FORMAT,
 )
 logger = logging.getLogger(__name__)
+
 
 def instrument(function):
     def wrapper(*args, **kwargs):
@@ -32,6 +37,7 @@ def instrument(function):
         milliseconds = end.microseconds / 1000
         return (milliseconds, r)
     return wrapper
+
 
 def capture_command(function):
     def wrapper(*args, **kwargs):
@@ -57,6 +63,7 @@ def capture_command(function):
         return r
     return wrapper
 
+
 def capture_function(function):
     def wrapper(*args, **kwargs):
         milliseconds, r = instrument(function)(*args, **kwargs)
@@ -64,16 +71,20 @@ def capture_function(function):
         return r
     return wrapper
 
+
 # Keep a log of the calls through envoy
 envoy.run = capture_command(envoy.run)
+
 
 def get_database_name(env='DATABASE_URL'):
     db_config = dj_database_url.config(env)
     return db_config['NAME']
 
+
 def get_django_settings(env='DJANGO_SETTINGS_MODULE'):
     name = os.environ[env]
     return importlib.import_module(name)
+
 
 def get_installed_app_names():
     settings = get_django_settings()
@@ -82,13 +93,16 @@ def get_installed_app_names():
     names = [n.split('.')[-1] for n in apps]
     return names
 
+
 def get_s3_credentials():
     access = os.environ['S3_ACCESS_KEY']
     secret = os.environ['S3_SECRET_KEY']
     return (access, secret)
 
+
 def get_s3_bucket_name():
     return os.environ['S3_BUCKET_NAME']
+
 
 def dump_postgres():
     database = get_database_name()
@@ -97,7 +111,8 @@ def dump_postgres():
     with open(filename, 'wb') as f:
         f.write(r.std_out)
     return filename
-    
+
+
 def dump_django_fixtures():
     filenames = []
     for name in get_installed_app_names():
@@ -111,6 +126,7 @@ def dump_django_fixtures():
             logger.warning("Skipping empty fixture for '%s'" % name)
     return filenames
 
+
 def sha1sum(file):
     m = hashlib.sha1()
     try:
@@ -121,6 +137,7 @@ def sha1sum(file):
         with open(file, 'rb') as f:
             m.update(f.read())
     return m.hexdigest()
+
 
 @capture_function
 def update_necessary():
@@ -143,6 +160,7 @@ def update_necessary():
                         return True
     return False
 
+
 @capture_function
 def package(filenames):
     latest = 'latest.tar.gz'
@@ -157,6 +175,7 @@ def package(filenames):
     os.symlink(filename, latest)
     return filename
 
+
 @capture_function
 def upload(filename):
     access, secret = get_s3_credentials()
@@ -168,6 +187,7 @@ def upload(filename):
     key.key = key_name
     key.set_contents_from_filename(filename)
     logger.info("Uploaded '%s' to '%s:%s'" % (filename, bucket_name, key_name))
+
 
 filenames = [dump_postgres(),]
 filenames.extend(dump_django_fixtures())
