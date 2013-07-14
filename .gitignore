@@ -16,3 +16,4 @@ cotracker/static/
 htmlcov/
 logs/
 tools/backups/*.tar.gz
+tools/backups/*.log
