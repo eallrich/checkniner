@@ -5,6 +5,9 @@ import logging
 import os
 import tarfile
 
+from boto.s3.connection import S3Connection
+from boto.s3.bucket import Bucket
+from boto.s3.key import Key
 import dj_database_url
 import envoy
 
@@ -15,7 +18,7 @@ EMPTY_FIXTURE = '[\n]\n'
 
 logging.basicConfig(
     filename='collect.log',
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="%(asctime)s [%(levelname)s]: %(message)s",
     datefmt=DATE_FORMAT,
 )
@@ -42,7 +45,7 @@ def capture_command(function):
         
         # Being much too clever: Dynamically decorate the given function with
         # the 'instrument' function so that we can capture timing data. Once
-        # it's decorated, we'll call the original function with the original
+        # the function is decorated, we'll call it with the original
         # parameters.
         milliseconds, r = instrument(function)(*args, **kwargs)
         bytes = len(r.std_out)
@@ -58,10 +61,6 @@ def capture_function(function):
     def wrapper(*args, **kwargs):
         milliseconds, r = instrument(function)(*args, **kwargs)
         logger.info("func=\"%s\" real=%dms" % (function.__name__, milliseconds))
-        if hasattr(r, 'std_err'):
-            # Print each non-blank line separately
-            lines = [line for line in r.std_err.split('\n') if line]
-            map(logger.error, lines)
         return r
     return wrapper
 
@@ -73,7 +72,7 @@ def get_database_name(env='DATABASE_URL'):
     return db_config['NAME']
 
 def get_django_settings(env='DJANGO_SETTINGS_MODULE'):
-    name = os.environ.get(env)
+    name = os.environ[env]
     return importlib.import_module(name)
 
 def get_installed_app_names():
@@ -82,6 +81,14 @@ def get_installed_app_names():
     # E.g. 'django.contrib.auth' -> 'auth'
     names = [n.split('.')[-1] for n in apps]
     return names
+
+def get_s3_credentials():
+    access = os.environ['S3_ACCESS_KEY']
+    secret = os.environ['S3_SECRET_KEY']
+    return (access, secret)
+
+def get_s3_bucket_name():
+    return os.environ['S3_BUCKET_NAME']
 
 def dump_postgres():
     database = get_database_name()
@@ -129,24 +136,46 @@ def update_necessary():
             for tarinfo in tar:
                 if tarinfo.name == name:
                     original = sha1sum(tar.extractfile(tarinfo))
-                    logger.debug("Was %s, now %s" % (original, proposed))
+                    logger.debug("Original: %s" % original)
+                    logger.debug("Proposed: %s" % proposed)
+                    if proposed != original:
+                        logger.debug("Digests differ for '%s'" % name)
+                        return True
     return False
 
 @capture_function
 def package(filenames):
+    latest = 'latest.tar.gz'
     logger.info("Packaging archive")
     logger.debug("Contents: %s" % filenames)
     date = datetime.datetime.now().strftime(DATE_FORMAT)
     filename = "%s.tar.gz" % date
     with tarfile.open(filename, 'w:gz') as archive:
         map(archive.add, filenames)
-    os.symlink(filename, 'latest.tar.gz')
+    if os.path.lexists(latest):
+        os.unlink(latest)
+    os.symlink(filename, latest)
     return filename
+
+@capture_function
+def upload(filename):
+    access, secret = get_s3_credentials()
+    bucket_name = get_s3_bucket_name()
+    key_name = 'db/%s' % filename
+    connection = S3Connection(access, secret)
+    bucket = Bucket(connection, bucket_name)
+    key = Key(bucket)
+    key.key = key_name
+    key.set_contents_from_filename(filename)
+    logger.info("Uploaded '%s' to '%s:%s'" % (filename, bucket_name, key_name))
 
 filenames = [dump_postgres(),]
 filenames.extend(dump_django_fixtures())
 if update_necessary():
     archive = package(filenames)
+    upload(archive)
     archive_size = os.path.getsize(archive)
-    logger.info("---- Archiving complete ---- bytes=%d --------------------" % archive_size)
+    logger.info("---- Uploading complete ---- bytes=%d --------------------" % archive_size)
+else:
+    logger.info("---- Digests match, ceasing activity ---------------------")
 map(os.remove, filenames)
