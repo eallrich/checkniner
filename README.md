@@ -238,3 +238,33 @@ $ sudo service nginx restart
 ### Verification ###
 
 If you visit http://example.com, things should be working!
+
+Backups
+-------
+
+Scripts to take snapshots of application data and upload the archives to S3
+when the business data changes are available in checkniner/tools/backups/. To
+set up the pipeline, add S3 Access and Secret keys, as well as the desired
+bucket name, to the virtualenv's shell activation script.
+
+```shell
+$ echo "export S3_ACCESS_KEY=0123456789ABCDEF" >> bin/activate
+$ echo "export S3_SECRET_KEY=ABCDEFGHIJKLMNOPQRSTUVWXYZ" >> bin/activate
+$ echo "export S3_BUCKET_NAME=snapshots.example.com" >> bin/activate
+```
+
+Install the python packages needed to collect and upload the snapshots:
+
+```shell
+$ pip install -r requirements/backups.txt
+```
+
+Cron is recommended for setting up the backup schedule:
+
+```shell
+# m  h  dom mon dow   command
+BACKUPS_ROOT=/home/ubuntu/checkniner/tools/backups
+*/15 *    *   *   *   $BACKUPS_ROOT/run.sh
+# On the first of the month, at 00:12, remove all .tar.gz files (except the latest)
+12   0    1   *   *   $BACKUPS_ROOT/clean.sh
+```
