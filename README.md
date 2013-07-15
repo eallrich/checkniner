@@ -83,13 +83,10 @@ $ pip install -r requirements/development.txt
 Then run the tests via coverage:
 
 ```shell
-$ coverage run cotracker/manage.py test --settings=cotracker.settings.test
-```
-
-A visual coverage report is available:
-
-```shell
-$ coverage html --include="./cotracker/*"
+$ cd cotracker
+$ coverage run manage.py test --settings=cotracker.settings.test
+# To generate a visual coverage report:
+$ coverage html --include="./*"
 ```
 
 Production
