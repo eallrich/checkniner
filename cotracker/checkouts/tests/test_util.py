@@ -177,6 +177,10 @@ class CheckoutFilterTests(TestCase):
         
         self.assertEqual(util.checkout_filter(), expected)
         
+        # Testing what happens when limiting to a particular aircraft type
+        expected[0]['actypes'].pop(actype2.name)
+        self.assertEqual(util.checkout_filter(aircraft_type=actype1), expected)
+        
         helper.create_checkout(aircraft_type=actype2, pilot=c.pilot, airstrip=c.airstrip)
         expected[0]['actypes'][actype2.name] = util.CHECKOUT_SUDAH
         
@@ -242,7 +246,7 @@ class CheckoutFilterTests(TestCase):
         c1 = helper.create_checkout(pilot=pilot1)
         
         expected = [{
-            'pilot_name': c1.pilot.full_name,
+            'pilot_name': pilot1.full_name,
             'pilot_slug': c1.pilot.username,
             'airstrip_ident': c1.airstrip.ident,
             'airstrip_name': c1.airstrip.name,
@@ -255,7 +259,7 @@ class CheckoutFilterTests(TestCase):
         
         c2 = helper.create_checkout(pilot=pilot2, airstrip=c1.airstrip, aircraft_type=c1.aircraft_type)
         r = {
-            'pilot_name': c2.pilot.full_name,
+            'pilot_name': pilot2.full_name,
             'pilot_slug': c2.pilot.username,
             'airstrip_ident': c2.airstrip.ident,
             'airstrip_name': c2.airstrip.name,
@@ -285,7 +289,7 @@ class CheckoutFilterTests(TestCase):
         c7 = helper.create_checkout(pilot=pilot2, airstrip=airstrip2, aircraft_type=actype2)
         
         expected = [{
-            'pilot_name': c1.pilot.full_name,
+            'pilot_name': pilot1.full_name,
             'pilot_slug': pilot1.username,
             'airstrip_ident': airstrip1.ident,
             'airstrip_name': airstrip1.name,
@@ -294,7 +298,7 @@ class CheckoutFilterTests(TestCase):
                 actype2.name: util.CHECKOUT_SUDAH,
             },
         }, {
-            'pilot_name': c1.pilot.full_name,
+            'pilot_name': pilot1.full_name,
             'pilot_slug': pilot1.username,
             'airstrip_ident': airstrip2.ident,
             'airstrip_name': airstrip2.name,
@@ -303,7 +307,7 @@ class CheckoutFilterTests(TestCase):
                 actype2.name: util.CHECKOUT_SUDAH,
             },
         }, {
-            'pilot_name': c4.pilot.full_name,
+            'pilot_name': pilot2.full_name,
             'pilot_slug': pilot2.username,
             'airstrip_ident': airstrip1.ident,
             'airstrip_name': airstrip1.name,
@@ -312,7 +316,7 @@ class CheckoutFilterTests(TestCase):
                 actype2.name: util.CHECKOUT_SUDAH,
             },
         }, {
-            'pilot_name': c4.pilot.full_name,
+            'pilot_name': pilot2.full_name,
             'pilot_slug': pilot2.username,
             'airstrip_ident': airstrip2.ident,
             'airstrip_name': airstrip2.name,
@@ -332,6 +336,12 @@ class CheckoutFilterTests(TestCase):
         self.assertEqual(util.checkout_filter(airstrip=airstrip1), t)
         t = [r for i, r in enumerate(expected) if i in (1,3)]
         self.assertEqual(util.checkout_filter(airstrip=airstrip2), t)
+        
+        c1.delete()
+        expected = expected[1:]
+        for e in expected:
+           e['actypes'].pop(actype2.name)
+        self.assertEqual(util.checkout_filter(aircraft_type=actype1), expected)
         
         
 class PilotCheckoutsGroupedByAirstripTests(TestCase):
@@ -359,7 +369,7 @@ class PilotCheckoutsGroupedByAirstripTests(TestCase):
         c2 = helper.create_checkout(pilot=pilot2, airstrip=c1.airstrip, aircraft_type=c1.aircraft_type)
         
         results = [{
-            'pilot_name': c1.pilot.full_name,
+            'pilot_name': pilot1.full_name,
             'pilot_slug': pilot1.username,
             'airstrip_ident': c1.airstrip.ident,
             'airstrip_name': c1.airstrip.name,
@@ -488,7 +498,7 @@ class CheckoutsBelumSelesaiTests(TestCase):
         c3 = helper.create_checkout(pilot=pilot2, airstrip=airstrip2, aircraft_type=actype1)
         
         results = [{
-            'pilot_name': c1.pilot.full_name,
+            'pilot_name': pilot1.full_name,
             'pilot_slug': pilot1.username,
             'airstrip_ident': airstrip2.ident,
             'airstrip_name': airstrip2.name,
@@ -497,7 +507,7 @@ class CheckoutsBelumSelesaiTests(TestCase):
                 actype2.name: util.CHECKOUT_UNPRECEDENTED,
             },
         }, {
-            'pilot_name': c3.pilot.full_name,
+            'pilot_name': pilot2.full_name,
             'pilot_slug': pilot2.username,
             'airstrip_ident': airstrip1.ident,
             'airstrip_name': airstrip1.name,
@@ -506,7 +516,7 @@ class CheckoutsBelumSelesaiTests(TestCase):
                 actype2.name: util.CHECKOUT_BELUM,
             },
         }, {
-            'pilot_name': c3.pilot.full_name,
+            'pilot_name': pilot2.full_name,
             'pilot_slug': pilot2.username,
             'airstrip_ident': airstrip2.ident,
             'airstrip_name': airstrip2.name,
