@@ -96,7 +96,7 @@ def get_precedented_checkouts():
     return precedented
 
 
-def checkout_filter(pilot=None, airstrip=None, base=None, **kwargs):
+def checkout_filter(pilot=None, airstrip=None, base=None, aircraft_type=None, **kwargs):
     """Core function for collecting a set of checkout objects"""
     core_query = Checkout.objects.all()
     if pilot != None:
@@ -105,6 +105,8 @@ def checkout_filter(pilot=None, airstrip=None, base=None, **kwargs):
         core_query = core_query.filter(airstrip=airstrip)
     if base != None:
         core_query = core_query.filter(airstrip__bases=base)
+    if aircraft_type != None:
+        core_query = core_query.filter(aircraft_type=aircraft_type)
         
     checkouts = core_query.select_related(
                     'pilot', 'airstrip', 'aircraft_type'
@@ -114,7 +116,10 @@ def checkout_filter(pilot=None, airstrip=None, base=None, **kwargs):
                     'airstrip__ident',
                     'aircraft_type__name'
                 )
-    actypes = get_aircrafttype_names()
+    if aircraft_type:
+        actypes = [aircraft_type.name,] # List for iterability
+    else:
+        actypes = get_aircrafttype_names()
     results = []
     for c in checkouts:
         if results:
@@ -149,12 +154,17 @@ def checkout_filter(pilot=None, airstrip=None, base=None, **kwargs):
 def sudah_selesai(**kwargs):
     """Gathers complete checkouts and returns them in a dictionary format as
     expected by the display_checkouts template."""
+    if 'aircraft_type' in kwargs and kwargs['aircraft_type']:
+        actypes = [kwargs['aircraft_type'].name, ]
+    else:
+        actypes = get_aircrafttype_names()
+    
     results = {
         'populate': {
             'pilot': True,
             'airstrip': True,
         },
-        'aircraft_types': get_aircrafttype_names(),
+        'aircraft_types': actypes,
         'results': checkout_filter(**kwargs),
     }
     
