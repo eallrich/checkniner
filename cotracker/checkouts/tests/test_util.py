@@ -17,21 +17,25 @@ class GetAircraftTypeNamesTests(TestCase):
         AircraftType.objects.create(name=name)
         self.assertEqual(util.get_aircrafttype_names(), [name,])
     
-    def test_multiple(self):
+    def test_default_sort_without_position(self):
+        """Without sorted_position values, defaults to an alpha sort"""
         names = ['Name1', 'Name2', 'Name3']
         for n in names:
             AircraftType.objects.create(name=n)
         self.assertEqual(util.get_aircrafttype_names(), names)
     
-    def test_multiple_sort(self):
-        names = ['Name2', 'Name1', 'Name3']
-        for n in names:
-            AircraftType.objects.create(name=n)
+    def test_specific_sort(self):
+        names = ['Name2','Name1', 'Name3']
+        for i, n in enumerate(names):
+            AircraftType.objects.create(name=n, sorted_position=i)
         
-        # Ascending
-        names.sort()
+        # Default
         self.assertEqual(util.get_aircrafttype_names(), names)
-        # Descending
+        
+        # By name, ascending
+        names.sort()
+        self.assertEqual(util.get_aircrafttype_names("name"), names)
+        # By name, descending
         names.reverse()
         self.assertEqual(util.get_aircrafttype_names("-name"), names)
 
