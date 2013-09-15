@@ -265,3 +265,49 @@ BACKUPS_ROOT=/home/ubuntu/checkniner/tools/backups
 # On the first of the month, at 00:12, remove all .tar.gz files (except the latest)
 12   0    1   *   *   $BACKUPS_ROOT/clean.sh
 ```
+
+Restoring from a backup
+-----------------------
+
+The backup scripts discussed above provide for two sources of data from which
+restores may be made: Django fixtures (in json) and PostgreSQL commands. The
+steps below will cover how to restore a database to the state as captured in a
+backup archive, assuming you already have a latest.tar.gz file available
+locally.
+
+### Django fixtures ###
+
+Because fixtures are not (strictly) tied to a particular database, they allow
+for a restore to be made to a database engine which differs from the one in use
+at the time the backup was made. It's also possible to return the database to a
+workable state by only loading a subset of the available fixtures instead of
+all of them. Although this means the restored database will not exactly match
+the database which was backed up, this may be acceptable (e.g. for development
+or testing purposes).
+
+```shell
+# Assumes the database backup is available at ~/latest.tar.gz
+# Assumes that the checkniner virtualenv has already been activated
+$ tar -xzf ~/latest.tar.gz auth.json checkouts.json
+$ django-admin.py loaddata auth.json
+$ django-admin.py loaddata checkouts.json
+```
+
+There are several additional fixtures in the backup archive which may also be
+loaded (e.g. south.json, admin.json), but these are not strictly necessary for
+returning the database to a usable state.
+
+### PostgreSQL archive ###
+
+Restoring from the PostgreSQL command file provides a database which precisely
+matches the originating database.
+
+```shell
+# Assumes the database backup is available at ~/latest.tar.gz
+$ tar -xzf ~/latest.tar.gz checkniner.sql
+$ psql checkniner < checkniner.sql
+```
+
+Errors (due to duplicate keys or pre-existing tables) will likely be seen when
+using this method, but they should not cause any problems if the import is
+allowed to continue running. Note the _should_ qualifier! Be sure to verify!
