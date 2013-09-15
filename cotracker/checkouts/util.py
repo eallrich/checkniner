@@ -42,7 +42,7 @@ def get_bases():
     return Airstrip.objects.filter(is_base=True).order_by('ident')
 
 
-def get_aircrafttype_names(order="name"):
+def get_aircrafttype_names(order="sorted_position"):
     """Populates a sorted list with the names of all known AircraftTypes"""
     aircrafttypes = AircraftType.objects.order_by(order)
     return [actype.name for actype in aircrafttypes]

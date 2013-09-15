@@ -32,7 +32,7 @@ class FilterForm(forms.Form):
     )
     
     aircraft_type = forms.ModelChoiceField(
-        queryset=AircraftType.objects.all().order_by('name'),
+        queryset=AircraftType.objects.all().order_by('sorted_position'),
         empty_label="All",
         required=False,
         widget=forms.RadioSelect,
@@ -59,6 +59,6 @@ class CheckoutEditForm(forms.Form):
     )
     
     aircraft_type = forms.ModelMultipleChoiceField(
-        queryset=AircraftType.objects.all().order_by('name'),
+        queryset=AircraftType.objects.all().order_by('sorted_position'),
         widget=forms.CheckboxSelectMultiple,
     )
