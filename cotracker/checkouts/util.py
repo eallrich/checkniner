@@ -182,7 +182,10 @@ def belum_selesai(**kwargs):
     }
     
     original_checkouts = checkout_filter(**kwargs)
-    actypes = get_aircrafttype_names()
+    if 'aircraft_type' in kwargs and kwargs['aircraft_type']:
+        actypes = [kwargs['aircraft_type'].name, ]
+    else:
+        actypes = get_aircrafttype_names()
     results['aircraft_types'] = actypes
     pilots_v_airstrips = get_pilot_airstrip_pairs(**kwargs)
     next_pair_index = 0
@@ -255,7 +258,7 @@ def belum_selesai(**kwargs):
             # But only if the airstrip has at least one valid checkout. If it
             # doesn't have any existing checkouts, then we're not going to show
             # it at as a 'belum selesai' airstrip.
-            if unprecedented_count == len(actypes):
+            if ident not in precedented:
                 logger.debug("Dropping %s: airstrip is globally unprecedented" % ident)
             else:
                 checkouts.append(c)
@@ -265,7 +268,7 @@ def belum_selesai(**kwargs):
 
 
 def pilot_checkouts_grouped_by_airstrip(pilot):
-    """Organizes the pilot's checkouts by airstrips."""
+    """Organizes the pilot's checkouts by airstrip."""
     results = sudah_selesai(pilot=pilot)
     results['populate']['pilot'] = False
     return results
