@@ -65,6 +65,7 @@ class Airstrip(TimeStampedModel):
 
 class AircraftType(TimeStampedModel):
     name = models.CharField(max_length=10)
+    sorted_position = models.IntegerField(default=0)
 
     def __unicode__(self):
         return self.name
