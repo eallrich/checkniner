@@ -487,7 +487,7 @@ class CheckoutsBelumSelesaiTests(TestCase):
     def test_with_data(self):
         pilot1 = helper.create_pilot('kim', 'Kim', 'Pilot1')
         pilot2 = helper.create_pilot('sam', 'Sam', 'Pilot2')
-        actype1 = helper.create_aircrafttype('Name1')    
+        actype1 = helper.create_aircrafttype('Name1')
         actype2 = helper.create_aircrafttype('Name2')
         airstrip1 = helper.create_airstrip('ID1', 'Airstrip1')
         airstrip2 = helper.create_airstrip('ID2', 'Airstrip2')
@@ -530,6 +530,23 @@ class CheckoutsBelumSelesaiTests(TestCase):
         self.expected['results'] = results
         
         self.assertEqual(util.belum_selesai(), self.expected)
+        
+        # Since we already have all these objects created, let's test the
+        # 'belum selesai' filtering feature!
+        self.expected['results'] = results[:1]
+        self.assertEqual(util.belum_selesai(pilot=pilot1), self.expected)
+        self.expected['results'] = results[1:]
+        self.assertEqual(util.belum_selesai(pilot=pilot2), self.expected)
+        self.expected['results'] = [results[1],]
+        self.assertEqual(util.belum_selesai(airstrip=airstrip1), self.expected)
+        self.expected['results'] = [r for i, r in enumerate(results) if i in (0,2)]
+        self.assertEqual(util.belum_selesai(airstrip=airstrip2), self.expected)
+        
+        self.expected['results'] = results[:2]
+        for r in self.expected['results']:
+            r['actypes'].pop(actype2.name)
+        self.expected['aircraft_types'] = [actype1.name,]
+        self.assertEqual(util.belum_selesai(aircraft_type=actype1), self.expected)
 
 
 class ChoicesTests(TestCase):
