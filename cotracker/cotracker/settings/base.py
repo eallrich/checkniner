@@ -36,6 +36,11 @@ RAVEN_CONFIG = {
     'dsn': get_env_var('SENTRY_DSN'),
 }
 
+STATSD_CONFIG = {
+    'host': 'localhost',
+    'port': 48125,
+}
+
 LOGIN_URL = '/login/'
 # Default 'successful login' URL redirect if an alternative is not specified
 LOGIN_REDIRECT_URL = '/checkouts/'
