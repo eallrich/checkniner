@@ -3,6 +3,8 @@
 import logging
 import time
 
+from .statsdproxy import statsd
+
 logger = logging.getLogger('analytics')
 
 class Analytics():
@@ -36,6 +38,7 @@ class Analytics():
     def process_request(self, request):
         """Captures the current time and saves it to the request object."""
         request._analytics_start_time = time.time()
+        statsd.incr('request')
     
     def process_response(self, request, response):
         """Organizes info from each request/response and saves it to a log."""
@@ -46,6 +49,7 @@ class Analytics():
         if hasattr(request, '_analytics_start_time'):
             elapsed = (time.time() - request._analytics_start_time) * 1000.0
             context['elapsed'] = elapsed
+            statsd.timing('response.elapsed', elapsed)
         else:
             context['elapsed'] = -1.0
         

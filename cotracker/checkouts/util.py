@@ -3,6 +3,7 @@ import logging
 from django.contrib.auth.models import User, Group
 
 from .models import AircraftType, Airstrip, Checkout
+from .statsdproxy import statsd
 
 
 logger = logging.getLogger(__name__)
@@ -32,22 +33,26 @@ def choices_checkout_status():
     return [(CHECKOUT_SUDAH, CHECKOUT_SUDAH_LABEL), (CHECKOUT_BELUM, CHECKOUT_BELUM_LABEL)]
 
 
+@statsd.timer('util.get_pilots.elapsed')
 def get_pilots():
     """Returns an ordered queryset of Users in the Pilots group"""
     return User.objects.filter(groups__name="Pilots").order_by('last_name','first_name')
 
 
+@statsd.timer('util.get_bases.elapsed')
 def get_bases():
     """Returns an ordered queryset of Airstrips which are bases"""
     return Airstrip.objects.filter(is_base=True).order_by('ident')
 
 
+@statsd.timer('util.get_aircrafttype_names.elapsed')
 def get_aircrafttype_names(order="sorted_position"):
     """Populates a sorted list with the names of all known AircraftTypes"""
     aircrafttypes = AircraftType.objects.order_by(order)
     return [actype.name for actype in aircrafttypes]
 
 
+@statsd.timer('util.get_pilot_airstrip_pairs.elapsed')
 def get_pilot_airstrip_pairs(pilot=None, airstrip=None, base=None, **kwargs):
     """Populates a sorted list of Pilot/Airstrip tuples"""
     pilots = get_pilots()
@@ -69,6 +74,7 @@ def get_pilot_airstrip_pairs(pilot=None, airstrip=None, base=None, **kwargs):
     return pairs
 
 
+@statsd.timer('util.get_precedented_checkouts.elapsed')
 def get_precedented_checkouts():
     """Provides a two-tier dictionary summarizing whether each airstrip has an
     existing checkout entry for each aircraft.
@@ -96,6 +102,7 @@ def get_precedented_checkouts():
     return precedented
 
 
+@statsd.timer('util.checkout_filter.elapsed')
 def checkout_filter(pilot=None, airstrip=None, base=None, aircraft_type=None, **kwargs):
     """Core function for collecting a set of checkout objects"""
     core_query = Checkout.objects.all()
@@ -151,6 +158,7 @@ def checkout_filter(pilot=None, airstrip=None, base=None, aircraft_type=None, **
     return results
 
 
+@statsd.timer('util.sudah_selesai.elapsed')
 def sudah_selesai(**kwargs):
     """Gathers complete checkouts and returns them in a dictionary format as
     expected by the display_checkouts template."""
@@ -171,6 +179,7 @@ def sudah_selesai(**kwargs):
     return results
 
 
+@statsd.timer('util.belum_selesai.elapsed')
 def belum_selesai(**kwargs):
     """Gathers incomplete checkouts and returns them in a dictionary format as
     expected by the display_checkouts template."""
@@ -267,6 +276,7 @@ def belum_selesai(**kwargs):
     return results
 
 
+@statsd.timer('util.pilot_checkouts_grouped_by_airstrip.elapsed')
 def pilot_checkouts_grouped_by_airstrip(pilot):
     """Organizes the pilot's checkouts by airstrip."""
     results = sudah_selesai(pilot=pilot)
@@ -274,6 +284,7 @@ def pilot_checkouts_grouped_by_airstrip(pilot):
     return results
 
 
+@statsd.timer('util.airstrip_checkouts_grouped_by_pilot.elapsed')
 def airstrip_checkouts_grouped_by_pilot(airstrip):
     """Organizes the airstrip's checkouts by pilot."""
     results = sudah_selesai(airstrip=airstrip)
