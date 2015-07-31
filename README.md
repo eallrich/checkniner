@@ -46,8 +46,6 @@ Optional environment variables:
 + FORCE_DEBUG_MODE (e.g. true) -- Override the DEBUG flag when using settings.production
 + INTERNAL_IPS (e.g. 10.31.41.59) -- Required to view django-debug-toolbar; DEBUG must be True
     - A comma-separated list is acceptable: 10.31.41.59,10.27.182.8
-+ SERVE_STATIC (e.g. true) -- Enables the URLconf to route static asset requests
-    - This option is not recommended for use in production, but it will work if configured to do so
 
 Once the env vars are configured, activate the virtualenv and install the dependencies:
 

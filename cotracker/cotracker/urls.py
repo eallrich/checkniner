@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.shortcuts import redirect
@@ -82,9 +81,4 @@ urlpatterns += patterns('',
         name='checkout_edit',
     ),
 )
-
-if settings.SERVE_STATIC:
-    urlpatterns += patterns('',
-        url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT,})
-    )
 

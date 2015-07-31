@@ -30,8 +30,6 @@ if get_env_var('DATABASE_URL'):
         'default': dj_database_url.config(),
     }
 
-SERVE_STATIC = bool(os.environ.get('SERVE_STATIC'))
-
 RAVEN_CONFIG = {
     'dsn': get_env_var('SENTRY_DSN'),
 }
@@ -101,6 +99,8 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
+
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = get_env_var('SECRET_KEY')
