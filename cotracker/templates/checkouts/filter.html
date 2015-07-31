@@ -38,23 +38,23 @@ window.onload = function() {
 {{ form.non_field_errors }}
 
 <p>{{ form.pilot.errors }}</p>
-<p>{{ form.pilot.label_tag }}: {{ form.pilot }}</p>
+<p>{{ form.pilot.label_tag }} {{ form.pilot }}</p>
 
 <p>{{ form.airstrip.errors }}</p>
-<p>{{ form.airstrip.label_tag }}: {{ form.airstrip }}</p>
+<p>{{ form.airstrip.label_tag }} {{ form.airstrip }}</p>
 
 <p>{{ form.base.errors }}</p>
-<p>{{ form.base.label_tag }}: {{ form.base }}</p>
+<p>{{ form.base.label_tag }} {{ form.base }}</p>
 
 <p>{{ form.aircraft_type.errors }}</p>
-<p>{{ form.aircraft_type.label_tag }}:
+<p>{{ form.aircraft_type.label_tag }}
 {% for radio in form.aircraft_type %}
     {{ radio }}
 {% endfor %}
 </p>
 
 <p>{{ form.checkout_status.errors }}</p>
-<p> {{ form.checkout_status.label_tag }}:
+<p> {{ form.checkout_status.label_tag }}
 {% for radio in form.checkout_status %}
     {{ radio }}
 {% endfor %}

@@ -10,14 +10,14 @@
 {{ form.non_field_errors }}
 
 <p>{{ form.pilot.errors }}</p>
-<p>{{ form.pilot.label_tag }}: {{ form.pilot }}</p>
+<p>{{ form.pilot.label_tag }} {{ form.pilot }}</p>
 
 <p>{{ form.airstrip.errors }}</p>
-<p>{{ form.airstrip.label_tag }}: {{ form.airstrip }}</p>
+<p>{{ form.airstrip.label_tag }} {{ form.airstrip }}</p>
 
 <div id='aircraft_type_list'>
 <p>{{ form.aircraft_type.errors }}</p>
-<p>{{ form.aircraft_type.label_tag }}: {{ form.aircraft_type }}</p>
+<p>{{ form.aircraft_type.label_tag }} {{ form.aircraft_type }}</p>
 </div>
 <p>
     <input type="submit" name="action" class="enlarged-button" value="Add Checkout" />
