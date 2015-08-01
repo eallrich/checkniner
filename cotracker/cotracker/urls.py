@@ -1,5 +1,5 @@
-from django.conf.urls import patterns, include, url
-from django.contrib import admin
+from django.conf.urls import include, url
+from django.contrib import admin, auth
 from django.shortcuts import redirect
 
 from checkouts.views import (
@@ -17,13 +17,13 @@ from checkouts.views import (
 
 admin.autodiscover()
 
-urlpatterns = patterns('',
-    url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'checkouts/login.html',}, name='login'),
-    url(r'^logout/$', 'django.contrib.auth.views.logout_then_login', name='logout'),
+urlpatterns = [
+    url(r'^login/$', auth.views.login, {'template_name': 'checkouts/login.html',}, name='login'),
+    url(r'^logout/$', auth.views.logout_then_login, name='logout'),
+    url(r'^password_change/$', auth.views.password_change, name='password_change'),
+    url(r'^password_change/done/$', auth.views.password_change_done, name='password_change_done'),
     url(r'^emerald/', include(admin.site.urls)),
-)
-
-urlpatterns += patterns('',
+    # Checkouts app views
     url(
         regex=r'^$',
         # No 'home' view at this time, but we may want to add one later. For
@@ -80,5 +80,5 @@ urlpatterns += patterns('',
         view=CheckoutEditFormView.as_view(),
         name='checkout_edit',
     ),
-)
+]
 
