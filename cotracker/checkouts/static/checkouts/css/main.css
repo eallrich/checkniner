@@ -40,7 +40,15 @@ div#header {
     width:               100%;
 }
 
-div#header a {
+#change_password_link {
+    color:   #444444;
+    display: block;
+    float:   right;
+    font-size: 19px;
+    margin-right: 15px;
+}
+
+div#header ul li a {
     /* Dark Blue */
     border-right-color:  #0B73F7;
     border-right-style:  solid;
