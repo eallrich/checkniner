@@ -1,8 +1,12 @@
+import datetime
+import json
 import logging
+import os
 
-from django.contrib.auth.models import User, Group
+from django.conf import settings
+from django.contrib.auth.models import User
 
-from .models import AircraftType, Airstrip, Checkout
+from .models import AircraftType, Airstrip, Checkout, PilotWeight
 from .statsdproxy import statsd
 
 
@@ -290,3 +294,31 @@ def airstrip_checkouts_grouped_by_pilot(airstrip):
     results = sudah_selesai(airstrip=airstrip)
     results['populate']['airstrip'] = False
     return results
+
+
+@statsd.timer('util.export_pilotweights.elapsed')
+def export_pilotweights():
+    """Regenerates the JSON file containing the provide PilotWeights"""
+    pilotweights = PilotWeight.objects.all().order_by("pilot__last_name", "pilot__first_name")
+    jsonpath = os.path.join(settings.STATIC_ROOT, settings.PILOTWEIGHTS_FILE)
+    logger.info("Exporting %d PilotWeight records to %s" % (len(pilotweights), jsonpath))
+    to_export = []
+    for pw in pilotweights:
+        data = {
+            'LastName': pw.pilot.last_name,
+            'FirstName': pw.pilot.first_name,
+            'Weight': pw.weight,
+        }
+        to_export.append(data)
+    with open(jsonpath, 'wb') as f:
+        json.dump(to_export, f, indent=4, sort_keys=True)
+    logger.info("Wrote %d bytes to %s" % (os.path.getsize(jsonpath), jsonpath))
+
+
+def get_pilotweights_mtime():
+    """Enables the pilotweight_list view to report the export file's status."""
+    jsonpath = os.path.join(settings.STATIC_ROOT, settings.PILOTWEIGHTS_FILE)
+    if not os.path.exists(jsonpath):
+        return None
+    timestamp = os.path.getmtime(jsonpath)
+    return datetime.datetime.fromtimestamp(timestamp)
