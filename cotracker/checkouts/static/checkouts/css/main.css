@@ -89,6 +89,10 @@ div#header ul {
     padding-left:    6px;
 }
 
+div#messages li.info {
+    color: blue;
+}
+
 div#messages li.success {
     color: green;
 }
@@ -162,4 +166,8 @@ td {
 .unprecedented {
     /* Orange */
     background: #FFA500;
+}
+
+.fake-button {
+    text-decoration: none;
 }
