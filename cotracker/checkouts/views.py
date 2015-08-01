@@ -3,14 +3,15 @@ import logging
 
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
-from django.shortcuts import render # Used for rendering 403 Forbidden
+from django.shortcuts import redirect, render
 from django.views.generic import DetailView, ListView, TemplateView
 
 from braces.views import LoginRequiredMixin
 
 from .forms import FilterForm, CheckoutEditForm
-from .models import AircraftType, Airstrip, Checkout
+from .models import AircraftType, Airstrip, Checkout, PilotWeight
 from .statsdproxy import statsd
 import util
 
@@ -172,7 +173,7 @@ class BaseEditAttached(LoginRequiredMixin, DetailView):
         if not request.user.is_superuser and not request.user.is_flight_scheduler:
             username = request.user.username
             logger.warn("Forbidden: '%s' attempted to save base attachments without 'superuser' or 'flight scheduler' status" % username)
-            message = "Only flight schedulers may modify which airstrips are attached to a base."""
+            message = "Only flight schedulers may modify which airstrips are attached to a base."
             return self.forbidden(request, message)
         
         logger.debug(request.POST)
@@ -400,3 +401,160 @@ class CheckoutEditFormView(LoginRequiredMixin, TemplateView):
                         messages.add_message(request, messages.SUCCESS, "Added '%s'" % c)
         
         return self.render_to_response(context)
+
+
+class WeightList(LoginRequiredMixin, ListView):
+    """List of current pilot weights"""
+    context_object_name = 'pilotweight_list'
+    template_name = 'checkouts/pilotweight_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(WeightList, self).get_context_data(**kwargs)
+        file_modified = util.get_pilotweights_mtime()
+        if file_modified is None:
+            context['file_modified'] = "Never"
+        else:
+            context['file_modified'] = file_modified.strftime('%Y-%m-%d %H:%M:%S')
+        return context
+
+    def forbidden(self, request, message="Sorry, you can't do that."):
+        """Shortcut for rendering an 'access denied' page"""
+        template = '403.html'
+        context = {'reason': message}
+        return render(request, template, context, status=403)
+
+    def get_queryset(self):
+        """Prepares the pilot/weight pairs for the template.
+        If the requesting user is a simple pilot, we're only going to show
+        them their own weight value (with a link to update it). If the request
+        is from a flight_scheduler or a superuser, they'll see the full list
+        of pilots and weights (with links to update all of them).
+
+        Because the weight attribute is not automatically created for a new
+        pilot, the output pilot/weight pairs will use a default weight of 0 if
+        no corresponding PilotWeight instance exists.
+        """
+        user = self.request.user
+
+        # Security Check
+        # --------------
+        # This would be unusual, but just in case: make sure that the request
+        # is from a superuser, pilot, or flight scheduler (normal users may
+        # not view nor edit pilot weights).
+        if not user.is_superuser and not user.is_pilot and not user.is_flight_scheduler:
+            logger.warn("Forbidden: '%s' is not a pilot, flight scheduler, nor superuser" % user.username)
+            message = 'Only pilots and flight schedulers may view pilot weights.'
+            return self.forbidden(request, message)
+
+        if user.is_flight_scheduler or user.is_superuser:
+            pilots = util.get_pilots()
+        else:
+            pilots = [user,]
+
+        pilot_weights = []
+        for pilot in pilots:
+            try:
+                weight = pilot.pilotweight.weight
+            except ObjectDoesNotExist:
+                # A matching PilotWeight probably hasn't been created yet.
+                # Default to zero and continue.
+                weight = 0
+            pilot_weights.append((pilot, weight))
+        return pilot_weights
+
+
+class WeightEdit(LoginRequiredMixin, DetailView):
+    """Allows pilots/flight_schedulers/superusers to update pilot weights"""
+    context_object_name = 'pilotweight'
+    model = PilotWeight
+    template_name = 'checkouts/pilotweight_edit.html'
+
+    def get_queryset(self):
+        pilot = User.objects.get(username=self.kwargs['pilot'])
+        pilotweight, created = PilotWeight.objects.get_or_create(pilot=pilot)
+        if created:
+            logger.info("Created default PilotWeight entry for '%s' because '%s' asked to edit it" % (pilot.username, self.request.user.username))
+        return pilotweight
+
+    def get_object(self):
+        return self.get_queryset()
+
+    def forbidden(self, request, message="Sorry, you can't do that."):
+        """Shortcut for rendering an 'access denied' page"""
+        template = '403.html'
+        context = {'reason': message}
+        return render(request, template, context, status=403)
+
+    def get(self, request, *args, **kwargs):
+        """Renders a fresh form for editing, assuming the user is authorized"""
+        pilotweight = self.get_object()
+        logger.debug("=> WeightEdit.get for %s" % pilotweight.pilot.username)
+
+        # Security Check
+        # --------------
+        # This would be unusual, but just in case: make sure that the request
+        # is from either a superuser or flight scheduler, or from a pilot
+        # editing their own weight.
+        user = request.user
+        if user.is_superuser or user.is_flight_scheduler or (user.is_pilot and user == pilotweight.pilot):
+            return super(WeightEdit, self).get(request, *args, **kwargs)
+        else:
+            username = request.user.username
+            logger.warn("Forbidden: '%s' attempted to edit PilotWeight for '%s' without superuser/flight_scheduler status" % (username, pilotweight.pilot.username))
+            message = "Pilots may only modify their own weights, and only flight schedulers may modify other pilots' weights."
+            return self.forbidden(request, message)
+
+    @statsd.timer('view.weight_edit.post.elapsed')
+    def post(self, request, *args, **kwargs):
+        """Updates the pilot's weight to the given value."""
+        pilotweight = self.get_object()
+        logger.debug("=> WeightEdit.post for %s" % pilotweight.pilot.username)
+
+        # Security Check
+        # --------------
+        # This would be unusual, but just in case: make sure that the request
+        # is from either a superuser or flight scheduler, or from a pilot
+        # editing their own weight.
+        user = request.user
+        if not (user.is_superuser or user.is_flight_scheduler or (user.is_pilot and user == pilotweight.pilot)):
+            username = user.username
+            logger.warn("Forbidden: '%s' attempted to save PilotWeight for '%s' without superuser/flight_scheduler status" % (username, pilotweight.pilot.username))
+            message = "Pilots may only modify their own weights, and only flight schedulers may modify other pilots' weights."
+            return self.forbidden(request, message)
+
+        logger.debug(request.POST)
+
+        new_weight = request.POST.get('weight', None)
+        logger.debug("Proposed weight for '%s' is %s (replacing %d)" % (pilotweight.pilot.username, new_weight, pilotweight.weight))
+        if new_weight is None:
+            message = "No weight specified"
+            messages.add_message(request, messages.ERROR, message)
+            # Send the user back to try again
+            return self.get(request, *args, **kwargs)
+        try:
+            new_weight = int(new_weight)
+        except ValueError as exc:
+            logger.warning("Failed to convert '%s' to integer value. ValueError message: %s" % (new_weight, exc))
+            message = "Invalid weight provided. The weight must be a whole number (no decimals) in kilograms."
+            messages.add_message(request, messages.ERROR, message)
+            # Send the user back to try again
+            return self.get(request, *args, **kwargs)
+
+        if new_weight < 0 or new_weight > 200:
+            logger.warning("Rejecting out-of-range weight: %d" % new_weight)
+            message = "The weight %d is out-of-range. Please enter a positive weight value which is less than 200 kg." % new_weight
+            messages.add_message(request, messages.ERROR, message)
+            # Send the user back to try again
+            return self.get(request, *args, **kwargs)
+
+        pilotweight.weight = new_weight
+        pilotweight.save()
+        logger.info("'%s' updated weight for '%s' to %d kg" % (user.username, pilotweight.pilot.username, pilotweight.weight))
+        message = "Updated weight for '%s' to %d kg." % (pilotweight.pilot, pilotweight.weight)
+        messages.add_message(request, messages.SUCCESS, message)
+
+        # We're using the 'PilotWeight saved' 'event' to push out an update to
+        # the JSON report which publishes pilot weights. As soon as it's done,
+        # we'll take the user back to the pilot weight list.
+        util.export_pilotweights()
+        return redirect('weight_list')
