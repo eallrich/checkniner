@@ -13,6 +13,8 @@ from checkouts.views import (
     BaseEditAttached,
     FilterFormView,
     CheckoutEditFormView,
+    WeightList,
+    WeightEdit,
 )
 
 admin.autodiscover()
@@ -79,6 +81,16 @@ urlpatterns = [
         regex=r'^checkouts/edit/$',
         view=CheckoutEditFormView.as_view(),
         name='checkout_edit',
+    ),
+    url(
+        regex=r'^weights/$',
+        view=WeightList.as_view(),
+        name='weight_list',
+    ),
+    url(
+        regex=r'^weights/(?P<pilot>\w+)/edit/$',
+        view=WeightEdit.as_view(),
+        name='weight_edit',
     ),
 ]
 
