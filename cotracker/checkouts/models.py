@@ -97,3 +97,10 @@ class Checkout(TimeStampedModel):
     class Meta:
         unique_together = (('pilot', 'airstrip', 'aircraft_type'),)
 
+
+class PilotWeight(TimeStampedModel):
+    pilot = models.OneToOneField(User, limit_choices_to={'groups__name': 'Pilots'})
+    weight = models.IntegerField(default=0)
+
+    def __unicode__(self):
+        return "%s: %dkg" % (self.pilot, self.weight)
