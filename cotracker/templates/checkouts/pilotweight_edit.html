@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Update Pilot Weight{% endblock title %}
+
+{% block content_title %}Update Pilot Weight for {{ pilotweight.pilot.full_name }}{% endblock content_title %}
+
+{% block content %}
+<form action="" method="post">
+{% csrf_token %}
+<table border="1">
+<tr>
+    <th>Pilot</th>
+    <th>Weight (kg)</th>
+</tr>
+<tr>
+    <td>{{ pilotweight.pilot.full_name }}</td>
+    <td><input id="weight" type="text" name="weight" value="{{ pilotweight.weight }}"></input></td>
+</tr>
+</table>
+<input type="submit" value="Save" />
+<a class="fake-button" href="{% url 'weight_list' %}"><input type="button" value="Cancel" /></a>
+</form>
+
+<script type="text/javascript">document.getElementById("weight").select();</script>
+{% endblock content %}
