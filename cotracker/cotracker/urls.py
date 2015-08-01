@@ -20,8 +20,8 @@ admin.autodiscover()
 urlpatterns = [
     url(r'^login/$', auth.views.login, {'template_name': 'checkouts/login.html',}, name='login'),
     url(r'^logout/$', auth.views.logout_then_login, name='logout'),
-    url(r'^password_change/$', auth.views.password_change, name='password_change'),
-    url(r'^password_change/done/$', auth.views.password_change_done, name='password_change_done'),
+    url(r'^password_change/$', auth.views.password_change, {'template_name': 'checkouts/password_change_form.html',}, name='password_change'),
+    url(r'^password_change/done/$', auth.views.password_change_done, {'template_name': 'checkouts/password_change_done.html',}, name='password_change_done'),
     url(r'^emerald/', include(admin.site.urls)),
     # Checkouts app views
     url(
