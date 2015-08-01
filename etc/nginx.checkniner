@@ -14,11 +14,6 @@ server {
     
     try_files $uri @gunicorn;
     
-    # Nginx should serve static assets directly
-    location /static/ {
-        alias /home/ubuntu/checkniner/cotracker/static/;
-    }
-    
     # The favicon will not have the /static/ prefix used by django
     location /favicon.ico {
         alias /home/ubuntu/checkniner/cotracker/static/favicon.ico;
