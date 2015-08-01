@@ -27,6 +27,7 @@ The following environment variables are always required:
 + PYTHONPATH (e.g. /home/user/checkniner/cotracker/)
 + SECRET_KEY (e.g. 0123456789ABCDEF)
 + SENTRY_DSN (e.g. https://access:key@example.com/2)
++ EXPORT_PREFIX (e.g. ZYXWVUTSR)
 
 These can be set in checkniner/bin/activate to ensure that they will always be available
 when running in the virtualenv.
@@ -37,6 +38,7 @@ $ echo "export DJANGO_SETTINGS_MODULE=cotracker.settings.development" >> bin/act
 $ echo "export PYTHONPATH=/home/user/checkniner/cotracker/" >> bin/activate
 $ echo "export SECRET_KEY=0123456789ABCDEF" >> bin/activate
 $ echo "export SENTRY_DSN=https://access:key@example.com/2" >> bin/activate
+$ echo "export EXPORT_PREFIX=ZYXWVUTSR" >> bin/activate
 ```
 
 When running in a production configuration (i.e. DEBUG is False), the following env vars are also required:

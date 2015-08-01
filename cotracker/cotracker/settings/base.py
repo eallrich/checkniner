@@ -39,6 +39,8 @@ STATSD_CONFIG = {
     'port': 48125,
 }
 
+PILOTWEIGHTS_FILE = get_env_var('EXPORT_PREFIX') + '_pilotweights.json'
+
 LOGIN_URL = '/login/'
 # Default 'successful login' URL redirect if an alternative is not specified
 LOGIN_REDIRECT_URL = '/checkouts/'
