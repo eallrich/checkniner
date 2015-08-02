@@ -7,5 +7,5 @@ env:
     - SECRET_KEY=supersecretkey
     - SENTRY_DSN=ignored
     - EXPORT_PREFIX=ignored
-install: "pip install -r requirements/development.txt --use-mirrors"
+install: "pip install -r requirements/development.txt"
 script: "cd cotracker && coverage run manage.py test --settings=cotracker.settings.test"
