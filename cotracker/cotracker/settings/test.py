@@ -13,5 +13,3 @@ DATABASES = {
         "NAME": ":memory:",
     },
 }
-
-EXPORT_PREFIX = 'ZYXWVUTSR'
