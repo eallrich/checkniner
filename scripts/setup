@@ -53,21 +53,21 @@ sudo apt-get install --assume-yes $PACKAGES
 
 
 echo "===> Setting up postgres user & database"
-sudo bash -c "echo \"CREATE DATABASE $PG_DATABASE; CREATE USER $HOST_USER; GRANT ALL PRIVILEGES ON DATABASE $PG_DATABASE to $HOST_USER;\\q\" | psql"
+sudo -u postgres bash -c "echo \"CREATE DATABASE $PG_DATABASE; CREATE USER $HOST_USER; GRANT ALL PRIVILEGES ON DATABASE $PG_DATABASE to $HOST_USER;\\q\" | psql"
 
 
 echo "===> Updating supervisor configuration"
 CONF_DIR=/etc/supervisor/conf.d
-TEMPLATE_SITE_ROOT=/home/checkniner/checkniner
+TEMPLATE_HOST_USER=ubuntu
 sudo cp $SITE_ROOT/etc/supervisor.gunicorn.conf $CONF_DIR/gunicorn.conf
-sudo sed -i s@$TEMPLATE_SITE_ROOT@$SITE_ROOT@g $CONF_DIR/gunicorn.conf
+sudo sed -i s@$TEMPLATE_HOST_USER@$HOST_USER@g $CONF_DIR/gunicorn.conf
 sudo service supervisor stop
 sudo service supervisor start
 
 
 echo "===> Updating nginx configuration"
 CONF_DIR=/etc/nginx
-TEMPLATE_SITE_ROOT=/home/checkniner/checkniner
+TEMPLATE_SITE_ROOT=/home/ubuntu/checkniner
 sudo rm $CONF_DIR/sites-enabled/default
 sudo cp $SITE_ROOT/etc/nginx.checkniner $CONF_DIR/sites-available/checkniner
 sudo ln -s $CONF_DIR/sites-available/checkniner $CONF_DIR/sites-enabled/checkniner
