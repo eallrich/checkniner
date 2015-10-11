@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# scripts/cibuild
+# ===============
+# Configures CI environment and runs the test suite
+#
+
+echo "===> Starting scripts/cibuild"
+
+DATABASE_URL=ignored
+SECRET_KEY=supersecretkey
+SENTRY_DSN=ignored
+EXPORT_PREFIX=ignored
+# Found this one-liner via http://stackoverflow.com/a/246128. Thanks!
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# The script dir is checkniner/scripts. The site root will be up one level.
+SITE_ROOT="$(dirname "$SCRIPT_DIR")"
+
+echo "     DATABASE_URL:  ignored"
+echo "     SECRET_KEY:    supersecretkey"
+echo "     SENTRY_DSN:    ignored"
+echo "     EXPORT_PREFIX: ignored"
+echo "     SITE_ROOT:     $SITE_ROOT"
+
+
+echo "===> Setting CI env vars"
+echo "export DATABASE_URL=$DATABASE_URL" >> $SITE_ROOT/bin/activate
+echo "export SECRET_KEY=$SECRET_KEY" >> $SITE_ROOT/bin/activate
+echo "export SENTRY_DSN=$SENTRY_DSN" >> $SITE_ROOT/bin/activate
+echo "export EXPORT_PREFIX=$EXPORT_PREFIX" >> $SITE_ROOT/bin/activate
+
+
+echo "===> Installing pip packages for testing"
+source $SITE_ROOT/bin/activate
+pip install -r $SITE_ROOT/requirements/development.txt
+
+
+echo "===> Passing the baton to scripts/test"
+$SITE_ROOT/scripts/test
+
+echo "===> cibuild completed"

@@ -1,11 +1,4 @@
 language: python
 python:
   - "2.7"
-env:
-  global:
-    - DATABASE_URL=ignored
-    - SECRET_KEY=supersecretkey
-    - SENTRY_DSN=ignored
-    - EXPORT_PREFIX=ignored
-install: "pip install -r requirements/development.txt"
-script: "cd cotracker && coverage run manage.py test --settings=cotracker.settings.test"
+script: "scripts/cibuild"

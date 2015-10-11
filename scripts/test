@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# scripts/test
+# ============
+# Runs the test suite
+#
+
+echo "===> Starting scripts/test"
+
+# Found this one-liner via http://stackoverflow.com/a/246128. Thanks!
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# The script dir is checkniner/scripts. The site root will be up one level.
+SITE_ROOT="$(dirname "$SCRIPT_DIR")"
+echo "     SITE_ROOT:  $SITE_ROOT"
+
+echo "---> Warning: Pending further development, this script will fail to run"
+echo "     the tests unless the user has already manually installed the"
+echo "     dev/test pip packages."
+
+cd $SITE_ROOT/cotracker/
+coverage run manage.py test --settings=cotracker.settings.test
+
+echo "===> test completed"
