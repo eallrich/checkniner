@@ -22,7 +22,7 @@ echo "===> Starting scripts/setup"
 ALLOWED_HOSTS=$1
 SENTRY_DSN=$2
 PG_DATABASE=checkniner
-PG_USERNAME=checkniner
+HOST_USER=checkniner
 SECRET_KEY=$(python -c "import base64, os; print base64.b64encode(os.urandom(40))")
 # Found this one-liner via http://stackoverflow.com/a/246128. Thanks!
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -31,7 +31,7 @@ SITE_ROOT="$(dirname "$SCRIPT_DIR")"
 echo "     ALLOWED_HOSTS:     $ALLOWED_HOSTS"
 echo "     SENTRY_DSN:        $SENTRY_DSN"
 echo "     PG_DATABASE:       $PG_DATABASE"
-echo "     PG_USERNAME:       $PG_USERNAME"
+echo "     HOST_USER:         $HOST_USER"
 echo "     SECRET_KEY:        $SECRET_KEY"
 echo "     SITE_ROOT:         $SITE_ROOT"
 
@@ -44,7 +44,7 @@ echo "===> Setting locale"
 #echo 'LC_ALL="en_US.UTF-8"' >> /etc/default/locale
 # These are via http://stackoverflow.com/a/17712701
 locale-gen en_US en_US.UTF-8 
-dpkg-reconfigure locales
+sudo dpkg-reconfigure locales
 
 
 echo "===> Installing system packages"
@@ -53,7 +53,7 @@ sudo apt-get install --assume-yes $PACKAGES
 
 
 echo "===> Setting up postgres user & database"
-sudo bash -c "echo \"CREATE DATABASE $PG_DATABASE; CREATE USER $PG_USERNAME; GRANT ALL PRIVILEGES ON DATABASE $PG_DATABASE to $PG_USERNAME;\\q\" | psql"
+sudo bash -c "echo \"CREATE DATABASE $PG_DATABASE; CREATE USER $HOST_USER; GRANT ALL PRIVILEGES ON DATABASE $PG_DATABASE to $HOST_USER;\\q\" | psql"
 
 
 echo "===> Updating supervisor configuration"
@@ -80,12 +80,12 @@ sudo service nginx restart
 
 
 echo "===> Creating virtualenv"
-virtualenv $SITE_ROOT
+sudo -u $HOST_USER virtualenv $SITE_ROOT
 
 
 echo "===> Setting env vars"
 echo "export ALLOWED_HOSTS=$ALLOWED_HOSTS" >> $SITE_ROOT/bin/activate
-echo "export DATABASE_URL=postgres://$PG_USERNAME@/$PG_DATABASE" >> $SITE_ROOT/bin/activate
+echo "export DATABASE_URL=postgres://$HOST_USER@/$PG_DATABASE" >> $SITE_ROOT/bin/activate
 echo "export DJANGO_SETTINGS_MODULE=cotracker.settings.production" >> $SITE_ROOT/bin/activate
 echo "export PYTHONPATH=$SITE_ROOT/cotracker/" >> $SITE_ROOT/bin/activate
 echo "export SECRET_KEY=$SECRET_KEY" >> $SITE_ROOT/bin/activate
@@ -93,9 +93,9 @@ echo "export SENTRY_DSN=$SENTRY_DSN" >> $SITE_ROOT/bin/activate
 
 
 echo "===> passing the baton to scripts/bootstrap"
-$SITE_ROOT/scripts/bootstrap
+sudo -u $HOST_USER $SITE_ROOT/scripts/bootstrap
 
 echo "===> passing the baton to scripts/update"
-$SITE_ROOT/scripts/update
+sudo -u $HOST_USER $SITE_ROOT/scripts/update
 
 echo "===> setup completed"
