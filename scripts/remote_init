@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# scripts/remote_init
+# =============
+# Connects to a remote box, performs init tasks, and then calls scripts/setup.
+#
+# !! Requires sudo on the remote server
+#
+# Usage
+# -----
+# > scripts/remote_init [SSH connection] [hosted domain] [Sentry DSN]
+# e.g.
+# > scripts/remote_init ubuntu@example.com example.com https://access:key@sentry.example.com/2
+#
+
+echo "===> Starting scripts/remote_init"
+
+CONNECTION=$1
+ALLOWED_HOSTS=$2
+SENTRY_DSN=$3
+REPOSITORY=https://github.com/eallrich/checkniner.git
+HOST_USER=checkniner
+SITE_ROOT=/home/checkniner/checkniner
+
+echo "===> Performing operating system package upgrades"
+ssh $CONNECTION "sudo apt-get update && sudo apt-get dist-upgrade --assume-yes"
+
+echo "===> Installing base system packages"
+PACKAGES="byobu git fail2ban"
+ssh $CONNECTION "sudo apt-get install --assume-yes $PACKAGES"
+
+echo "===> Creating user 'checkniner' to host the app"
+ssh $CONNECTION "sudo adduser --disabled-password --gecos \"\" $HOST_USER"
+
+echo "===> Cloning the github repository"
+ssh $CONNECTION "sudo -u checkniner git clone $REPOSITORY $SITE_ROOT"
+
+echo "===> passing the baton to scripts/setup"
+ssh $CONNECTION "sudo $SITE_ROOT/scripts/setup $ALLOWED_HOSTS $SENTRY_DSN"
+
+echo "===> remote_init completed"
