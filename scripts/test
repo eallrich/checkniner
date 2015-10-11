@@ -20,4 +20,6 @@ echo "     dev/test pip packages."
 cd $SITE_ROOT/cotracker/
 coverage run manage.py test --settings=cotracker.settings.test
 
-echo "===> test completed"
+# Exit using the 'coverage' call's return code. Another script (e.g. cibuild)
+# might be calling us and will want to know whether the tests passed.
+exit $?
