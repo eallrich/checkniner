@@ -8,9 +8,9 @@
 #
 # Usage
 # -----
-# > scripts/setup [hosted domain] [Sentry DSN]
+# > scripts/setup [hosted domain] [Sentry DSN] [export prefix]
 # e.g.
-# > scripts/setup example.com https://access:key@sentry.example.com/2
+# > scripts/setup example.com https://access:key@sentry.example.com/2 ZYXWVUTSR
 #
 # Assumptions
 # -----------
@@ -21,6 +21,7 @@ echo "===> Starting scripts/setup"
 
 ALLOWED_HOSTS=$1
 SENTRY_DSN=$2
+EXPORT_PREFIX=$3
 PG_DATABASE=checkniner
 HOST_USER=checkniner
 SECRET_KEY=$(python -c "import base64, os; print base64.b64encode(os.urandom(40))")
@@ -30,19 +31,16 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SITE_ROOT="$(dirname "$SCRIPT_DIR")"
 echo "     ALLOWED_HOSTS:     $ALLOWED_HOSTS"
 echo "     SENTRY_DSN:        $SENTRY_DSN"
+echo "     EXPORT_PREFIX:     $EXPORT_PREFIX"
 echo "     PG_DATABASE:       $PG_DATABASE"
 echo "     HOST_USER:         $HOST_USER"
 echo "     SECRET_KEY:        $SECRET_KEY"
 echo "     SITE_ROOT:         $SITE_ROOT"
 
 
-# Postgres correctly insists on the locale being set properly
 echo "===> Setting locale"
-# These are via https://www.digitalocean.com/community/questions/language-problem-on-ubuntu-14-04
-#export LANGUAGE="en_US.UTF-8"
-#echo 'LANGUAGE="en_US.UTF-8"' >> /etc/default/locale
-#echo 'LC_ALL="en_US.UTF-8"' >> /etc/default/locale
-# These are via http://stackoverflow.com/a/17712701
+# Postgres correctly insists on the locale being set properly
+# Thanks to http://stackoverflow.com/a/17712701 for these!
 locale-gen en_US en_US.UTF-8 
 sudo dpkg-reconfigure locales
 
@@ -53,6 +51,10 @@ sudo apt-get install --assume-yes $PACKAGES
 
 
 echo "===> Setting up postgres user & database"
+# This initial 'cd /' avoids an error message caused by the postgres user
+# attempting to navigate to the /root directory (the default directory for the
+# root user) when 'sudo -u ...' is invoked.
+cd /
 sudo -u postgres bash -c "echo \"CREATE DATABASE $PG_DATABASE; CREATE USER $HOST_USER; GRANT ALL PRIVILEGES ON DATABASE $PG_DATABASE to $HOST_USER;\\q\" | psql"
 
 
@@ -90,6 +92,7 @@ echo "export DJANGO_SETTINGS_MODULE=cotracker.settings.production" >> $SITE_ROOT
 echo "export PYTHONPATH=$SITE_ROOT/cotracker/" >> $SITE_ROOT/bin/activate
 echo "export SECRET_KEY=$SECRET_KEY" >> $SITE_ROOT/bin/activate
 echo "export SENTRY_DSN=$SENTRY_DSN" >> $SITE_ROOT/bin/activate
+echo "export EXPORT_PREFIX=$EXPORT_PREFIX" >> $SITE_ROOT/bin/activate
 
 
 echo "===> passing the baton to scripts/bootstrap"
