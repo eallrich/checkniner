@@ -1,0 +1,101 @@
+#!/bin/bash
+
+# scripts/setup
+# =============
+# Set up application for the first time after cloning.
+#
+# !! Requires sudo
+#
+# Usage
+# -----
+# > scripts/setup [hosted domain] [Sentry DSN]
+# e.g.
+# > scripts/setup example.com https://access:key@sentry.example.com/2
+#
+# Assumptions
+# -----------
+# - The app will be executed by a user named 'checkniner'
+#
+
+echo "===> Starting scripts/setup"
+
+ALLOWED_HOSTS=$1
+SENTRY_DSN=$2
+PG_DATABASE=checkniner
+PG_USERNAME=checkniner
+SECRET_KEY=$(python -c "import base64, os; print base64.b64encode(os.urandom(40))")
+# Found this one-liner via http://stackoverflow.com/a/246128. Thanks!
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# The script dir is checkniner/scripts. The site root will be up one level.
+SITE_ROOT="$(dirname "$SCRIPT_DIR")"
+echo "     ALLOWED_HOSTS:     $ALLOWED_HOSTS"
+echo "     SENTRY_DSN:        $SENTRY_DSN"
+echo "     PG_DATABASE:       $PG_DATABASE"
+echo "     PG_USERNAME:       $PG_USERNAME"
+echo "     SECRET_KEY:        $SECRET_KEY"
+echo "     SITE_ROOT:         $SITE_ROOT"
+
+
+# Postgres correctly insists on the locale being set properly
+echo "===> Setting locale"
+# These are via https://www.digitalocean.com/community/questions/language-problem-on-ubuntu-14-04
+#export LANGUAGE="en_US.UTF-8"
+#echo 'LANGUAGE="en_US.UTF-8"' >> /etc/default/locale
+#echo 'LC_ALL="en_US.UTF-8"' >> /etc/default/locale
+# These are via http://stackoverflow.com/a/17712701
+locale-gen en_US en_US.UTF-8 
+dpkg-reconfigure locales
+
+
+echo "===> Installing system packages"
+PACKAGES="python-virtualenv python-dev postgresql libpq-dev nginx supervisor"
+sudo apt-get install --assume-yes $PACKAGES
+
+
+echo "===> Setting up postgres user & database"
+sudo bash -c "echo \"CREATE DATABASE $PG_DATABASE; CREATE USER $PG_USERNAME; GRANT ALL PRIVILEGES ON DATABASE $PG_DATABASE to $PG_USERNAME;\\q\" | psql"
+
+
+echo "===> Updating supervisor configuration"
+CONF_DIR=/etc/supervisor/conf.d
+TEMPLATE_SITE_ROOT=/home/checkniner/checkniner
+sudo cp $SITE_ROOT/etc/supervisor.gunicorn.conf $CONF_DIR/gunicorn.conf
+sudo sed -i s@$TEMPLATE_SITE_ROOT@$SITE_ROOT@g $CONF_DIR/gunicorn.conf
+sudo service supervisor stop
+sudo service supervisor start
+
+
+echo "===> Updating nginx configuration"
+CONF_DIR=/etc/nginx
+TEMPLATE_SITE_ROOT=/home/checkniner/checkniner
+sudo rm $CONF_DIR/sites-enabled/default
+sudo cp $SITE_ROOT/etc/nginx.checkniner $CONF_DIR/sites-available/checkniner
+sudo ln -s $CONF_DIR/sites-available/checkniner $CONF_DIR/sites-enabled/checkniner
+sudo sed -i s@$TEMPLATE_SITE_ROOT@$SITE_ROOT@g $CONF_DIR/sites-enabled/checkniner
+# WARNING: If ALLOWED_HOSTS contains comma-seperated entries such as
+# 'example.com,www.example.com' this sed call will replace the nginx
+# server_name value in the config incorrectly.
+sudo sed -i s/example.com/$ALLOWED_HOSTS/g $CONF_DIR/sites-enabled/checkniner
+sudo service nginx restart
+
+
+echo "===> Creating virtualenv"
+virtualenv $SITE_ROOT
+
+
+echo "===> Setting env vars"
+echo "export ALLOWED_HOSTS=$ALLOWED_HOSTS" >> $SITE_ROOT/bin/activate
+echo "export DATABASE_URL=postgres://$PG_USERNAME@/$PG_DATABASE" >> $SITE_ROOT/bin/activate
+echo "export DJANGO_SETTINGS_MODULE=cotracker.settings.production" >> $SITE_ROOT/bin/activate
+echo "export PYTHONPATH=$SITE_ROOT/cotracker/" >> $SITE_ROOT/bin/activate
+echo "export SECRET_KEY=$SECRET_KEY" >> $SITE_ROOT/bin/activate
+echo "export SENTRY_DSN=$SENTRY_DSN" >> $SITE_ROOT/bin/activate
+
+
+echo "===> passing the baton to scripts/bootstrap"
+$SITE_ROOT/scripts/bootstrap
+
+echo "===> passing the baton to scripts/update"
+$SITE_ROOT/scripts/update
+
+echo "===> setup completed"

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# scripts/update
+# ==============
+# Performs migrations and other post-update tasks
+#
+
+echo "===> Starting scripts/update"
+
+# Found this one-liner via http://stackoverflow.com/a/246128. Thanks!
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# The script dir is checkniner/scripts. The site root will be up one level.
+SITE_ROOT="$(dirname "$SCRIPT_DIR")"
+echo "     SITE_ROOT:  $SITE_ROOT"
+
+echo "===> Performing migrations"
+source $SITE_ROOT/bin/activate
+python $SITE_ROOT/cotracker/manage.py migrate
+
+echo "===> Running collectstatic"
+python $SITE_ROOT/cotracker/manage.py collectstatic --noinput
+
+deactivate
+echo "===> update completed"

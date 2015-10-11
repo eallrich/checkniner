@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# scripts/bootstrap
+# =================
+# Installs project dependencies
+#
+
+echo "===> Starting scripts/bootstrap"
+
+# Found this one-liner via http://stackoverflow.com/a/246128. Thanks!
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# The script dir is checkniner/scripts. The site root will be up one level.
+SITE_ROOT="$(dirname "$SCRIPT_DIR")"
+echo "     SITE_ROOT:  $SITE_ROOT"
+
+echo "===> Installing pip packages"
+source $SITE_ROOT/bin/activate
+pip install -r requirements.txt
+
+echo "===> Running syncdb"
+echo "     Note: A superuser will not be created at this time. If you have any"
+echo "           initial data to import, a SU will probably be available there."
+echo "           Otherwise, run 'cotracker/manage.py createsuperuser' manually."
+python $SITE_ROOT/cotracker/manage.py syncdb --noinput --no-initial-data
+
+deactivate
+echo "===> bootstrap completed"

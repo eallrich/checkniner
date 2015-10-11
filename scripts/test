@@ -15,7 +15,7 @@ echo "     SITE_ROOT:  $SITE_ROOT"
 
 echo "---> Warning: Pending further development, this script will fail to run"
 echo "     the tests unless the user has already manually installed the"
-echo "     dev/test pip packages."
+echo "     development pip packages."
 
 cd $SITE_ROOT/cotracker/
 coverage run manage.py test --settings=cotracker.settings.test
