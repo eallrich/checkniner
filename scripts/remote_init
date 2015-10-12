@@ -8,9 +8,9 @@
 #
 # Usage
 # -----
-# > scripts/remote_init [SSH connection] [hosted domain] [Sentry DSN]
+# > scripts/remote_init [SSH connection] [hosted domain] [Sentry DSN] [export prefix]
 # e.g.
-# > scripts/remote_init ubuntu@example.com example.com https://access:key@sentry.example.com/2
+# > scripts/remote_init ubuntu@example.com example.com https://access:key@sentry.example.com/2 ZYXWVUTSR
 #
 
 echo "===> Starting scripts/remote_init"
@@ -18,6 +18,7 @@ echo "===> Starting scripts/remote_init"
 CONNECTION=$1
 ALLOWED_HOSTS=$2
 SENTRY_DSN=$3
+EXPORT_PREFIX=$4
 REPOSITORY=https://github.com/eallrich/checkniner.git
 HOST_USER=checkniner
 SITE_ROOT=/home/checkniner/checkniner
@@ -30,12 +31,16 @@ PACKAGES="byobu git fail2ban"
 ssh $CONNECTION "sudo apt-get install --assume-yes $PACKAGES"
 
 echo "===> Creating user 'checkniner' to host the app"
+# Thanks to http://askubuntu.com/a/94067 for this one-liner.
 ssh $CONNECTION "sudo adduser --disabled-password --gecos \"\" $HOST_USER"
 
 echo "===> Cloning the github repository"
-ssh $CONNECTION "sudo -u checkniner git clone $REPOSITORY $SITE_ROOT"
+# The initial 'cd /' avoids an error message caused by the host user
+# attempting to navigate to the /root directory (the default directory for the
+# root user) when 'sudo -u ...' is invoked.
+ssh $CONNECTION "cd /; sudo -u $HOST_USER git clone $REPOSITORY $SITE_ROOT; cd $SITE_ROOT; sudo -u $HOST_USER git checkout future"
 
 echo "===> passing the baton to scripts/setup"
-ssh $CONNECTION "sudo $SITE_ROOT/scripts/setup $ALLOWED_HOSTS $SENTRY_DSN"
+ssh $CONNECTION "sudo $SITE_ROOT/scripts/setup $ALLOWED_HOSTS $SENTRY_DSN $EXPORT_PREFIX"
 
 echo "===> remote_init completed"
