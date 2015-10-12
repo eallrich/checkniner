@@ -101,4 +101,7 @@ sudo -u $HOST_USER $SITE_ROOT/scripts/bootstrap
 echo "===> passing the baton to scripts/update"
 sudo -u $HOST_USER $SITE_ROOT/scripts/update
 
+echo "===> Everything is set up; Requesting supervisor to restart gunicorn"
+sudo supervisorctl restart gunicorn
+
 echo "===> setup completed"
