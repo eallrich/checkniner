@@ -38,7 +38,7 @@ echo "===> Cloning the github repository"
 # The initial 'cd /' avoids an error message caused by the host user
 # attempting to navigate to the /root directory (the default directory for the
 # root user) when 'sudo -u ...' is invoked.
-ssh $CONNECTION "cd /; sudo -u $HOST_USER git clone $REPOSITORY $SITE_ROOT; cd $SITE_ROOT; sudo -u $HOST_USER git checkout future"
+ssh $CONNECTION "cd /; sudo -u $HOST_USER git clone $REPOSITORY $SITE_ROOT"
 
 echo "===> passing the baton to scripts/setup"
 ssh $CONNECTION "sudo $SITE_ROOT/scripts/setup $ALLOWED_HOSTS $SENTRY_DSN $EXPORT_PREFIX"
