@@ -3,8 +3,8 @@
 {% block title %}Pilot Weights{% endblock title %}
 
 {% block content %}
-<p>This data is live and available immediately for use by flight ops.<br />
-To replace an incorrect or out-of-date value, simply click 'Update'.</p>
+<p>Pilot weight data is available for flight ops software use.<br />
+To update a listed value, click 'Edit'.</p>
 {% if pilotweight_list %}
     <table border="1">
     <tr>
@@ -18,15 +18,15 @@ To replace an incorrect or out-of-date value, simply click 'Update'.</p>
         <td><span style="float: right;">{{ weight }}</span></td>
         <td>
         {% if user.is_superuser or user.is_flight_scheduler or user == pilot %}
-        <a href="{% url 'weight_edit' pilot.username %}">Update</a>
+        <a href="{% url 'weight_edit' pilot.username %}">Edit</a>
         {% endif %}
         </td>
     </tr>
     {% endfor %}
     </table>
     {% if user.is_superuser or user.is_flight_scheduler %}
-        <p>The JSON export of pilot weights was last modified (in the server's timezone) at: {{ file_modified }}<br />
-        If you want to trigger an export, re-update any pilot's weight to the same value.</p>
+        <p>The pilot weight data was last published (in the server's timezone) at: {{ file_modified }}<br />
+        To republish the data, edit any pilot's weight (even to the same value).</p>
     {% endif %}
 {% else %}
 <p>Looks like there aren't any pilot weights defined yet.</p>
