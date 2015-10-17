@@ -164,7 +164,7 @@ def package(filenames):
     latest = 'latest.tar.gz'
     logger.info("Packaging archive")
     logger.debug("Contents: %s" % filenames)
-    date = datetime.datetime.now().strftime(DATE_FORMAT)
+    date = datetime.datetime.utcnow().strftime(DATE_FORMAT)
     filename = "%s.tar.gz" % date
     with tarfile.open(filename, 'w:gz') as archive:
         map(archive.add, filenames)
