@@ -9,6 +9,9 @@ from django.contrib.auth.models import User
 from .models import AircraftType, Airstrip, Checkout, PilotWeight
 from .statsdproxy import statsd
 
+# ISO 8601 YYYY-MM-DDTHH:MM:SS
+DATE_FORMAT = "%Y-%m-%dT%H:%M:%S"
+
 
 logger = logging.getLogger(__name__)
 
@@ -302,14 +305,18 @@ def export_pilotweights():
     pilotweights = PilotWeight.objects.all().order_by("pilot__last_name", "pilot__first_name")
     jsonpath = os.path.join(settings.STATIC_ROOT, settings.PILOTWEIGHTS_FILE)
     logger.info("Exporting %d PilotWeight records to %s" % (len(pilotweights), jsonpath))
-    to_export = []
+    to_export = {
+        "version": "1",
+        "updated": datetime.datetime.utcnow().strftime(DATE_FORMAT),
+        "pilots": [],
+    }
     for pw in pilotweights:
         data = {
             'LastName': pw.pilot.last_name,
             'FirstName': pw.pilot.first_name,
             'Weight': pw.weight,
         }
-        to_export.append(data)
+        to_export["pilots"].append(data)
     with open(jsonpath, 'wb') as f:
         json.dump(to_export, f, indent=4, sort_keys=True)
     logger.info("Wrote %d bytes to %s" % (os.path.getsize(jsonpath), jsonpath))
