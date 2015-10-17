@@ -1,6 +1,5 @@
 import datetime
 import hashlib
-import importlib
 import logging
 import os
 import tarfile
@@ -9,6 +8,8 @@ from boto.s3.connection import S3Connection
 from boto.s3.bucket import Bucket
 from boto.s3.key import Key
 import dj_database_url
+import django # Provides django.setup()
+from django.apps import apps as django_apps
 import envoy
 
 
@@ -81,17 +82,14 @@ def get_database_name(env='DATABASE_URL'):
     return db_config['NAME']
 
 
-def get_django_settings(env='DJANGO_SETTINGS_MODULE'):
-    name = os.environ[env]
-    return importlib.import_module(name)
-
-
 def get_installed_app_names():
-    settings = get_django_settings()
-    apps = settings.INSTALLED_APPS
-    # E.g. 'django.contrib.auth' -> 'auth'
-    names = [n.split('.')[-1] for n in apps]
-    return names
+    django.setup()
+    apps = django_apps.get_app_configs()
+    # Labels default to the last component of the app name, but not guaranteed:
+    # - Default: 'django.contrib.auth' -> 'auth'
+    # - Changed: 'raven.contrib.django.raven_compat' -> 'raven_contrib_django'
+    labels = [appconfig.label for appconfig in apps]
+    return labels
 
 
 def get_s3_credentials():
