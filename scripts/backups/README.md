@@ -52,9 +52,9 @@ $ pip install -r requirements/backups.txt
 Cron is recommended for setting up the backup schedule:
 
 ```shell
-# m  h  dom mon dow   command
+# m h  dom mon dow   command
 BACKUPS_ROOT=/home/checkniner/checkniner/scripts/backups
-*/15 *    *   *   *   $BACKUPS_ROOT/run.sh
+*/5 *    *   *   *   $BACKUPS_ROOT/run.sh
 # On the first of the month, at 00:12, remove all local .tar.gz files leftover
 # from prior backups (i.e. all except the latest)
 12   0    1   *   *   $BACKUPS_ROOT/clean.sh
