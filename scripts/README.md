@@ -2,12 +2,12 @@ Automation for activities from development through deployment.
 
 ### Script Intentions ###
 
-+ bootstrap: Installs project dependencies
-+ cibuild: Configures the environment for testing & then runs `scripts/test`
-+ remote_init: Prepares for & then runs `scripts/setup` on a remote server
-+ setup: Set up application for the first time after cloning
-+ test: Runs the test suite
-+ update: Performs migrations and other post-update tasks
++ `bootstrap`: Installs project dependencies
++ `cibuild`: Configures the environment for testing & then runs `scripts/test`
++ `remote_init`: Prepares for & then runs `scripts/setup` on a remote server
++ `setup`: Set up application for the first time after cloning
++ `test`: Runs the test suite
++ `update`: Performs migrations and other post-update tasks
 
 ### Inspiration ###
 
