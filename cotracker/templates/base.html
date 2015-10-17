@@ -12,9 +12,6 @@
 </head>
 <body>
 <div id="header">
-    {% if user.is_authenticated %}
-    <p><a id="change_password_link" href="{% url 'password_change' %}">Change Password</a></p>
-    {% endif %}
     <ul>
     {% with requested=request.path %}
     {% if user.is_authenticated %}
@@ -73,6 +70,9 @@
     {% endif %}
     {% endwith %}
     </ul>
+    {% if user.is_authenticated %}
+    <p><a id="change_password_link" href="{% url 'password_change' %}">Change Password</a></p>
+    {% endif %}
 </div>
 
 <div id="content">

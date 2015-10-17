@@ -46,6 +46,7 @@ div#header {
     float:   right;
     font-size: 19px;
     margin-right: 15px;
+    margin-top: 10px;
 }
 
 div#header ul li a {
