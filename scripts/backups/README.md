@@ -117,3 +117,13 @@ $ psql checkniner < checkniner.sql
 Errors (due to duplicate keys or pre-existing tables) will likely be seen when
 using this method, but they should not cause any problems if the import is
 allowed to continue running. Note the _should_ qualifier! Be sure to verify!
+
+### Post-restore activities ###
+
+Following a successful restore, regenerate any files created from data in the
+the database. For the pilot weight static export files, simply run:
+
+```shell
+$ source bin/activate
+$ echo "from checkouts import util; util.export_pilotweights()" | django-admin shell
+```
