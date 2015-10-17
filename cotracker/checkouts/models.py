@@ -44,7 +44,7 @@ class Airstrip(TimeStampedModel):
     ident = models.CharField(max_length=4, unique=True)
     name = models.CharField(max_length=255)
     is_base = models.BooleanField()
-    bases = models.ManyToManyField('self', symmetrical=False, limit_choices_to={'is_base': True}, blank=True, null=True)
+    bases = models.ManyToManyField('self', symmetrical=False, limit_choices_to={'is_base': True}, blank=True)
 
     def __unicode__(self):
         return "%s (%s)" % (self.ident, self.name)
