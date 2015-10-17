@@ -3,7 +3,7 @@ database and (2) restoring the database by using a backup archive.
 
 ### Dependencies ###
 
-+ `dj\_database\_url` to parse the database connection parameters
++ `dj_database_url` to parse the database connection parameters
 + `envoy` to run commands outside python
 + S3 `access` and `secret` keys for boto
 
@@ -19,8 +19,8 @@ MIRs for the backup process:
 Stages of the backup process:
 1. Cron runs the backup script every five minutes
 2. The backup script begins by creating a new data archive:
-    + Using pg\_dump to get a SQL version of the checkniner database
-    + Using django's dumpdata command to get JSON fixtures for each app
+    + Using `pg_dump` to get a SQL version of the checkniner database
+    + Using django's `dumpdata` command to get JSON fixtures for each app
 3. If a prior archive does not exist, assume this is the first run and go to 5
 4. If the new dataset is identical to the existing one, exit the backup script
     + Comparing via SHA1 hashes of the new/existing auth and checkouts fixtures
