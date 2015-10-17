@@ -51,6 +51,9 @@ sudo apt-get install --assume-yes $PACKAGES
 
 
 echo "===> Setting up postgres user & database"
+# Developer Note: A couple of things to be aware of in this configuation:
+# - We're using peer authentication, so we don't need a password or a hostname
+# - This will work as long as django and the database are on the same host
 # This initial 'cd /' avoids an error message caused by the postgres user
 # attempting to navigate to the /root directory (the default directory for the
 # root user) when 'sudo -u ...' is invoked.
