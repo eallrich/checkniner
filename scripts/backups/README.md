@@ -66,8 +66,20 @@ Restoring from a Backup
 The backup scripts discussed above provide for two sources of data from which
 restores may be made: Django fixtures (in json) and PostgreSQL commands. The
 steps below will cover how to restore a database to the state as captured in a
-backup archive, assuming you already have a latest.tar.gz file available
-locally.
+backup archive, starting with retrieving a latest.tar.gz backup file from S3.
+
+### Retrieving a backup snapshot ###
+
+The `get_latest_archive.py` script searches through the S3 bucket containing
+backup archives, finds the latest, and downloads it for local access. The file
+is named latest.tar.gz and will be placed in the current working directory.
+
+```shell
+$ cd ~/checkniner/
+$ source bin/activate
+$ python scripts/backups/get_latest_archive.py
+# Most recent backup archive is now available at ~/checkniner/latest.tar.gz
+```
 
 ### Django fixtures ###
 
