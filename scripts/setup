@@ -81,6 +81,7 @@ sudo sed -i s@$TEMPLATE_SITE_ROOT@$SITE_ROOT@g $CONF_DIR/sites-enabled/checknine
 # 'example.com,www.example.com' this sed call will replace the nginx
 # server_name value in the config incorrectly.
 sudo sed -i s/example.com/$ALLOWED_HOSTS/g $CONF_DIR/sites-enabled/checkniner
+sudo sed -i s/exportprefix/$EXPORT_PREFIX/g $CONF_DIR/sites-enabled/checkniner
 sudo service nginx restart
 
 
