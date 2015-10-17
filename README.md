@@ -79,6 +79,11 @@ $ git clone https://github.com/eallrich/checkniner.git
 $ checkniner/scripts/remote_init ubuntu@example.com example.com https://access:key@sentry.example.com/2 zyxwvutsr
 ```
 
+### Backups and Restores ###
+
+Details for backing up and restoring the checkniner database are available in
+the [scripts/backups/ readme](scripts/backups) document.
+
 Environment Variables
 ---------------------
 
@@ -109,10 +114,4 @@ Optional environment variables:
 + `FORCE_DEBUG_MODE` (e.g. true) -- Override the DEBUG flag when using settings.production
 + `INTERNAL_IPS` (e.g. 10.31.41.59) -- Required to view django-debug-toolbar; DEBUG must be True
     - A comma-separated list is acceptable: 10.31.41.59,10.27.182.8
-
-Backups and Restores
---------------------
-
-Details for backing up and restoring the checkniner database are available in
-the [scripts/backups/ readme](scripts/backups) document.
 
