@@ -84,6 +84,14 @@ $ checkniner/scripts/remote_init ubuntu@example.com example.com https://access:k
 Details for backing up and restoring the checkniner database are available in
 the [scripts/backups/ readme](scripts/backups) document.
 
+### Sending Emails ###
+
+The pilot weights feature supports the ability to send notification emails
+when a weight value is modified. Sending email is currently accomplished
+through the [Mailgun](https://mailgun.com/) API. To enable these email
+notifications, provide definitions for the email-related environment variables
+(as discussed in the Environment Variables section).
+
 Environment Variables
 ---------------------
 
@@ -114,4 +122,15 @@ Optional environment variables:
 + `FORCE_DEBUG_MODE` (e.g. true) -- Override the DEBUG flag when using settings.production
 + `INTERNAL_IPS` (e.g. 10.31.41.59) -- Required to view django-debug-toolbar; DEBUG must be True
     - A comma-separated list is acceptable: 10.31.41.59,10.27.182.8
+
+To enable sending emails (e.g. notification of pilot weight updates), set the following:
+```shell
+$ echo "export MAILGUN_SENDER=\"Checkniner <mailgun@example.com>\"" >> bin/activate
+$ echo "export MAILGUN_API_URL=https://api.mailgun.net/v3/example.com/messages" >> bin/activate
+$ echo "export MAILGUN_API_KEY=key-0123456789abcdef" >> bin/activate
+$ echo "export NOTIFY_WEIGHT_TO=receiver@example.com" >> bin/activate
+# Optional additional recipients
+$ echo "export NOTIFY_WEIGHT_CC=carbon@example.com" >> bin/activate
+$ echo "export NOTIFY_WEIGHT_BCC=quiet@example.com" >> bin/activate
+```
 
