@@ -51,7 +51,9 @@ if 'MAILGUN_SENDER' in os.environ:
         'from': get_env_var('MAILGUN_SENDER'),
         'api_url': get_env_var('MAILGUN_API_URL'),
         'api_key': get_env_var('MAILGUN_API_KEY'),
-        'send_weight_notify_to': get_env_var('NOTIFY_WEIGHT_TO'),
+        'send_weight_notify_to':  get_env_var('NOTIFY_WEIGHT_TO'),
+        'send_weight_notify_cc':  os.getenv('NOTIFY_WEIGHT_CC', None),
+        'send_weight_notify_bcc': os.getenv('NOTIFY_WEIGHT_BCC', None),
     }
 else:
     MAILGUN_CONFIG = None
