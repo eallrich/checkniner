@@ -342,6 +342,9 @@ def export_pilotweights():
 @statsd.timer('util.notify_pilotweight_update.elapsed')
 def notify_pilotweight_update(pilotweight):
     """Informs another party via email that a pilot weight has been updated"""
+    if settings.MAILGUN_CONFIG is None:
+        logger.warn("Received request to send weight update notification email, but no email settings are configured. The settings.MAILGUN_CONFIG dictionary must be populated before email can be sent.")
+        return
     name = pilotweight.pilot.full_name
     weight = pilotweight.weight
     message = "The pilot weight for '%s' has been updated to %d." % (name, weight)
