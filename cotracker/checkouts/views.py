@@ -558,7 +558,7 @@ class WeightEdit(LoginRequiredMixin, DetailView):
             logger.info("'%s' updated weight for '%s' to %d kg" % (user.username, pilotweight.pilot.username, pilotweight.weight))
         else:
             weight_changed = False
-            logger.info("'%s' set weight for '%s' back to the same value (%d kg)" % (user.username, pilotweight.pilot.username,, pilotweight.weight))
+            logger.info("'%s' set weight for '%s' back to the same value (%d kg)" % (user.username, pilotweight.pilot.username, pilotweight.weight))
         # We'll always let the user know that the weight has been updated
         message = "Updated weight for '%s' to %d kg." % (pilotweight.pilot, pilotweight.weight)
         messages.add_message(request, messages.SUCCESS, message)
