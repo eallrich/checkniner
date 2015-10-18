@@ -32,6 +32,10 @@ server {
         alias /home/ubuntu/checkniner/cotracker/static/exportprefix_pilotweights.json;
     }
     
+    location /static/exportprefix_pilotweights.xml {
+        alias /home/ubuntu/checkniner/cotracker/static/exportprefix_pilotweights.xml;
+    }
+    
     location @gunicorn {
         proxy_pass http://gunicorn;
         proxy_redirect off;

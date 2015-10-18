@@ -301,10 +301,10 @@ def airstrip_checkouts_grouped_by_pilot(airstrip):
 
 @statsd.timer('util.export_pilotweights.elapsed')
 def export_pilotweights():
-    """Regenerates the JSON file containing the provide PilotWeights"""
+    """Regenerates the 'static' files containing the PilotWeights"""
     pilotweights = PilotWeight.objects.all().order_by("pilot__last_name", "pilot__first_name")
-    jsonpath = os.path.join(settings.STATIC_ROOT, settings.PILOTWEIGHTS_FILE)
-    logger.info("Exporting %d PilotWeight records to %s" % (len(pilotweights), jsonpath))
+    logger.info("Exporting %d PilotWeight records to static files" % len(pilotweights))
+
     to_export = {
         "version": "1",
         "updated": datetime.datetime.utcnow().strftime(DATE_FORMAT),
@@ -317,9 +317,25 @@ def export_pilotweights():
             'weight': pw.weight,
         }
         to_export["pilots"].append(data)
+
+    jsonpath = os.path.join(settings.STATIC_ROOT, settings.PILOTWEIGHTS_JSON_FILE)
     with open(jsonpath, 'wb') as f:
         json.dump(to_export, f, indent=4, sort_keys=True)
     logger.info("Wrote %d bytes to %s" % (os.path.getsize(jsonpath), jsonpath))
+
+    xmlpath = os.path.join(settings.STATIC_ROOT, settings.PILOTWEIGHTS_XML_FILE)
+    with open(xmlpath, 'wb') as f:
+        f.write("<pilotweights>\n")
+        f.write("  <version>%s</version>\n" % to_export["version"])
+        f.write("  <updated>%s</updated>\n" % to_export["updated"])
+        for pilot in to_export["pilots"]:
+            f.write("  <pilot>\n")
+            f.write("    <lastname>%s</lastname>\n" % pilot["lastname"])
+            f.write("    <firstname>%s</firstname>\n" % pilot["firstname"])
+            f.write("    <weight>%d</weight>\n" % pilot["weight"])
+            f.write("  </pilot>\n")
+        f.write("</pilotweights>\n")
+    logger.info("Wrote %d bytes to %s" % (os.path.getsize(xmlpath), xmlpath))
 
 
 def get_pilotweights_mtime():

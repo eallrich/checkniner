@@ -39,7 +39,8 @@ STATSD_CONFIG = {
     'port': 48125,
 }
 
-PILOTWEIGHTS_FILE = get_env_var('EXPORT_PREFIX') + '_pilotweights.json'
+PILOTWEIGHTS_JSON_FILE = get_env_var('EXPORT_PREFIX') + '_pilotweights.json'
+PILOTWEIGHTS_XML_FILE =  get_env_var('EXPORT_PREFIX') + '_pilotweights.xml'
 
 LOGIN_URL = '/login/'
 # Default 'successful login' URL redirect if an alternative is not specified
