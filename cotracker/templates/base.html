@@ -70,10 +70,10 @@
     {% endif %}
     {% endwith %}
     </ul>
-    {% if user.is_authenticated %}
-    <p><a id="change_password_link" href="{% url 'password_change' %}">Change Password</a></p>
-    {% endif %}
 </div>
+{% if user.is_authenticated %}
+<p id="password_paragraph"><a id="change_password_link" href="{% url 'password_change' %}">Change Password</a></p>
+{% endif %}
 
 <div id="content">
     <p><strong>{% block content_title %}{% endblock content_title %}</strong></p>
