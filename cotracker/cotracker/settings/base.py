@@ -42,6 +42,13 @@ STATSD_CONFIG = {
 PILOTWEIGHTS_JSON_FILE = get_env_var('EXPORT_PREFIX') + '_pilotweights.json'
 PILOTWEIGHTS_XML_FILE =  get_env_var('EXPORT_PREFIX') + '_pilotweights.xml'
 
+MAILGUN_CONFIG = {
+    'from': get_env_var('MAILGUN_SENDER'),
+    'api_url': get_env_var('MAILGUN_API_URL'),
+    'api_key': get_env_var('MAILGUN_API_KEY'),
+    'send_weight_notify_to': get_env_var('NOTIFY_WEIGHT_TO'),
+}
+
 LOGIN_URL = '/login/'
 # Default 'successful login' URL redirect if an alternative is not specified
 LOGIN_REDIRECT_URL = '/checkouts/'
