@@ -5,6 +5,7 @@ import os
 
 from django.conf import settings
 from django.contrib.auth.models import User
+import requests
 
 from .models import AircraftType, Airstrip, Checkout, PilotWeight
 from .statsdproxy import statsd
@@ -336,6 +337,26 @@ def export_pilotweights():
             f.write("  </pilot>\n")
         f.write("</pilotweights>\n")
     logger.info("Wrote %d bytes to %s" % (os.path.getsize(xmlpath), xmlpath))
+
+
+@statsd.timer('util.notify_pilotweight_update.elapsed')
+def notify_pilotweight_update(pilotweight):
+    """Informs another party via email that a pilot weight has been updated"""
+    name = pilotweight.pilot.full_name
+    weight = pilotweight.weight
+    message = "The pilot weight for '%s' has been updated to %d." % (name, weight)
+    mgconfig = settings.MAILGUN_CONFIG
+    logger.info("Sending weight update notification to '%s'" % mgconfig['send_weight_notify_to'])
+    response = requests.post(
+        mgconfig['api_url'],
+        auth=('api', mgconfig['api_key']),
+        data={
+            'from': mgconfig['from'],
+            'to': mgconfig['send_weight_notify_to'],
+            'subject': 'Checkouts App: Pilot Weight Updated',
+            'text': message,
+        })
+    logger.info("Response status: %d, text: %s" % (response.status_code, response.text))
 
 
 def get_pilotweights_mtime():

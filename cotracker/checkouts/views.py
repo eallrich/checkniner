@@ -554,7 +554,10 @@ class WeightEdit(LoginRequiredMixin, DetailView):
         messages.add_message(request, messages.SUCCESS, message)
 
         # We're using the 'PilotWeight saved' 'event' to push out an update to
-        # the JSON report which publishes pilot weights. As soon as it's done,
-        # we'll take the user back to the pilot weight list.
+        # the JSON & XML reports which publish pilot weights for use by other
+        # systems. We'll also send a notification email with the updated info.
+        # As soon as these tasks are done, we'll take the user back to the
+        # pilot weight list.
         util.export_pilotweights()
+        util.notify_pilotweight_update(pilotweight)
         return redirect('weight_list')
