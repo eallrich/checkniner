@@ -29,14 +29,6 @@ div#content {
 div#header {
     /* Light Blue */
     background:          #86D3FF;
-    /* Dark Blue */
-    border-bottom-color: #0B73F7;
-    border-bottom-style: solid;
-    border-bottom-width: 2px;
-    margin:              0px;
-    /* Minimum width derived via experiments */
-    min-width:           1150px;
-    padding:             1px 0px 1px 0px;
     width:               100%;
 }
 
@@ -49,15 +41,19 @@ div#header {
     margin-top: 10px;
 }
 
-div#header ul li a {
+p#password_paragraph {
+    margin-top: 0px;
+}
+
+div#header a {
     /* Dark Blue */
-    border-right-color:  #0B73F7;
-    border-right-style:  solid;
-    border-right-width:  1px;
+    border-right:  1px solid #0B73F7;
+    border-bottom:  1px solid #0B73F7;
     color:               #000000;
+    line-height: 82px;
     /* The -7 Left offsets the +6 Left padding on 'div#header ul' */
     margin:              0px 0px 0px -7px;
-    padding:             25px 15px 26px 15px;
+    padding:             29px 15px 26px 15px;
     text-decoration:     none;
 }
 
@@ -82,12 +78,15 @@ div#header .current:hover {
 
 div#header li {
     display: inline;
+    white-space: nowrap;
 }
 
 div#header ul {
     list-style-type: none;
+    margin: -2px 0px 0px;
     /* Properly left-aligns the header links */
     padding-left:    6px;
+    padding-top: 0px;
 }
 
 div#messages li.info {
