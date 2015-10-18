@@ -340,7 +340,7 @@ def export_pilotweights():
 
 def get_pilotweights_mtime():
     """Enables the pilotweight_list view to report the export file's status."""
-    jsonpath = os.path.join(settings.STATIC_ROOT, settings.PILOTWEIGHTS_FILE)
+    jsonpath = os.path.join(settings.STATIC_ROOT, settings.PILOTWEIGHTS_JSON_FILE)
     if not os.path.exists(jsonpath):
         return None
     timestamp = os.path.getmtime(jsonpath)
