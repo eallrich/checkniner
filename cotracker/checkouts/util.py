@@ -350,15 +350,22 @@ def notify_pilotweight_update(pilotweight):
     message = "The pilot weight for '%s' has been updated to %d." % (name, weight)
     mgconfig = settings.MAILGUN_CONFIG
     logger.info("Sending weight update notification to '%s'" % mgconfig['send_weight_notify_to'])
+
+    data = {
+        'from':    mgconfig['from'],
+        'to':      mgconfig['send_weight_notify_to'],
+        'subject': 'Checkouts App: Pilot Weight Updated',
+        'text':    message,
+    }
+    if mgconfig['send_weight_notify_cc'] is not None:
+        data['cc'] = mgconfig['send_weight_notify_cc']
+    if mgconfig['send_weight_notify_bcc'] is not None:
+        data['bcc'] = mgconfig['send_weight_notify_bcc']
+
     response = requests.post(
         mgconfig['api_url'],
         auth=('api', mgconfig['api_key']),
-        data={
-            'from': mgconfig['from'],
-            'to': mgconfig['send_weight_notify_to'],
-            'subject': 'Checkouts App: Pilot Weight Updated',
-            'text': message,
-        })
+        data=data)
     logger.info("Response status: %d, text: %s" % (response.status_code, response.text))
 
 
