@@ -547,9 +547,19 @@ class WeightEdit(LoginRequiredMixin, DetailView):
             # Send the user back to try again
             return self.get(request, *args, **kwargs)
 
-        pilotweight.weight = new_weight
-        pilotweight.save()
-        logger.info("'%s' updated weight for '%s' to %d kg" % (user.username, pilotweight.pilot.username, pilotweight.weight))
+        # Because it's possible to 'update' a weight by setting it to the same
+        # value it already has, we'll keep track of whether a change was
+        # actually made or not. Notification emails should only be sent when
+        # the new weight value is truly new.
+        if pilotweight.weight != new_weight:
+            weight_changed = True
+            pilotweight.weight = new_weight
+            pilotweight.save()
+            logger.info("'%s' updated weight for '%s' to %d kg" % (user.username, pilotweight.pilot.username, pilotweight.weight))
+        else:
+            weight_changed = False
+            logger.info("'%s' set weight for '%s' back to the same value (%d kg)" % (user.username, pilotweight.pilot.username,, pilotweight.weight))
+        # We'll always let the user know that the weight has been updated
         message = "Updated weight for '%s' to %d kg." % (pilotweight.pilot, pilotweight.weight)
         messages.add_message(request, messages.SUCCESS, message)
 
@@ -559,5 +569,6 @@ class WeightEdit(LoginRequiredMixin, DetailView):
         # As soon as these tasks are done, we'll take the user back to the
         # pilot weight list.
         util.export_pilotweights()
-        util.notify_pilotweight_update(pilotweight)
+        if weight_changed:
+            util.notify_pilotweight_update(pilotweight)
         return redirect('weight_list')
