@@ -312,9 +312,9 @@ def export_pilotweights():
     }
     for pw in pilotweights:
         data = {
-            'LastName': pw.pilot.last_name,
-            'FirstName': pw.pilot.first_name,
-            'Weight': pw.weight,
+            'lastname': pw.pilot.last_name,
+            'firstname': pw.pilot.first_name,
+            'weight': pw.weight,
         }
         to_export["pilots"].append(data)
     with open(jsonpath, 'wb') as f:
