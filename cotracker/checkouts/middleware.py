@@ -57,7 +57,7 @@ class Analytics():
 
     def process_request(self, request):
         """Captures the current time and saves it to the request object."""
-        if is_monitor_agent(request):
+        if self.is_monitor_agent(request):
             return # No metrics
         request._analytics_start_time = time.time()
         statsd.incr('request')
@@ -65,7 +65,7 @@ class Analytics():
 
     def process_response(self, request, response):
         """Organizes info from each request/response and saves it to a log."""
-        if is_monitor_agent(request):
+        if self.is_monitor_agent(request):
             return response # No metrics, no logging
 
         context = self.collect_request_details(request)
