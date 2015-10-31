@@ -31,6 +31,13 @@ class Analytics():
         return False
 
 
+    def get_queue_start(self, request):
+        """Returns the timestamp this request started (as reported by downstream)"""
+        header = request.META['HTTP_X_REQUEST_START'] # must be set by nginx
+        value = float(header[2:]) # discard 't=' prefix
+        return value
+
+
     def collect_request_details(self, request):
         """Gathers information of interest from the request and returns a dictionary."""
         # Use the REMOTE_ADDR if we have it. If not, Nginx is configured to
@@ -43,9 +50,9 @@ class Analytics():
             'ip':        client_ip,
             'method':    request.method,
             'path':      request.path,
+            'queue':     request._queue_time,
+            'useragent': request.META.get('HTTP_USER_AGENT', 'None'),
         }
-
-        context['useragent'] = request.META.get('HTTP_USER_AGENT', 'None')
 
         if hasattr(request, 'user') and request.user.is_authenticated():
             context['user'] = request.user.username
@@ -59,7 +66,10 @@ class Analytics():
         """Captures the current time and saves it to the request object."""
         if self.is_monitor_agent(request):
             return # No metrics
-        request._analytics_start_time = time.time()
+        now = time.time()
+        request._analytics_start_time = now
+        request._queue_time = (now - self.get_queue_start(request)) * 1000.0
+        statsd.timing('queue.elapsed', request._queue_time)
         statsd.incr('request')
 
 
@@ -79,7 +89,7 @@ class Analytics():
         else:
             context['elapsed'] = -1.0
 
-        template = "client=%(user)s@%(ip)s method=%(method)s path=%(path)s real=%(elapsed).0fms status=%(status)s bytes=%(bytes)s useragent=\"%(useragent)s\""
+        template = "client=%(user)s@%(ip)s method=%(method)s path=%(path)s queue=%(queue).0fms real=%(elapsed).0fms status=%(status)s bytes=%(bytes)s useragent=\"%(useragent)s\""
         logger.info(template % context)
 
         return response
