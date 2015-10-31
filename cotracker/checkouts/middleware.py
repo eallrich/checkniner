@@ -15,7 +15,7 @@ class Analytics():
     in the project settings.
     """
 
-    def is_monitor_agent(request):
+    def is_monitor_agent(self, request):
         """Returns True if this request is related to a known monitoring agent."""
         keywords = [
             'UptimeRobot', # Nifty free service
