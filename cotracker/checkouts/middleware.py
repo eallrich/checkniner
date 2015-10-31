@@ -15,6 +15,22 @@ class Analytics():
     in the project settings.
     """
 
+    def is_monitor_agent(request):
+        """Returns True if this request is related to a known monitoring agent."""
+        keywords = [
+            'UptimeRobot', # Nifty free service
+        ]
+
+        useragent = request.META.get('HTTP_USER_AGENT', None)
+        if useragent is None:
+            return False # Can't recognize a blank useragent
+
+        for word in keywords:
+            if word in useragent:
+                return True
+        return False
+
+
     def collect_request_details(self, request):
         """Gathers information of interest from the request and returns a dictionary."""
         # Use the REMOTE_ADDR if we have it. If not, Nginx is configured to
@@ -29,10 +45,7 @@ class Analytics():
             'path':      request.path,
         }
 
-        try:
-            context['useragent'] = request.META['HTTP_USER_AGENT']
-        except KeyError:
-            context['useragent'] = 'None'
+        context['useragent'] = request.META.get('HTTP_USER_AGENT', 'None')
 
         if hasattr(request, 'user') and request.user.is_authenticated():
             context['user'] = request.user.username
@@ -41,13 +54,20 @@ class Analytics():
 
         return context
 
+
     def process_request(self, request):
         """Captures the current time and saves it to the request object."""
+        if is_monitor_agent(request):
+            return # No metrics
         request._analytics_start_time = time.time()
         statsd.incr('request')
 
+
     def process_response(self, request, response):
         """Organizes info from each request/response and saves it to a log."""
+        if is_monitor_agent(request):
+            return response # No metrics, no logging
+
         context = self.collect_request_details(request)
         context['status'] = response.status_code
         context['bytes'] = len(response.content)
