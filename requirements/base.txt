@@ -1,12 +1,12 @@
-Django==1.8.5
+Django==1.8.6
 dj-database-url==0.3.0
 django-braces==1.8.1
 django-debug-toolbar==1.4
 django-model-utils==2.3.1
 gunicorn==19.3.0
-raven==5.7.2
+raven==5.8.1
 requests==2.8.1
 six==1.10.0
-sqlparse==0.1.16
-statsd==3.1
+sqlparse==0.1.18
+statsd==3.2.1
 whitenoise==2.0.4
