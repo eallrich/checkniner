@@ -49,14 +49,20 @@ Install the python packages needed to collect and upload the snapshots:
 $ pip install -r requirements/backups.txt
 ```
 
-Cron is recommended for setting up the backup schedule:
+Cron is recommended for setting up the backup schedule, and having the scripts
+check in with a watchdog service is encouraged but not required:
 
 ```shell
 # m h  dom mon dow   command
 BACKUPS_ROOT=/home/checkniner/checkniner/scripts/backups
-*/5 *    *   *   *   $BACKUPS_ROOT/run.sh
+# Ping the watchdog on success. After too many failures, the service should
+# send us an alert so that we can know to look into why it's failing.
+*/5 *    *   *   *   $BACKUPS_ROOT/run.sh && curl -m 30 https://example.com/ping/IDENTIFIER
 # On the first of the month, at 00:12, remove all local .tar.gz files leftover
-# from prior backups (i.e. all except the latest)
+# from prior backups (i.e. all except the latest). We don't have to alert any
+# watchdogs for our cron commands (it's just good practice), and here's an
+# example of staying quiet. If the script fails it will just leave every old
+# backup archive of the database on the server.
 12   0    1   *   *   $BACKUPS_ROOT/clean.sh
 ```
 
