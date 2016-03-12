@@ -1,0 +1,5 @@
+# m h  dom mon dow   command
+PING="curl -m 30 {{ watchdog_url }}"
+BACKUPS_ROOT={{ site_root }}/scripts/backups
+*/5 *    *   *   *   $BACKUPS_ROOT/run.sh && $PING/{{ watchdog_run_id }}
+12  0    1   *   *   $BACKUPS_ROOT/clean.sh && $PING/{{ watchdog_clean_id }}

@@ -1,0 +1,5 @@
+# m h  dom mon dow   command
+PING="curl -m 30 {{ watchdog_url }}"
+# Renew Let's Encrypt TLS certificates every month, but spread the renewals
+# out a bit during the month (no reason to cluster up on the first day).
+  0 0  6   *   *     /root/certify.sh {{ app_domain }} && sudo service nginx reload && $PING/{{ watchdog_id }}
