@@ -77,9 +77,9 @@ CONF_DIR=/etc/nginx
 sudo rm $CONF_DIR/sites-enabled/default
 sudo cp $SITE_ROOT/etc/nginx.secure $CONF_DIR/sites-available/checkniner
 sudo ln -s $CONF_DIR/sites-available/checkniner $CONF_DIR/sites-enabled/checkniner
-sudo sed -i s@{{ site_root }}@$SITE_ROOT@g $CONF_DIR/sites-enabled/checkniner
-sudo sed -i s/{{ domain_name }}/$ALLOWED_HOSTS/g $CONF_DIR/sites-enabled/checkniner
-sudo sed -i s/{{ export_prefix }}/$EXPORT_PREFIX/g $CONF_DIR/sites-enabled/checkniner
+sudo sed -i "s@{{ site_root }}@$SITE_ROOT@g" $CONF_DIR/sites-enabled/checkniner
+sudo sed -i "s/{{ domain_name }}/$ALLOWED_HOSTS/g" $CONF_DIR/sites-enabled/checkniner
+sudo sed -i "s/{{ export_prefix }}/$EXPORT_PREFIX/g" $CONF_DIR/sites-enabled/checkniner
 
 echo "===> Setting up TLS environment"
 # To bring up the nginx conf, we're going to need a few placeholders. These
