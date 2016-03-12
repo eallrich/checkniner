@@ -90,13 +90,10 @@ sudo cp $SITE_ROOT/etc/nginx.unsecure $CONF_DIR/sites-enabled/checkniner
 sudo sed -i "s@{{ site_root }}@$SITE_ROOT@g" $CONF_DIR/sites-enabled/checkniner
 sudo sed -i "s/{{ domain_name }}/$ALLOWED_HOSTS/g" $CONF_DIR/sites-enabled/checkniner
 sudo sed -i "s/{{ export_prefix }}/$EXPORT_PREFIX/g" $CONF_DIR/sites-enabled/checkniner
-
-echo "===> Setting up TLS environment"
-# To bring up the nginx conf, we're going to need the challenges directory to
-# exist. Once it's up, we can run the certify.sh script to get everything else.
-sudo mkdir -p /etc/letsencrypt/challenges
 sudo service nginx restart
 
+sudo mkdir /etc/letsencrypt/
+sudo cp $SITE_ROOT/scripts/acme_tiny.py /etc/letsencrypt/acme_tiny.py
 sudo cp $SITE_ROOT/scripts/certify.sh ~/certify.sh
 echo "===> Getting TLS certificate"
 sudo ~/certify.sh $ALLOWED_HOSTS
