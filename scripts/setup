@@ -70,33 +70,43 @@ sudo service supervisor stop
 sudo service supervisor start
 
 
-echo "===> Updating nginx configuration"
+# Setting up nginx & TLS certificates with Let's Encrypt on a fresh box is a
+# bit complicated. First, because we don't have any certificates, we need to
+# set up an unsecured configuration. Since the unsecured server answers Let's
+# Encrypt's challenges to prove domain control, though, it must know about the
+# /etc/letsencrypt/challenges directory and be able to alias into it.
+#
+# Once the unsecured nginx configuration is running, we can run our certify
+# script to get real certificates. Finally, with those in possession, we can
+# put the secured nginx configuration in place and do a final `nginx reload`.
+#
 # WARNING: If ALLOWED_HOSTS contains comma-seperated entries such as
-# 'example.com,www.example.com' this section will not run correctly.
+# 'example.com,www.example.com' this section will not run correctly!
+
 CONF_DIR=/etc/nginx
+echo "===> Updating nginx configuration (unsecured)"
 sudo rm $CONF_DIR/sites-enabled/default
-sudo cp $SITE_ROOT/etc/nginx.secure $CONF_DIR/sites-available/checkniner
+sudo cp $SITE_ROOT/etc/nginx.unsecure $CONF_DIR/sites-available/checkniner
 sudo ln -s $CONF_DIR/sites-available/checkniner $CONF_DIR/sites-enabled/checkniner
 sudo sed -i "s@{{ site_root }}@$SITE_ROOT@g" $CONF_DIR/sites-enabled/checkniner
 sudo sed -i "s/{{ domain_name }}/$ALLOWED_HOSTS/g" $CONF_DIR/sites-enabled/checkniner
 sudo sed -i "s/{{ export_prefix }}/$EXPORT_PREFIX/g" $CONF_DIR/sites-enabled/checkniner
 
 echo "===> Setting up TLS environment"
-# To bring up the nginx conf, we're going to need a few placeholders. These
-# will all be populated for real when we call certify.sh a few lines down.
-LE_ROOT=/etc/letsencrypt
-sudo mkdir -p $LE_ROOT/challenges
-sudo mkdir -p $LE_ROOT/keys
-sudo touch $LE_ROOT/keys/$ALLOWED_HOSTS.key
-sudo touch $LE_ROOT/$ALLOWED_HOSTS.chained.pem
-sudo touch $LE_ROOT/dhparams.pem
-sudo touch $LE_ROOT/keys/selfsign.key
-sudo touch $LE_ROOT/selfsign.crt
+# To bring up the nginx conf, we're going to need the challenges directory to
+# exist. Once it's up, we can run the certify.sh script to get everything else.
+sudo mkdir -p /etc/letsencrypt/challenges
 sudo service nginx restart
 
 sudo cp $SITE_ROOT/scripts/certify.sh ~/certify.sh
 echo "===> Getting TLS certificate"
 sudo ~/certify.sh $ALLOWED_HOSTS
+
+echo "===> Updating nginx configuration (secured)"
+sudo cp $SITE_ROOT/etc/nginx.secure $CONF_DIR/sites-available/checkniner
+sudo sed -i "s@{{ site_root }}@$SITE_ROOT@g" $CONF_DIR/sites-enabled/checkniner
+sudo sed -i "s/{{ domain_name }}/$ALLOWED_HOSTS/g" $CONF_DIR/sites-enabled/checkniner
+sudo sed -i "s/{{ export_prefix }}/$EXPORT_PREFIX/g" $CONF_DIR/sites-enabled/checkniner
 sudo service nginx reload
 
 
