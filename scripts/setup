@@ -64,25 +64,40 @@ sudo -u postgres bash -c "echo \"CREATE DATABASE $PG_DATABASE; CREATE USER $HOST
 echo "===> Updating supervisor configuration"
 CONF_DIR=/etc/supervisor/conf.d
 TEMPLATE_HOST_USER=ubuntu
-sudo cp $SITE_ROOT/etc/supervisor.gunicorn.conf $CONF_DIR/gunicorn.conf
-sudo sed -i s@$TEMPLATE_HOST_USER@$HOST_USER@g $CONF_DIR/gunicorn.conf
+sudo cp $SITE_ROOT/etc/supervisor.conf $CONF_DIR/checkniner.conf
+sudo sed -i s@$TEMPLATE_HOST_USER@$HOST_USER@g $CONF_DIR/checkniner.conf
 sudo service supervisor stop
 sudo service supervisor start
 
 
 echo "===> Updating nginx configuration"
-CONF_DIR=/etc/nginx
-TEMPLATE_SITE_ROOT=/home/ubuntu/checkniner
-sudo rm $CONF_DIR/sites-enabled/default
-sudo cp $SITE_ROOT/etc/nginx.checkniner $CONF_DIR/sites-available/checkniner
-sudo ln -s $CONF_DIR/sites-available/checkniner $CONF_DIR/sites-enabled/checkniner
-sudo sed -i s@$TEMPLATE_SITE_ROOT@$SITE_ROOT@g $CONF_DIR/sites-enabled/checkniner
 # WARNING: If ALLOWED_HOSTS contains comma-seperated entries such as
-# 'example.com,www.example.com' this sed call will replace the nginx
-# server_name value in the config incorrectly.
-sudo sed -i s/example.com/$ALLOWED_HOSTS/g $CONF_DIR/sites-enabled/checkniner
-sudo sed -i s/exportprefix/$EXPORT_PREFIX/g $CONF_DIR/sites-enabled/checkniner
+# 'example.com,www.example.com' this section will not run correctly.
+CONF_DIR=/etc/nginx
+sudo rm $CONF_DIR/sites-enabled/default
+sudo cp $SITE_ROOT/etc/nginx.secure $CONF_DIR/sites-available/checkniner
+sudo ln -s $CONF_DIR/sites-available/checkniner $CONF_DIR/sites-enabled/checkniner
+sudo sed -i s@{{ site_root }}@$SITE_ROOT@g $CONF_DIR/sites-enabled/checkniner
+sudo sed -i s/{{ domain_name }}/$ALLOWED_HOSTS/g $CONF_DIR/sites-enabled/checkniner
+sudo sed -i s/{{ export_prefix }}/$EXPORT_PREFIX/g $CONF_DIR/sites-enabled/checkniner
+
+echo "===> Setting up TLS environment"
+# To bring up the nginx conf, we're going to need a few placeholders. These
+# will all be populated for real when we call certify.sh a few lines down.
+LE_ROOT=/etc/letsencrypt
+sudo mkdir -p $LE_ROOT/challenges
+sudo mkdir -p $LE_ROOT/keys
+sudo touch $LE_ROOT/keys/$ALLOWED_HOSTS.key
+sudo touch $LE_ROOT/$ALLOWED_HOSTS.chained.pem
+sudo touch $LE_ROOT/dhparams.pem
+sudo touch $LE_ROOT/keys/selfsign.key
+sudo touch $LE_ROOT/selfsign.crt
 sudo service nginx restart
+
+sudo cp $SITE_ROOT/scripts/certify.sh ~/certify.sh
+echo "===> Getting TLS certificate"
+sudo ~/certify.sh $ALLOWED_HOSTS
+sudo service nginx reload
 
 
 echo "===> Creating virtualenv"
