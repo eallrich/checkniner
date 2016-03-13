@@ -57,6 +57,11 @@ setup:
 + A Sentry DSN (`SENTRY_DSN`)
 + A string to be prefixed onto some exported static files (`EXPORT_PREFIX`)
 
+An optional fourth parameter is the name of the host user under whose account
+the application is run. Example names include 'staging' and 'checkniner\_prod'.
+This name is also used for PostgreSQL configuration as both the postgres DB
+user & the DB name.
+
 If the scripts aren't used, there are several additional variables the user
 must specify. All these configuration options are covered in the Environment
 Variables section.
@@ -67,7 +72,7 @@ app, then setting up is as simple as:
 
 ```shell
 $ git clone https://github.com/eallrich/checkniner.git
-$ checkniner/scripts/setup example.com https://access:key@sentry.example.com/2 zyxwvutsr
+$ checkniner/scripts/setup example.com https://access:key@sentry.example.com/2 zyxwvutsr staging
 ```
 
 Only slightly more complicated than installing locally, to get a remote server
@@ -76,7 +81,7 @@ the remote machine.
 
 ```shell
 $ git clone https://github.com/eallrich/checkniner.git
-$ checkniner/scripts/remote_init ubuntu@example.com example.com https://access:key@sentry.example.com/2 zyxwvutsr
+$ checkniner/scripts/remote_init ubuntu@example.com example.com https://access:key@sentry.example.com/2 zyxwvutsr staging
 ```
 
 ### Backups and Restores ###
@@ -94,10 +99,8 @@ notifications, provide definitions for the email-related environment variables
 
 ### TLS via Let's Encrypt ###
 
-By default, the `scripts/setup` script will try to obtain TLS certificates from
-the Let's Encrypt CA and then set up Nginx to handle HTTPS connections. This
-feature is not robust against network delays and can result in failure to
-set up the rest of the application correctly.
+After the initial setup (via `scripts/setup`), run `scripts/prep_production` to
+obtain & configure TLS certificates from the Let's Encrypt CA.
 
 Certificates from Let's Encrypt have a validity period of 90 days. Once the
 initial certificate is obtained and installed, it is _highly_ recommended that
