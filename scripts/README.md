@@ -3,7 +3,9 @@ Automation for activities from development through deployment.
 ### Script Intentions ###
 
 + `bootstrap`: Installs project dependencies
++ `certify.sh`: Retrieves a TLS cert from Let's Encrypt
 + `cibuild`: Configures the environment for testing & then runs `scripts/test`
++ `prep_production`: Configures secure hosting
 + `remote_init`: Prepares for & then runs `scripts/setup` on a remote server
 + `setup`: Set up application for the first time after cloning
 + `test`: Runs the test suite

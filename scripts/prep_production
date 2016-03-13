@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# scripts/prep_production
+# =======================
+# Perform configuration setup to support a production environment.
+#
+# !! Requires sudo
+#
+# Usage
+# -----
+# > scripts/prep_production [hosted domain] [export prefix]
+# e.g.
+# > scripts/prep_production example.com ZYXWVUTSR
+#
+# Assumptions
+# -----------
+# - The app will be executed by a user named 'checkniner'
+# - scripts/setup has already been executed and the nginx conf knows how to
+#   handle HTTP challenges from Let's Encrypt.
+#
+
+echo "===> Starting scripts/prep_production"
+
+ALLOWED_HOSTS=$1
+EXPORT_PREFIX=$2
+# Found this one-liner via http://stackoverflow.com/a/246128. Thanks!
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# The script dir is checkniner/scripts. The site root will be up one level.
+SITE_ROOT="$(dirname "$SCRIPT_DIR")"
+echo "     ALLOWED_HOSTS:     $ALLOWED_HOSTS"
+echo "     EXPORT_PREFIX:     $EXPORT_PREFIX"
+echo "     SITE_ROOT:         $SITE_ROOT"
+
+
+# Setting up nginx & TLS certificates with Let's Encrypt on a fresh box is a
+# bit complicated. First, because we don't have any certificates, we need to
+# set up an unsecured configuration. Since the unsecured server answers Let's
+# Encrypt's challenges to prove domain control, though, it must know about the
+# /etc/letsencrypt/challenges directory and be able to alias into it.
+#
+# Once the unsecured nginx configuration is running, we can run our certify
+# script to get real certificates. Finally, with those in possession, we can
+# put the secured nginx configuration in place and do a final `nginx reload`.
+#
+# WARNING: If ALLOWED_HOSTS contains comma-seperated entries such as
+# 'example.com,www.example.com' this section will not run correctly!
+
+sudo mkdir /etc/letsencrypt/
+sudo cp $SITE_ROOT/scripts/acme_tiny.py /etc/letsencrypt/acme_tiny.py
+sudo cp $SITE_ROOT/scripts/certify.sh ~/certify.sh
+echo "===> Getting TLS certificate"
+sudo ~/certify.sh $ALLOWED_HOSTS
+
+CONF_DIR=/etc/nginx
+echo "===> Updating nginx configuration (secured)"
+sudo cp $SITE_ROOT/etc/nginx.secure $CONF_DIR/sites-enabled/checkniner
+sudo sed -i "s@{{ site_root }}@$SITE_ROOT@g" $CONF_DIR/sites-enabled/checkniner
+sudo sed -i "s/{{ domain_name }}/$ALLOWED_HOSTS/g" $CONF_DIR/sites-enabled/checkniner
+sudo sed -i "s/{{ export_prefix }}/$EXPORT_PREFIX/g" $CONF_DIR/sites-enabled/checkniner
+sudo service nginx reload
+
+echo "===> prep_production completed"
