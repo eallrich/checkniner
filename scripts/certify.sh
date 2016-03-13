@@ -1,10 +1,29 @@
 #!/usr/bin/env bash
-# Usage: certify.sh example.com
+# Usage: certify.sh example.com [--use-existing]
 # Assumes the executing user is root
+#
+# By default, this script will reuse a private domain key (if one exists),
+# create a new CSR, asks Let's Encrypt to sign the CSR, and create the chained
+# certificate file.
+#
+# If the optional --use-existing argument is passed, the script might not ask
+# the CA to sign a CSR (which would result in a certificate issuance). Because
+# of the rate limits Let's Encrypt has in place, blindly renewing certificates
+# every time this script is called can result in the inability to get any
+# signed certs for a domain (for up to a week, depending on the timing).
+#
+# At the moment the --use-existing argument is dumb: it merely checks whether
+# the expected chained certificate file for the specified domain exists. It
+# does not perform any validity checking (e.g. cert.expiration > 45 days?) nor
+# confirm that the file even contains certificate data.
 
 set -e
 
 DOMAIN=$1 # The domain for which we'll be getting a certificate
+USE_EXISTING="false"
+if [ -n $2 ]; then
+    USE_EXISTING="true"
+fi
 LOGFILE=/tmp/letsencrypt.$(basename $0).log
 # Directories
 LE_ROOT="/etc/letsencrypt"
@@ -55,6 +74,19 @@ function initialize {
 function request_and_sign {
     log_minor "Obtaining signed certificate for $DOMAIN"
     DOMAIN_KEY=$KEYS/$DOMAIN.key
+    DOMAIN_CSR=$LE_ROOT/$DOMAIN.csr
+    DOMAIN_SIGNED=$LE_ROOT/$DOMAIN.signed.crt
+    DOMAIN_CHAINED=$LE_ROOT/$DOMAIN.chained.pem
+    CA_INTERMEDIATE=$LE_ROOT/intermediate.pem
+
+    if [ $USE_EXISTING == "true" ]; then
+        log_print "(will reuse existing chained cert if available)"
+        if [ -f $DOMAIN_CHAINED ]; then
+            log_print "Found existing chained cert $DOMAIN_CHAINED, nothing to do"
+            return
+        fi
+    fi
+
     if [ ! -f $DOMAIN_KEY ]; then
         log_print "Creating domain key"
         openssl genrsa 4096 > $DOMAIN_KEY 2>>$LOGFILE
@@ -62,20 +94,20 @@ function request_and_sign {
     fi
 
     log_print "Creating Certificate Signing Request"
-    openssl req -new -sha256 -key $DOMAIN_KEY -subj "/CN=$DOMAIN" > $LE_ROOT/$DOMAIN.csr 2>>$LOGFILE
+    openssl req -new -sha256 -key $DOMAIN_KEY -subj "/CN=$DOMAIN" > $DOMAIN_CSR 2>>$LOGFILE
 
     log_minor "Verifying domain ownership"
-    python $LE_ROOT/acme_tiny.py --account-key $ACCOUNT_KEY --csr $LE_ROOT/$DOMAIN.csr --acme-dir $CHALLENGES > $LE_ROOT/$DOMAIN.signed.crt 2>>$LOGFILE
+    python $LE_ROOT/acme_tiny.py --account-key $ACCOUNT_KEY --csr $DOMAIN_CSR --acme-dir $CHALLENGES > $DOMAIN_SIGNED 2>>$LOGFILE
 
     log_minor "Chaining intermediate certificate"
     LE_INTERMEDIATE_URL=https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem
-    wget -O $LE_ROOT/intermediate.pem $LE_INTERMEDIATE_URL 2>>$LOGFILE
-    cat $LE_ROOT/$DOMAIN.signed.crt $LE_ROOT/intermediate.pem > $LE_ROOT/$DOMAIN.chained.pem
+    wget -O $CA_INTERMEDIATE $LE_INTERMEDIATE_URL 2>>$LOGFILE
+    cat $DOMAIN_SIGNED $CA_INTERMEDIATE > $DOMAIN_CHAINED
 
     log_minor "Cleaning up"
-    rm $LE_ROOT/$DOMAIN.signed.crt
-    rm $LE_ROOT/$DOMAIN.csr
-    rm $LE_ROOT/intermediate.pem
+    rm $DOMAIN_SIGNED
+    rm $DOMAIN_CSR
+    rm $CA_INTERMEDIATE
 }
 
 log_major "Preparing TLS for $DOMAIN"
