@@ -85,10 +85,20 @@ sudo service supervisor start
 CONF_DIR=/etc/nginx
 echo "===> Updating nginx configuration (unsecured)"
 sudo rm $CONF_DIR/sites-enabled/default
+# Set up the HTTP config for our domain
 sudo cp $SITE_ROOT/etc/nginx.unsecure $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
 sudo sed -i "s@{{ site_root }}@$SITE_ROOT@g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
 sudo sed -i "s/{{ domain_name }}/$ALLOWED_HOSTS/g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
 sudo sed -i "s/{{ export_prefix }}/$EXPORT_PREFIX/g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
+# Then make sure there's a config to prevent propagation of requests for
+# any unknown hosts
+BLOCK_UNKNOWN=$CONF_DIR/sites-enabled/block_unknown
+if [ ! -f $BLOCK_UNKNOWN ]; then
+    echo "===> Adding 'block unknown HTTP' nginx config"
+    # Since this is the first "block unknown" config, we will assume there
+    # aren't any HTTPS connections to worry about.
+    sudo cp $SITE_ROOT/etc/nginx.block_unknown_80 $BLOCK_UNKNOWN
+fi
 sudo service nginx restart
 
 

@@ -56,6 +56,8 @@ sudo cp $SITE_ROOT/etc/nginx.secure $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
 sudo sed -i "s@{{ site_root }}@$SITE_ROOT@g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
 sudo sed -i "s/{{ domain_name }}/$ALLOWED_HOSTS/g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
 sudo sed -i "s/{{ export_prefix }}/$EXPORT_PREFIX/g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
+echo "===> Changing 'block unknown' nginx config to also support HTTPS"
+sudo cp $SITE_ROOT/etc/nginx.block_unknown_443 $CONF_DIR/sites-enabled/block_unknown
 sudo service nginx reload
 
 echo "===> prep_production completed"

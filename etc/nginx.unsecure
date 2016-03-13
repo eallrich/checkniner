@@ -3,7 +3,7 @@
 # + {{ domain_name }} with ALLOWED_HOST
 # + {{ export_prefix }} with EXPORT_PREFIX
 
-upstream gunicorn {
+upstream gunicorn_{{ domain_name }} {
     server unix:{{ site_root }}/sock/gunicorn;
 }
 
@@ -46,19 +46,12 @@ server {
     }
     
     location @gunicorn {
-        proxy_pass http://gunicorn;
+        proxy_pass http://gunicorn_{{ domain_name }};
         proxy_redirect off;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Request-Start "t=${msec}";
     }
-}
-
-# Don't let requests for unrecognized server names propagate upstream
-server {
-    listen 80 default_server;
-    server_name _;
-    return 444;
 }
 

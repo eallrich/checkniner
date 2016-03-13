@@ -3,7 +3,7 @@
 # + {{ domain_name }} with the application domain name (from ALLOWED_HOSTS)
 # + {{ export_prefix }} with the EXPORT_PREFIX
 
-upstream gunicorn {
+upstream gunicorn_{{ domain_name }} {
     server unix:{{ site_root }}/sock/gunicorn;
 }
 
@@ -72,7 +72,7 @@ server {
     }
     
     location @gunicorn {
-        proxy_pass http://gunicorn;
+        proxy_pass http://gunicorn_{{ domain_name }};
         proxy_redirect off;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
@@ -81,14 +81,3 @@ server {
     }
 }
 
-# Don't let requests for unrecognized server names propagate upstream
-server {
-    listen 80;
-    listen 443 ssl default_server;
-    server_name _;
-    ssl_certificate /etc/letsencrypt/selfsign.crt;
-    ssl_certificate_key /etc/letsencrypt/keys/selfsign.key;
-    # Turn off SSLv3 so that SSL Labs doesn't claim we're vulnerable to POODLE
-    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-    return 444;
-}
