@@ -71,8 +71,7 @@ echo "===> Updating supervisor configuration"
 CONF_DIR=/etc/supervisor/conf.d
 sudo cp $SITE_ROOT/etc/supervisor.conf $CONF_DIR/checkniner_$HOST_USER.conf
 sudo sed -i "s@{{ host_user }}@$HOST_USER@g" $CONF_DIR/checkniner_$HOST_USER.conf
-sudo service supervisor stop
-sudo service supervisor start
+sudo service supervisor restart
 
 
 # We're going to start with an unsecured Nginx configuration which supports
