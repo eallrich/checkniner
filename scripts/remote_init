@@ -8,9 +8,12 @@
 #
 # Usage
 # -----
-# > scripts/remote_init [SSH connection] [hosted domain] [Sentry DSN] [export prefix]
+# > scripts/remote_init [SSH connection] [hosted domain] [Sentry DSN] [export prefix] [host user]
 # e.g.
-# > scripts/remote_init ubuntu@example.com example.com https://access:key@sentry.example.com/2 ZYXWVUTSR
+# > scripts/remote_init ubuntu@example.com example.com https://access:key@sentry.example.com/2 ZYXWVUTSR staging
+#
+# The 'host user' parameter is not required. If not provided, the default
+# ('checkniner') will be used instead.
 #
 
 echo "===> Starting scripts/remote_init"
@@ -20,8 +23,11 @@ ALLOWED_HOSTS=$2
 SENTRY_DSN=$3
 EXPORT_PREFIX=$4
 REPOSITORY=https://github.com/eallrich/checkniner.git
-HOST_USER=checkniner
-SITE_ROOT=/home/checkniner/checkniner
+HOST_USER=$5
+if [ -z "$HOST_USER" ]; then
+    HOST_USER=checkniner
+fi
+SITE_ROOT="/home/$HOST_USER/checkniner"
 
 echo "===> Performing operating system package upgrades"
 ssh $CONNECTION "sudo apt-get update && sudo apt-get dist-upgrade --assume-yes"
@@ -41,6 +47,6 @@ echo "===> Cloning the github repository"
 ssh $CONNECTION "cd /; sudo -u $HOST_USER git clone $REPOSITORY $SITE_ROOT"
 
 echo "===> passing the baton to scripts/setup"
-ssh $CONNECTION "sudo $SITE_ROOT/scripts/setup $ALLOWED_HOSTS $SENTRY_DSN $EXPORT_PREFIX"
+ssh $CONNECTION "sudo $SITE_ROOT/scripts/setup $ALLOWED_HOSTS $SENTRY_DSN $EXPORT_PREFIX $HOST_USER"
 
 echo "===> remote_init completed"

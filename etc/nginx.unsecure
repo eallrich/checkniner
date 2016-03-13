@@ -10,8 +10,8 @@ upstream gunicorn {
 server {
     listen 80;
     server_name {{ domain_name }};
-    access_log /var/log/nginx/checkniner.access.log;
-    error_log /var/log/nginx/checkniner.error.log;
+    access_log /var/log/nginx/{{ domain_name }}.access.log;
+    error_log /var/log/nginx/{{ domain_name }}.error.log;
 
     # Let's Encrypt challenges come in on HTTP/80
     location /.well-known/acme-challenge/ {

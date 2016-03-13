@@ -8,13 +8,16 @@
 #
 # Usage
 # -----
-# > scripts/setup [hosted domain] [Sentry DSN] [export prefix]
+# > scripts/setup [hosted domain] [Sentry DSN] [export prefix] [host user]
 # e.g.
-# > scripts/setup example.com https://access:key@sentry.example.com/2 ZYXWVUTSR
+# > scripts/setup example.com https://access:key@sentry.example.com/2 ZYXWVUTSR staging
+#
+# The 'host user' parameter is not required. If not provided, the default
+# ('checkniner') will be used instead.
 #
 # Assumptions
 # -----------
-# - The app will be executed by a user named 'checkniner'
+# - The hosting user, postgres user, and postgres DB all share the same name
 #
 
 echo "===> Starting scripts/setup"
@@ -22,8 +25,11 @@ echo "===> Starting scripts/setup"
 ALLOWED_HOSTS=$1
 SENTRY_DSN=$2
 EXPORT_PREFIX=$3
-PG_DATABASE=checkniner
-HOST_USER=checkniner
+HOST_USER=$5
+if [ -z "$HOST_USER" ]; then
+    HOST_USER=checkniner
+fi
+PG_DATABASE="$HOST_USER"
 SECRET_KEY=$(python -c "import base64, os; print base64.b64encode(os.urandom(40))")
 # Found this one-liner via http://stackoverflow.com/a/246128. Thanks!
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -63,9 +69,8 @@ sudo -u postgres bash -c "echo \"CREATE DATABASE $PG_DATABASE; CREATE USER $HOST
 
 echo "===> Updating supervisor configuration"
 CONF_DIR=/etc/supervisor/conf.d
-TEMPLATE_HOST_USER=ubuntu
-sudo cp $SITE_ROOT/etc/supervisor.conf $CONF_DIR/checkniner.conf
-sudo sed -i s@$TEMPLATE_HOST_USER@$HOST_USER@g $CONF_DIR/checkniner.conf
+sudo cp $SITE_ROOT/etc/supervisor.conf $CONF_DIR/checkniner_$HOST_USER.conf
+sudo sed -i i"s@{{ host_user }}@$HOST_USER@g" $CONF_DIR/checkniner_$HOST_USER.conf
 sudo service supervisor stop
 sudo service supervisor start
 
@@ -80,10 +85,10 @@ sudo service supervisor start
 CONF_DIR=/etc/nginx
 echo "===> Updating nginx configuration (unsecured)"
 sudo rm $CONF_DIR/sites-enabled/default
-sudo cp $SITE_ROOT/etc/nginx.unsecure $CONF_DIR/sites-enabled/checkniner
-sudo sed -i "s@{{ site_root }}@$SITE_ROOT@g" $CONF_DIR/sites-enabled/checkniner
-sudo sed -i "s/{{ domain_name }}/$ALLOWED_HOSTS/g" $CONF_DIR/sites-enabled/checkniner
-sudo sed -i "s/{{ export_prefix }}/$EXPORT_PREFIX/g" $CONF_DIR/sites-enabled/checkniner
+sudo cp $SITE_ROOT/etc/nginx.unsecure $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
+sudo sed -i "s@{{ site_root }}@$SITE_ROOT@g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
+sudo sed -i "s/{{ domain_name }}/$ALLOWED_HOSTS/g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
+sudo sed -i "s/{{ export_prefix }}/$EXPORT_PREFIX/g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
 sudo service nginx restart
 
 
@@ -108,6 +113,6 @@ echo "===> passing the baton to scripts/update"
 sudo -u $HOST_USER $SITE_ROOT/scripts/update
 
 echo "===> Everything is set up; Requesting supervisor to restart gunicorn"
-sudo supervisorctl restart gunicorn
+sudo supervisorctl restart gunicorn_$HOST_USER
 
 echo "===> setup completed"

@@ -14,7 +14,6 @@
 #
 # Assumptions
 # -----------
-# - The app will be executed by a user named 'checkniner'
 # - scripts/setup has already been executed and the nginx conf knows how to
 #   handle HTTP challenges from Let's Encrypt.
 #
@@ -53,10 +52,10 @@ sudo ~/certify.sh $ALLOWED_HOSTS
 
 CONF_DIR=/etc/nginx
 echo "===> Updating nginx configuration (secured)"
-sudo cp $SITE_ROOT/etc/nginx.secure $CONF_DIR/sites-enabled/checkniner
-sudo sed -i "s@{{ site_root }}@$SITE_ROOT@g" $CONF_DIR/sites-enabled/checkniner
-sudo sed -i "s/{{ domain_name }}/$ALLOWED_HOSTS/g" $CONF_DIR/sites-enabled/checkniner
-sudo sed -i "s/{{ export_prefix }}/$EXPORT_PREFIX/g" $CONF_DIR/sites-enabled/checkniner
+sudo cp $SITE_ROOT/etc/nginx.secure $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
+sudo sed -i "s@{{ site_root }}@$SITE_ROOT@g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
+sudo sed -i "s/{{ domain_name }}/$ALLOWED_HOSTS/g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
+sudo sed -i "s/{{ export_prefix }}/$EXPORT_PREFIX/g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
 sudo service nginx reload
 
 echo "===> prep_production completed"
