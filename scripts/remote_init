@@ -36,7 +36,7 @@ echo "===> Installing base system packages"
 PACKAGES="byobu git fail2ban"
 ssh $CONNECTION "sudo apt-get install --assume-yes $PACKAGES"
 
-echo "===> Creating user 'checkniner' to host the app"
+echo "===> Creating user '$HOST_USER' to host the app"
 # Thanks to http://askubuntu.com/a/94067 for this one-liner.
 ssh $CONNECTION "sudo adduser --disabled-password --gecos \"\" $HOST_USER"
 

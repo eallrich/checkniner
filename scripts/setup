@@ -25,7 +25,7 @@ echo "===> Starting scripts/setup"
 ALLOWED_HOSTS=$1
 SENTRY_DSN=$2
 EXPORT_PREFIX=$3
-HOST_USER=$5
+HOST_USER=$4
 if [ -z "$HOST_USER" ]; then
     HOST_USER=checkniner
 fi
@@ -70,7 +70,7 @@ sudo -u postgres bash -c "echo \"CREATE DATABASE $PG_DATABASE; CREATE USER $HOST
 echo "===> Updating supervisor configuration"
 CONF_DIR=/etc/supervisor/conf.d
 sudo cp $SITE_ROOT/etc/supervisor.conf $CONF_DIR/checkniner_$HOST_USER.conf
-sudo sed -i i"s@{{ host_user }}@$HOST_USER@g" $CONF_DIR/checkniner_$HOST_USER.conf
+sudo sed -i "s@{{ host_user }}@$HOST_USER@g" $CONF_DIR/checkniner_$HOST_USER.conf
 sudo service supervisor stop
 sudo service supervisor start
 
