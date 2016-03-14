@@ -39,11 +39,9 @@ server {
     add_header Strict-Transport-Security "max-age=63072000; includeSubdomains; preload";
     add_header X-Frame-Options "DENY";
 
-    access_log /var/log/nginx/{{ domain_name }}.access.log;
     error_log /var/log/nginx/{{ domain_name }}.error.log;
-    # TLS connection information
-    log_format ssl "$time_local $server_name $remote_addr $connection $connection_requests $ssl_protocol $ssl_cipher $ssl_session_id";
-    access_log /var/log/nginx/{{ domain_name }}.access.tls.log ssl;
+    access_log /var/log/nginx/{{ domain_name }}.access.log;
+    access_log /var/log/nginx/{{ domain_name }}.secure.log ssl;
 
     try_files $uri @gunicorn;
     

@@ -8,5 +8,6 @@ server {
     ssl_certificate_key /etc/letsencrypt/keys/selfsign.key;
     # Turn off SSLv3 so that SSL Labs doesn't claim we're vulnerable to POODLE
     ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    log_format ssl "$time_local $server_name $remote_addr $connection $connection_requests $ssl_protocol $ssl_cipher $ssl_session_id";
     return 444;
 }
