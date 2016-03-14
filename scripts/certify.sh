@@ -20,9 +20,10 @@
 set -e
 
 DOMAIN=$1 # The domain for which we'll be getting a certificate
-USE_EXISTING="false"
-if [ -n $2 ]; then
+if [ "$2" == "--use-existing" ]; then
     USE_EXISTING="true"
+else
+    USE_EXISTING="false"
 fi
 LOGFILE=/tmp/letsencrypt.$(basename $0).log
 # Directories

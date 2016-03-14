@@ -83,7 +83,9 @@ sudo service supervisor restart
 
 CONF_DIR=/etc/nginx
 echo "===> Updating nginx configuration (unsecured)"
-sudo rm $CONF_DIR/sites-enabled/default
+if [ -f $CONF_DIR/sites-enabled/default ]; then
+    sudo rm $CONF_DIR/sites-enabled/default
+fi
 # Set up the HTTP config for our domain
 sudo cp $SITE_ROOT/etc/nginx.unsecure $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
 sudo sed -i "s@{{ site_root }}@$SITE_ROOT@g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS

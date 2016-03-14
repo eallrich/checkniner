@@ -8,9 +8,9 @@
 #
 # Usage
 # -----
-# > scripts/prep_production [hosted domain] [export prefix]
+# > scripts/prep_production [hosted domain] [export prefix] [--use-existing]
 # e.g.
-# > scripts/prep_production example.com ZYXWVUTSR
+# > scripts/prep_production example.com ZYXWVUTSR --use-existing
 #
 # Assumptions
 # -----------
@@ -22,6 +22,7 @@ echo "===> Starting scripts/prep_production"
 
 ALLOWED_HOSTS=$1
 EXPORT_PREFIX=$2
+USE_EXISTING=$3
 # Found this one-liner via http://stackoverflow.com/a/246128. Thanks!
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # The script dir is checkniner/scripts. The site root will be up one level.
@@ -44,11 +45,13 @@ echo "     SITE_ROOT:         $SITE_ROOT"
 # WARNING: If ALLOWED_HOSTS contains comma-seperated entries such as
 # 'example.com,www.example.com' this section will not run correctly!
 
-sudo mkdir /etc/letsencrypt/
+if [ ! -d /etc/letsencrypt/ ]; then
+    sudo mkdir /etc/letsencrypt/
+fi
 sudo cp $SITE_ROOT/scripts/acme_tiny.py /etc/letsencrypt/acme_tiny.py
 sudo cp $SITE_ROOT/scripts/certify.sh ~/certify.sh
 echo "===> Getting TLS certificate"
-sudo ~/certify.sh $ALLOWED_HOSTS
+sudo ~/certify.sh $ALLOWED_HOSTS $USE_EXISTING
 
 CONF_DIR=/etc/nginx
 echo "===> Updating nginx configuration (secured)"
