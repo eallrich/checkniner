@@ -101,7 +101,7 @@ function request_and_sign {
     python $LE_ROOT/acme_tiny.py --account-key $ACCOUNT_KEY --csr $DOMAIN_CSR --acme-dir $CHALLENGES > $DOMAIN_SIGNED 2>>$LOGFILE
 
     log_minor "Chaining intermediate certificate"
-    LE_INTERMEDIATE_URL=https://letsencrypt.org/certs/lets-encrypt-x1-cross-signed.pem
+    LE_INTERMEDIATE_URL=https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem
     wget -O $CA_INTERMEDIATE $LE_INTERMEDIATE_URL 2>>$LOGFILE
     cat $DOMAIN_SIGNED $CA_INTERMEDIATE > $DOMAIN_CHAINED
 
