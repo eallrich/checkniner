@@ -175,7 +175,18 @@ def package(filenames):
 
 
 @capture_function
+def encrypt(filename):
+    encrypted_filename = '%s.gpg' % filename
+    if os.path.isfile(encrypted_filename):
+        os.path.remove(encrypted_filename)
+    r = envoy.run("./encrypt.sh %s" % filename)
+    return encrypted_filename
+
+
+@capture_function
 def upload(filename):
+    if not filename.endswith('.gpg'):
+        logger.warning("Upload requested for '%s' which appears to be plaintext (not encrypted)" % filename)
     access, secret = get_s3_credentials()
     bucket_name = get_s3_bucket_name()
     key_name = 'db/%s' % filename
@@ -185,15 +196,16 @@ def upload(filename):
     key.key = key_name
     key.set_contents_from_filename(filename)
     logger.info("Uploaded '%s' to '%s:%s'" % (filename, bucket_name, key_name))
+    return os.path.getsize(filename)
 
 
 filenames = [dump_postgres(),]
 filenames.extend(dump_django_fixtures())
 if update_necessary():
     archive = package(filenames)
-    upload(archive)
-    archive_size = os.path.getsize(archive)
-    logger.info("---- Uploading complete ---- bytes=%d --------------------" % archive_size)
+    secured = encrypt(archive)
+    filesize = upload(secured)
+    logger.info("---- Uploading complete ---- bytes=%d --------------------" % filesize)
 else:
     logger.info("---- Digests match, ceasing activity ---------------------")
 map(os.remove, filenames)
