@@ -43,6 +43,43 @@ $ echo "export S3_SECRET_KEY=ABCDEFGHIJKLMNOPQRSTUVWXYZ" >> bin/activate
 $ echo "export S3_BUCKET_NAME=snapshots.example.com" >> bin/activate
 ```
 
+Encrypting the backup archives before they leave the server is accomplished by
+using GPG. Only the public key for a key-pair needs to be on the Checkniner
+server. To import the public key from another computer, you can follow steps
+similar to these. On the other computer (not the Checkniner server), create a
+GPG key-pair if you don't already have one (or if you want to use a dedicated
+key-pair for the backups) and then export the GPG public key:
+
+```shell
+# Create a GPG key. If you're unsure of which options to pick at the prompts,
+# use '(1)' for 'RSA and RSA', 4096 bits, and '(0)' for 'No expiration'. An
+example user ID is 'Checkniner (backups) <checkniner@example.com>'
+$ gpg --gen-key
+# Now export the public key
+$ gpg --export [8-digit key ID create above] --output checkniner_public.gpg
+```
+
+After transferring the exported public key file (`checkniner_public.gpg`) to
+the Checkniner server, you can import the GPG key:
+
+```shell
+$ gpg --import checkniner_public.gpg
+# Now set the trust level for the newly imported public key
+$ gpg --edit-key [8-digit key ID for the public key]
+$ gpg> trust
+$ gpg> (5)
+$ gpg> quit
+```
+
+Now we're ready to configure the backup pipeline to use our GPG public key for
+encrypting the archives before they get uploaded to S3. All you need to do is
+add the following line to the virtualenv's shell activation script:
+
+```shell
+# Replace the user ID with the actual user ID of the public key
+$ echo "export BACKUPS_GPG_RECIPIENT='Checkniner (backups) <checkniner@example.com>'" >> bin/activate
+```
+
 Install the python packages needed to collect and upload the snapshots:
 
 ```shell
@@ -78,13 +115,19 @@ backup archive, starting with retrieving a latest.tar.gz backup file from S3.
 
 The `get_latest_archive.py` script searches through the S3 bucket containing
 backup archives, finds the latest, and downloads it for local access. The file
-is named latest.tar.gz and will be placed in the current working directory.
+is named latest.tar.gz and will be placed in the current working directory. If
+encryption of backups has been enabled, then the extension '.gpg' will be added
+to the file name.
 
 ```shell
 $ cd ~/checkniner/
 $ source bin/activate
 $ python scripts/backups/get_latest_archive.py
-# Most recent backup archive is now available at ~/checkniner/latest.tar.gz
+# Most recent backup archive is now available at ~/checkniner/latest.tar.gz or,
+# if it was encrypted on the server, ~/checkniner/latest.tar.gz.gpg.
+# If encrypted, to decrypt the backup archive (assuming you have the private
+# key for the GPG keypair used to encrypt the archive):
+$ gpg --decrypt latest.tar.gz.gpg > latest.tar.gz
 ```
 
 ### Django fixtures ###
