@@ -79,7 +79,6 @@ def get_latest_key(bucket, key_prefix, delimiter='/', max_day_range=1):
 
 @capture_function
 def download():
-    latest = 'latest.tar.gz'
     access, secret = get_s3_credentials()
     connection = S3Connection(access, secret)
     
@@ -91,6 +90,10 @@ def download():
     if key is None:
         logger.warning("Unable to locate latest archive on S3")
     else:
+        latest = 'latest.tar.gz'
+        if key.name.endswith('.gpg'):
+            logger.info("Key's contents are probably encrypted, saving with .gpg extension")
+            latest = '%s.gpg' % latest
         key.get_contents_to_filename(latest)
 
 
