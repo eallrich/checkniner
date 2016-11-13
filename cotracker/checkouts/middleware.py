@@ -33,7 +33,10 @@ class Analytics():
 
     def get_queue_start(self, request):
         """Returns the timestamp this request started (as reported by downstream)"""
-        header = request.META['HTTP_X_REQUEST_START'] # must be set by nginx
+        try:
+            header = request.META['HTTP_X_REQUEST_START'] # must be set by nginx
+        except KeyError:
+            return 0 # Header wasn't provided by reverse proxy
         value = float(header[2:]) # discard 't=' prefix
         return value
 
@@ -46,11 +49,16 @@ class Analytics():
         if client_ip == '':
             client_ip = request.META['HTTP_X_REAL_IP']
 
+        try:
+            queue_time = request._queue_time
+        except AttributeError:
+            queue_time = 0
+
         context = {
             'ip':        client_ip,
             'method':    request.method,
             'path':      request.path,
-            'queue':     request._queue_time,
+            'queue':     queue_time,
             'useragent': request.META.get('HTTP_USER_AGENT', 'None'),
         }
 
@@ -68,8 +76,11 @@ class Analytics():
             return # No metrics
         now = time.time()
         request._analytics_start_time = now
-        request._queue_time = (now - self.get_queue_start(request)) * 1000.0
-        statsd.timing('queue.elapsed', request._queue_time)
+        try:
+            request._queue_time = (now - self.get_queue_start(request)) * 1000.0
+            statsd.timing('queue.elapsed', request._queue_time)
+        except AttributeError:
+            pass # Nothing to do, no queue time to report
         statsd.incr('request')
 
 
