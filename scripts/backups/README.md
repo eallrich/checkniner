@@ -37,10 +37,14 @@ upload the archives to S3 when the business data changes. To set up the
 pipeline, start by adding the S3 `access` and `secret` keys, as well as the
 desired S3 bucket name, to the virtualenv's shell activation script.
 
+Note that bucket names with dots are **not supported** by boto at this time
+(at least v2.43.0). See https://github.com/boto/boto/issues/2836 for details.
+My preferred alternative is to use hyphens in bucket names instead of dots.
+
 ```shell
 $ echo "export S3_ACCESS_KEY=0123456789ABCDEF" >> bin/activate
 $ echo "export S3_SECRET_KEY=ABCDEFGHIJKLMNOPQRSTUVWXYZ" >> bin/activate
-$ echo "export S3_BUCKET_NAME=snapshots.example.com" >> bin/activate
+$ echo "export S3_BUCKET_NAME=snapshots-example-com" >> bin/activate
 ```
 
 Encrypting the backup archives before they leave the server is accomplished by
