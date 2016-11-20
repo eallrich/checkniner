@@ -52,7 +52,7 @@ sudo dpkg-reconfigure locales
 
 
 echo "===> Installing system packages"
-PACKAGES="python-virtualenv python-dev postgresql libpq-dev nginx supervisor"
+PACKAGES="build-essential python-virtualenv python-dev postgresql libpq-dev nginx supervisor"
 sudo apt-get install --assume-yes $PACKAGES
 
 
