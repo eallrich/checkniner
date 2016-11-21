@@ -64,7 +64,7 @@ echo "===> Setting up postgres user & database"
 # attempting to navigate to the /root directory (the default directory for the
 # root user) when 'sudo -u ...' is invoked.
 cd /
-sudo -u postgres bash -c "echo \"CREATE DATABASE $PG_DATABASE; CREATE USER $HOST_USER; GRANT ALL PRIVILEGES ON DATABASE $PG_DATABASE to $HOST_USER;\\q\" | psql"
+sudo --set-home --user=postgres bash -c "echo \"CREATE DATABASE $PG_DATABASE; CREATE USER $HOST_USER; GRANT ALL PRIVILEGES ON DATABASE $PG_DATABASE to $HOST_USER;\\q\" | psql"
 
 
 echo "===> Updating supervisor configuration"
@@ -104,7 +104,7 @@ sudo service nginx restart
 
 
 echo "===> Creating virtualenv"
-sudo -u $HOST_USER virtualenv $SITE_ROOT
+sudo --set-home --user=$HOST_USER virtualenv $SITE_ROOT
 
 
 echo "===> Setting env vars"
@@ -118,10 +118,10 @@ echo "export EXPORT_PREFIX=$EXPORT_PREFIX" >> $SITE_ROOT/bin/activate
 
 
 echo "===> passing the baton to scripts/bootstrap"
-sudo -u $HOST_USER $SITE_ROOT/scripts/bootstrap
+sudo --set-home --user=$HOST_USER $SITE_ROOT/scripts/bootstrap
 
 echo "===> passing the baton to scripts/update"
-sudo -u $HOST_USER $SITE_ROOT/scripts/update
+sudo --set-home --user=$HOST_USER $SITE_ROOT/scripts/update
 
 echo "===> Everything is set up; Requesting supervisor to restart gunicorn"
 sudo supervisorctl restart gunicorn_$HOST_USER
