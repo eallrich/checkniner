@@ -72,6 +72,11 @@ CONF_DIR=/etc/supervisor/conf.d
 sudo cp $SITE_ROOT/etc/supervisor.conf $CONF_DIR/checkniner_$HOST_USER.conf
 sudo sed -i "s@{{ host_user }}@$HOST_USER@g" $CONF_DIR/checkniner_$HOST_USER.conf
 sudo service supervisor restart
+# For Ubuntu 16.04 (with systemd), a couple additional tweaks thanks to
+# http://unix.stackexchange.com/a/291098. The first sets it to auto-start, the
+# second brings supervisor up now.
+sudo systemctl enable supervisor
+sudo systemctl start supervisor
 
 
 # We're going to start with an unsecured Nginx configuration which supports
