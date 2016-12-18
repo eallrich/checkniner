@@ -49,11 +49,12 @@ def get_s3_bucket_name():
 
 
 @capture_function
-def get_latest_key(bucket, key_prefix, delimiter='/', max_day_range=1):
+def get_latest_key(bucket, key_prefix, delimiter='/', past_days=1, future_days=1):
     latest_key = None
     datefmt = DATE_FORMAT.split('T')[0]
-    date = datetime.date.today()
-    date_limit = date - datetime.timedelta(days=max_day_range)
+    today = datetime.date.today()
+    date = today + datetime.timedelta(days=future_days)
+    date_limit = today - datetime.timedelta(days=past_days)
     logger.info("Checking dates between %s and %s" % (date.strftime(datefmt), date_limit.strftime(datefmt)))
     
     while date >= date_limit:
