@@ -9,7 +9,7 @@ def main(airstrips_file, base_ident):
         lines = [r.strip().split(',') for r in f]
     for ident, name in lines:
         name = name.title()
-        print("Adding Airstrip with ident=%s and name=%" % (ident, name))
+        print("Adding Airstrip with ident=%s and name=%s" % (ident, name))
         airstrip = Airstrip.objects.create(ident=ident, name=name, is_base=False)
         airstrip.bases.add(base)
 
