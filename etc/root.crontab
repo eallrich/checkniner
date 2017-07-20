@@ -2,4 +2,8 @@
 PING="curl -m 30 {{ watchdog_url }}"
 # Renew Let's Encrypt TLS certificates every month, but spread the renewals
 # out a bit during the month (no reason to cluster up on the first day).
-  0 0  6   *   *     /root/certify.sh {{ app_domain }} && sudo service nginx reload && $PING/{{ watchdog_id }}
+  0  0 6   *   *     /root/certify.sh {{ app_domain }} && sudo service nginx reload && $PING/{{ watchdog_id }}
+
+# Upgrade system packages
+#LOGFILE=/root/cron_apt.log
+# 15 15 *   *   *     sudo apt-get update 2>&1 >> $LOGFILE && sudo apt-get dist-upgrade -y 2>&1 >> $LOGFILE && sudo apt-get autoremove -y 2>&1 >> $LOGFILE && $PING/{{ apt_watchdog_id }}
