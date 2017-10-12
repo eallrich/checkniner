@@ -149,4 +149,20 @@ sudo --set-home --user=$APP_USER $SITE_ROOT/scripts/update
 echo "===> Everything is set up; Requesting supervisor to restart gunicorn"
 sudo supervisorctl restart gunicorn_$APP_USER
 
+
+if [[ -z "SWAP_SIZE" ]]; then
+    echo "===> Nothing to do for additional swap"
+else
+    echo "===> Adding additional ${SWAP_SIZE}MB of swap"
+    SWAP_PATH="/var/swap"
+    sudo dd if=/dev/zero of=$SWAP_PATH bs=1M count=$SWAP_SIZE
+    sudo chmod 600 $SWAP_PATH
+    sudo mkswap $SWAP_PATH
+    # Turn swap on immediately
+    sudo swapon $SWAP_PATH
+    # And also make sure swap space loads after restarts
+    echo "$SWAP_PATH      none    swap    sw    0    0" | sudo tee --append /etc/fstab
+fi
+
+
 echo "===> setup completed"
