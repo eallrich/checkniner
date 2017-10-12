@@ -1,6 +1,6 @@
 #!/bin/bash
 # Purpose: Set up application for the first time after cloning. Requires sudo.
-# Usage: setup [--app-user <username>] hosted-domain sentry-DSN export-prefix
+# Usage: setup [--app-user <username>] [--add-swap <megabytes>] hosted-domain sentry-DSN export-prefix
 #
 # Required Arguments
 # - hosted-domain: the domain for django's allowed_hosts setting (limited to
@@ -10,6 +10,7 @@
 #
 # Argument Options
 #   --app-user  The user under which the app will run (checkniner by default)
+#   --add-swap  How many megabytes (MB) of additional swap space to configure
 #
 # Assumptions
 #   The app user, postgres user, and postgres DB all share the same name
@@ -17,10 +18,15 @@
 echo "===> Starting scripts/setup"
 
 APP_USER="checkniner"
+SWAP_SIZE=""
 while true; do
     case "$1" in
         --app-user)
             APP_USER="$2"
+            shift 2
+            ;;
+        --add-swap)
+            SWAP_SIZE="$2"
             shift 2
             ;;
         -*)
@@ -49,6 +55,11 @@ echo "     PG_DATABASE:       $PG_DATABASE"
 echo "     APP_USER:          $APP_USER"
 echo "     SECRET_KEY:        $SECRET_KEY"
 echo "     SITE_ROOT:         $SITE_ROOT"
+if [[ -z "$SWAP_SIZE" ]]; then
+    echo "     SWAP_SIZE:         (none)"
+else
+    echo "     SWAP_SIZE:         $SWAP_SIZE"
+fi
 
 
 echo "===> Setting locale"
