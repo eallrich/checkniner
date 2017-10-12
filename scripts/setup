@@ -1,35 +1,42 @@
 #!/bin/bash
-
-# scripts/setup
-# =============
-# Set up application for the first time after cloning.
+# Purpose: Set up application for the first time after cloning. Requires sudo.
+# Usage: setup [--app-user <username>] hosted-domain sentry-DSN export-prefix
 #
-# !! Requires sudo
+# Required Arguments
+# - hosted-domain: the domain for django's allowed_hosts setting (limited to
+#   one domain because of processing by downstream scripts)
+# - sentry-DSN: the DSN to which Raven should report errors
+# - export-prefix: the prefix behind which to hide sensitive data
 #
-# Usage
-# -----
-# > scripts/setup [hosted domain] [Sentry DSN] [export prefix] [host user]
-# e.g.
-# > scripts/setup example.com https://access:key@sentry.example.com/2 ZYXWVUTSR staging
-#
-# The 'host user' parameter is not required. If not provided, the default
-# ('checkniner') will be used instead.
+# Argument Options
+#   --app-user  The user under which the app will run (checkniner by default)
 #
 # Assumptions
-# -----------
-# - The hosting user, postgres user, and postgres DB all share the same name
-#
+#   The app user, postgres user, and postgres DB all share the same name
 
 echo "===> Starting scripts/setup"
+
+APP_USER="checkniner"
+while true; do
+    case "$1" in
+        --app-user)
+            APP_USER="$2"
+            shift 2
+            ;;
+        -*)
+            echo "Error: Unknown argument '$1'"
+            exit 1
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
 
 ALLOWED_HOSTS=$1
 SENTRY_DSN=$2
 EXPORT_PREFIX=$3
-HOST_USER=$4
-if [ -z "$HOST_USER" ]; then
-    HOST_USER=checkniner
-fi
-PG_DATABASE="$HOST_USER"
+PG_DATABASE="$APP_USER"
 SECRET_KEY=$(python -c "import base64, os; print base64.b64encode(os.urandom(40))")
 # Found this one-liner via http://stackoverflow.com/a/246128. Thanks!
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -39,7 +46,7 @@ echo "     ALLOWED_HOSTS:     $ALLOWED_HOSTS"
 echo "     SENTRY_DSN:        $SENTRY_DSN"
 echo "     EXPORT_PREFIX:     $EXPORT_PREFIX"
 echo "     PG_DATABASE:       $PG_DATABASE"
-echo "     HOST_USER:         $HOST_USER"
+echo "     APP_USER:          $APP_USER"
 echo "     SECRET_KEY:        $SECRET_KEY"
 echo "     SITE_ROOT:         $SITE_ROOT"
 
@@ -64,13 +71,13 @@ echo "===> Setting up postgres user & database"
 # attempting to navigate to the /root directory (the default directory for the
 # root user) when 'sudo -u ...' is invoked.
 cd /
-sudo --set-home --user=postgres bash -c "echo \"CREATE DATABASE $PG_DATABASE; CREATE USER $HOST_USER; GRANT ALL PRIVILEGES ON DATABASE $PG_DATABASE to $HOST_USER;\\q\" | psql"
+sudo --set-home --user=postgres bash -c "echo \"CREATE DATABASE $PG_DATABASE; CREATE USER $APP_USER; GRANT ALL PRIVILEGES ON DATABASE $PG_DATABASE to $APP_USER;\\q\" | psql"
 
 
 echo "===> Updating supervisor configuration"
 CONF_DIR=/etc/supervisor/conf.d
-sudo cp $SITE_ROOT/etc/supervisor.conf $CONF_DIR/checkniner_$HOST_USER.conf
-sudo sed -i "s@{{ host_user }}@$HOST_USER@g" $CONF_DIR/checkniner_$HOST_USER.conf
+sudo cp $SITE_ROOT/etc/supervisor.conf $CONF_DIR/checkniner_$APP_USER.conf
+sudo sed -i "s@{{ host_user }}@$APP_USER@g" $CONF_DIR/checkniner_$APP_USER.conf
 sudo service supervisor restart
 # For Ubuntu 16.04 (with systemd), a couple additional tweaks thanks to
 # http://unix.stackexchange.com/a/291098. The first sets it to auto-start, the
@@ -109,12 +116,12 @@ sudo service nginx restart
 
 
 echo "===> Creating virtualenv"
-sudo --set-home --user=$HOST_USER virtualenv $SITE_ROOT
+sudo --set-home --user=$APP_USER virtualenv $SITE_ROOT
 
 
 echo "===> Setting env vars"
 echo "export ALLOWED_HOSTS=$ALLOWED_HOSTS" >> $SITE_ROOT/bin/activate
-echo "export DATABASE_URL=postgres://$HOST_USER@/$PG_DATABASE" >> $SITE_ROOT/bin/activate
+echo "export DATABASE_URL=postgres://$APP_USER@/$PG_DATABASE" >> $SITE_ROOT/bin/activate
 echo "export DJANGO_SETTINGS_MODULE=cotracker.settings.production" >> $SITE_ROOT/bin/activate
 echo "export PYTHONPATH=$SITE_ROOT/cotracker/" >> $SITE_ROOT/bin/activate
 echo "export SECRET_KEY=$SECRET_KEY" >> $SITE_ROOT/bin/activate
@@ -123,12 +130,12 @@ echo "export EXPORT_PREFIX=$EXPORT_PREFIX" >> $SITE_ROOT/bin/activate
 
 
 echo "===> passing the baton to scripts/bootstrap"
-sudo --set-home --user=$HOST_USER $SITE_ROOT/scripts/bootstrap
+sudo --set-home --user=$APP_USER $SITE_ROOT/scripts/bootstrap
 
 echo "===> passing the baton to scripts/update"
-sudo --set-home --user=$HOST_USER $SITE_ROOT/scripts/update
+sudo --set-home --user=$APP_USER $SITE_ROOT/scripts/update
 
 echo "===> Everything is set up; Requesting supervisor to restart gunicorn"
-sudo supervisorctl restart gunicorn_$HOST_USER
+sudo supervisorctl restart gunicorn_$APP_USER
 
 echo "===> setup completed"

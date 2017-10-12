@@ -1,33 +1,44 @@
 #!/bin/bash
+# Purpose: Connects to a remote box, performs init tasks, and then calls
+#          scripts/setup. Requires sudo on the remote server.
+# Usage: remote_init [--app-user <username>] SSH-connection hosted-domain sentry-DSN export-prefix
+#
+# Required Arguments
+# - SSH-connection: user@host for a sudo-capable user on a remote host
+# - hosted-domain: the domain for django's allowed_hosts setting (limited to
+#   one domain because of processing by downstream scripts)
+# - sentry-DSN: the DSN to which Raven should report errors
+# - export-prefix: the prefix behind which to hide sensitive data
+#
+# Argument Options
+#   --app-user  The user under which the app will run (checkniner by default)
 
-# scripts/remote_init
-# =============
-# Connects to a remote box, performs init tasks, and then calls scripts/setup.
-#
-# !! Requires sudo on the remote server
-#
-# Usage
-# -----
-# > scripts/remote_init [SSH connection] [hosted domain] [Sentry DSN] [export prefix] [host user]
-# e.g.
-# > scripts/remote_init ubuntu@example.com example.com https://access:key@sentry.example.com/2 ZYXWVUTSR staging
-#
-# The 'host user' parameter is not required. If not provided, the default
-# ('checkniner') will be used instead.
-#
+REPOSITORY=https://github.com/eallrich/checkniner.git
 
 echo "===> Starting scripts/remote_init"
+
+APP_USER="checkniner"
+while true; do
+    case "$1" in
+        --app-user)
+            APP_USER="$2"
+            shift 2
+            ;;
+        -*)
+            echo "Error: Unknown argument '$1'"
+            exit 1
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
 
 CONNECTION=$1
 ALLOWED_HOSTS=$2
 SENTRY_DSN=$3
 EXPORT_PREFIX=$4
-REPOSITORY=https://github.com/eallrich/checkniner.git
-HOST_USER=$5
-if [ -z "$HOST_USER" ]; then
-    HOST_USER=checkniner
-fi
-SITE_ROOT="/home/$HOST_USER/checkniner"
+SITE_ROOT="/home/$APP_USER/checkniner"
 
 echo "===> Performing operating system package upgrades"
 ssh $CONNECTION "sudo apt-get update && sudo apt-get dist-upgrade --assume-yes"
@@ -36,17 +47,17 @@ echo "===> Installing base system packages"
 PACKAGES="byobu git fail2ban"
 ssh $CONNECTION "sudo apt-get install --assume-yes $PACKAGES"
 
-echo "===> Creating user '$HOST_USER' to host the app"
+echo "===> Creating user '$APP_USER' to host the app"
 # Thanks to http://askubuntu.com/a/94067 for this one-liner.
-ssh $CONNECTION "sudo adduser --disabled-password --gecos \"\" $HOST_USER"
+ssh $CONNECTION "sudo adduser --disabled-password --gecos \"\" $APP_USER"
 
 echo "===> Cloning the github repository"
 # The initial 'cd /' avoids an error message caused by the host user
 # attempting to navigate to the /root directory (the default directory for the
 # root user) when 'sudo -u ...' is invoked.
-ssh $CONNECTION "cd /; sudo --set-home --user=$HOST_USER git clone $REPOSITORY $SITE_ROOT"
+ssh $CONNECTION "cd /; sudo --set-home --user=$APP_USER git clone $REPOSITORY $SITE_ROOT"
 
 echo "===> passing the baton to scripts/setup"
-ssh $CONNECTION "sudo $SITE_ROOT/scripts/setup $ALLOWED_HOSTS $SENTRY_DSN $EXPORT_PREFIX $HOST_USER"
+ssh $CONNECTION "sudo $SITE_ROOT/scripts/setup $ALLOWED_HOSTS $SENTRY_DSN $EXPORT_PREFIX $APP_USER"
 
 echo "===> remote_init completed"
