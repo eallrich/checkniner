@@ -3,7 +3,7 @@ checkniner
 
 [![Build Status](https://travis-ci.org/eallrich/checkniner.png)](https://travis-ci.org/eallrich/checkniner)
 
-Tracking and reporting of airstrip/aircraft checkout information for pilots.
+Tracking and reporting of airstrip/aircraft checkout information for flight schedulers and pilots.
 
 Down and Dirty for Development
 ------------------------------
