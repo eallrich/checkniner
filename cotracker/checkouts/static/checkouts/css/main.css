@@ -1,6 +1,17 @@
 * {
-    font-family: Helvetica;
-    font-size:   x-large;
+  font-family: Helvetica;
+  font-size: x-large;
+}
+
+/**
+ * Applies a natural box layout model to all elements, but allowing components to change
+ * With thanks to Paul Irish (https://www.paulirish.com/2012/box-sizing-border-box-ftw/)
+ */
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
 }
 
 /* ==============================================
@@ -8,166 +19,189 @@
    ============================================== */
 
 body {
-    margin:  0px;
-    padding: 0px;
+  margin: 0;
+  padding: 0;
 }
 
-div#aircraft_type_list p,
-div#aircraft_type_list ul {
-    display: inline;
+#aircraft_type_list p,
+#aircraft_type_list ul {
+  display: inline;
 }
 
-div#aircraft_type_list ul {
-    padding: 0px;
+#aircraft_type_list ul {
+  padding: 0;
 }
 
-div#content {
-    /* Resets content indentation since 'body' has neither margin nor padding */
-    padding-left: 8px;
-}
-
-div#header {
-    /* Light Blue */
-    background:          #86D3FF;
-    width:               100%;
+#content {
+  /* Resets content indentation since 'body' has neither margin nor padding */
+  padding-left: 8px;
 }
 
 #change_password_link {
-    color:   #444444;
-    display: block;
-    float:   right;
-    font-size: 19px;
-    margin-right: 15px;
-    margin-top: 10px;
+  color: #444444;
+  display: block;
+  float: right;
+  font-size: 19px;
+  margin-right: 15px;
+  margin-top: 10px;
 }
 
-p#password_paragraph {
-    margin-top: 0px;
+#password_paragraph {
+  margin-top: 0;
 }
 
-div#header a {
-    /* Dark Blue */
-    border-right:  1px solid #0B73F7;
-    border-bottom:  1px solid #0B73F7;
-    color:               #000000;
-    line-height: 82px;
-    /* The -7 Left offsets the +6 Left padding on 'div#header ul' */
-    margin:              0px 0px 0px -7px;
-    padding:             29px 15px 26px 15px;
-    text-decoration:     none;
+header .current {
+  background-color: #FFFFFF;
+  border-top: 3px solid #0B73F7;
+  padding-top: 7px; /* 3px less padding than set for <a> tags above due to border-top of 3px */
 }
 
-div#header .current {
-    background: #FFFFFF;
-    border-bottom-color: #FFFFFF;
-    border-bottom-style: solid;
-    border-bottom-width: 2px;
-    /* Dark Blue */
-    border-top-color: #0B73F7;
-    border-top-style: solid;
-    border-top-width: 3px;
-    /* Giving the border a bit of room to peek through */
-    padding-top: 22px;
+/**
+ * Props to @wesbos for his nested flexbox tutorial.
+ * autoprefixer was used to add vendor prefixes for flexbox css.
+ * The tool was set to support the last 4 browser versions.
+ * from https://autoprefixer.github.io/
+ */
+header ul {
+  list-style-type: none;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  border: 0.5px solid #0B73F7
 }
 
-div#header a:hover,
-div#header .current:hover {
-    /* Light Yellow */
-    background: #FFFFBA;
+header li {
+  -webkit-box-flex: 1;
+          -ms-flex: 1;
+              flex: 1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  /* Dark Blue */
+  border: 0.5px solid #0B73F7
 }
 
-div#header li {
-    display: inline;
-    white-space: nowrap;
+header a {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+     -ms-flex-align: center;
+        align-items: center;
+  -webkit-box-flex: 1;
+          -ms-flex: 1;
+              flex: 1;
+  color: #000000;
+  text-decoration: none;
+  background-color:#86D3FF;
+  padding: 10px 16px;
 }
 
-div#header ul {
-    list-style-type: none;
-    margin: -2px 0px 0px;
-    /* Properly left-aligns the header links */
-    padding-left:    6px;
-    padding-top: 0px;
+header a:hover {
+  /* Light Yellow */
+  background-color: #FFFFBA;
 }
 
-div#messages li.info {
-    color: blue;
+/* Needed for flexbox to work on centering the link's content */
+header span {
+  -webkit-box-flex: 1;
+          -ms-flex: 1;
+              flex: 1;
+      font-size: 20px;
+   text-align: center;
 }
 
-div#messages li.success {
-    color: green;
+/* Resizes some elements for smaller mobile displays */
+@media (max-width: 420px) {
+  header a {
+    padding: 10px 8px;
+  }
+  header span {
+    font-size: 18px;
+  }
 }
 
-div#messages li.error {
-    color: red;
+#messages .info {
+  color: blue;
 }
 
-div#messages ul {
-    list-style-type: none;
+#messages .success {
+  color: green;
+}
+
+#messages .error {
+  color: red;
+}
+
+#messages ul {
+  list-style-type: none;
 }
 
 form ul {
-    list-style-type: none;
+  list-style-type: none;
 }
 
 form ul li {
-    display: inline;
+  display: inline;
 }
 
 table {
-    border-collapse: collapse;
+  border-collapse: collapse;
 }
 
 table,
-td,
-th {
-    border-color: black;
-    border-style: solid;
-    border-width: 1px;
+th,
+td {
+  border: 1px solid black;
 }
 
 th {
-    /* Blue-Gray */
-    background:  #93A5BB;
-    color:       #FFFFFF;
-    font-weight: normal;
-    padding:     1px 10px 1px 10px;
+  /* Blue-Gray */
+  background-color: #93A5BB;
+  color: #FFFFFF;
+  font-weight: normal;
+  padding: 1px 10px 1px 10px;
 }
 
 td {
-    background:  lightgray;
-    padding:     1px 30px 1px 7px;
+  background-color: lightgray;
+  padding: 1px 30px 1px 7px;
 }
+
 
 /* ==============================================
    == Classes
    ============================================== */
 
 .enlarged-button {
-    padding: 5px 10px 5px 10px;
+  padding: 5px 10px 5px 10px;
 }
 
 .errorlist {
-    color: red;
+  color: red;
 }
 
 .large-checkbox {
-    /* With many thanks to http://stackoverflow.com/a/10415275/564584 */
-    -ms-transform:     scale(2); /* IE */
-    -moz-transform:    scale(2); /* FF */
-    -webkit-transform: scale(2); /* Safari and Chrome */
-    -o-transform:      scale(2); /* Opera */
-    padding:           10px;
+  /* With many thanks to http://stackoverflow.com/a/10415275/564584 */
+  -ms-transform: scale(2); /* IE */
+  -webkit-transform: scale(2); /* Safari and Chrome */
+  transform: scale(2);
+  padding: 10px;
 }
 
 .sudah {
-    background: green;
+  background-color: green;
 }
 
 .unprecedented {
-    /* Orange */
-    background: #FFA500;
+  /* Orange */
+  background-color: #FFA500;
 }
 
 .fake-button {
-    text-decoration: none;
+  text-decoration: none;
 }
