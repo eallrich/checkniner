@@ -1,9 +1,9 @@
 {% load static %}
 <html>
 <head>
-    <meta content-type='text/html'>
-    <meta name="robots" content="NONE,NOARCHIVE">
-    <link rel="stylesheet" href="{% static "checkouts/css/main.css" %}">
+    <meta content-type="text/html">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static "checkouts/css/main.css" %}" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <title>
         {% block title %}Checkouts{% endblock title %}
@@ -11,7 +11,7 @@
     {% block header_script %}{% endblock header_script %}
 </head>
 <body>
-<div id="header">
+<header>
     <ul>
     {% with requested=request.path %}
     {% if user.is_authenticated %}
@@ -19,58 +19,58 @@
         <li>
             {% url 'checkout_edit' as current %}
             <a{% if current == requested %} class="current" {% endif %}
-                href="{{ current }}">Edit Checkouts</a>
+                href="{{  current }}"><span>Edit Checkouts</span></a>
         </li>
         {% endif %}
         
         <li>
             {% url 'checkout_filter' as current %}
             <a{% if current == requested %} class="current" {% endif %}
-                href="{{ current }}">Filter Checkouts</a>
+                href="{{  current }}"><span>Filter Checkouts</span></a>
         </li>
         <li>
             {% url 'pilot_list' as current %}
             <a{% if current == requested %} class="current" {% endif %}
-                href="{{ current }}">Pilot Reports</a>
+                href="{{  current }}"><span>Pilot Reports</span></a>
         </li>
         <li>
             {% url 'airstrip_list' as current %}
             <a{% if current == requested %} class="current" {% endif %}
-                href="{{ current }}">Airstrip Reports</a>
+                href="{{  current }}"><span>Airstrip Reports</span></a>
         </li>
         <li>
             {% url 'base_list' as current %}
             <a{% if current == requested %} class="current" {% endif %}
-                href="{{ current }}">Base Reports</a>
+                href="{{  current }}"><span>Base Reports</span></a>
         </li>
         {% if user.is_superuser or user.is_flight_scheduler or user.is_pilot %}
         <li>
             {% url 'weight_list' as current %}
             <a{% if current == requested %} class="current" {% endif %}
-                href="{{ current }}">Pilot Weights</a>
+                href="{{  current }}"><span>Pilot Weights</span></a>
         </li>
         {% endif %}
         {% if user.is_superuser %}
         <li>
             {% url 'admin:index' as current %}
             <a{% if current == requested %} class="current" {% endif %}
-                href="{{ current }}">Admin</a>
+                href="{{  current }}"><span>Admin</span></a>
         </li>
         {% endif %}
         
         <li>
-            <a href="{% url 'logout' %}">Logout</a>
+            <a href="{% url 'logout' %}"><span>Logout</span></a>
         </li>
     {% else %}
         <li>
             {% url 'login' as current %}
             <a{% if current == requested %} class="current" {% endif %}
-                href="{{ current }}">Login</a>
+                href="{{  current }}"><span>Login</span></a>
         </li>
     {% endif %}
     {% endwith %}
     </ul>
-</div>
+</header>
 {% if user.is_authenticated %}
 <p id="password_paragraph"><a id="change_password_link" href="{% url 'password_change' %}">Change Password</a></p>
 {% endif %}
