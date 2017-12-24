@@ -49,7 +49,7 @@ def get_s3_bucket_name():
 
 
 @capture_function
-def get_latest_key(bucket, key_prefix, delimiter='/', past_days=1, future_days=1):
+def get_latest_key(bucket, key_prefix, delimiter='/', past_days=7, future_days=1):
     latest_key = None
     datefmt = DATE_FORMAT.split('T')[0]
     today = datetime.date.today()
