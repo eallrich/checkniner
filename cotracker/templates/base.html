@@ -21,42 +21,42 @@
         <li>
             {% url 'checkout_edit' as current %}
             <a{% if current == requested %} class="current" {% endif %}
-                href="{{  current }}"><span>Edit Checkouts</span></a>
+                href="{{ current }}"><span>Edit Checkouts</span></a>
         </li>
         {% endif %}
         
         <li>
             {% url 'checkout_filter' as current %}
             <a{% if current == requested %} class="current" {% endif %}
-                href="{{  current }}"><span>Filter Checkouts</span></a>
+                href="{{ current }}"><span>Filter Checkouts</span></a>
         </li>
         <li>
             {% url 'pilot_list' as current %}
             <a{% if current == requested %} class="current" {% endif %}
-                href="{{  current }}"><span>Pilot Reports</span></a>
+                href="{{ current }}"><span>Pilot Reports</span></a>
         </li>
         <li>
             {% url 'airstrip_list' as current %}
             <a{% if current == requested %} class="current" {% endif %}
-                href="{{  current }}"><span>Airstrip Reports</span></a>
+                href="{{ current }}"><span>Airstrip Reports</span></a>
         </li>
         <li>
             {% url 'base_list' as current %}
             <a{% if current == requested %} class="current" {% endif %}
-                href="{{  current }}"><span>Base Reports</span></a>
+                href="{{ current }}"><span>Base Reports</span></a>
         </li>
         {% if user.is_superuser or user.is_flight_scheduler or user.is_pilot %}
         <li>
             {% url 'weight_list' as current %}
             <a{% if current == requested %} class="current" {% endif %}
-                href="{{  current }}"><span>Pilot Weights</span></a>
+                href="{{ current }}"><span>Pilot Weights</span></a>
         </li>
         {% endif %}
         {% if user.is_superuser %}
         <li>
             {% url 'admin:index' as current %}
             <a{% if current == requested %} class="current" {% endif %}
-                href="{{  current }}"><span>Admin</span></a>
+                href="{{ current }}"><span>Admin</span></a>
         </li>
         {% endif %}
         
@@ -67,7 +67,7 @@
         <li>
             {% url 'login' as current %}
             <a{% if current == requested %} class="current" {% endif %}
-                href="{{  current }}"><span>Login</span></a>
+                href="{{ current }}"><span>Login</span></a>
         </li>
     {% endif %}
     {% endwith %}
