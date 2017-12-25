@@ -150,7 +150,7 @@ echo "===> Everything is set up; Requesting supervisor to restart gunicorn"
 sudo supervisorctl restart gunicorn_$APP_USER
 
 
-if [[ -z "SWAP_SIZE" ]]; then
+if [[ -z "$SWAP_SIZE" ]]; then
     echo "===> Nothing to do for additional swap"
 else
     echo "===> Adding additional ${SWAP_SIZE}MB of swap"
