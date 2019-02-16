@@ -1,3 +1,30 @@
+"""
+Turns one or more analytics.log files into a single nicely formatted CSV file.
+
+To enable SQL-based analysis of the resulting data, create a table in postgres
+such as this:
+
+    create table co (
+      d varchar,
+      t varchar,
+      pid char(5),
+      level char(6),
+      username char(40),
+      ip char(15),
+      method char(10),
+      path varchar,
+      queue int,
+      real int,
+      status char(3),
+      bytes int,
+      useragent varchar
+    );
+
+Then load the CSV directly into the table:
+
+    COPY co from '/tmp/cleaned.csv' DELIMITER ',' CSV HEADER;
+"""
+
 import csv
 import datetime
 import sys
