@@ -1,66 +1,72 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# scripts/prep_production
-# =======================
 # Perform configuration setup to support a production environment.
-#
-# !! Requires sudo
-#
-# Usage
-# -----
-# > scripts/prep_production [hosted domain] [export prefix] [--use-existing]
-# e.g.
-# > scripts/prep_production example.com ZYXWVUTSR --use-existing
-#
-# Assumptions
-# -----------
-# - scripts/setup has already been executed and the nginx conf knows how to
-#   handle HTTP challenges from Let's Encrypt.
-#
+# Usage: prep_production [OPTIONS] DOMAIN EXPORT_PREFIX
 
-echo "===> Starting scripts/prep_production"
+# Arguments:
+#   DOMAIN          The domain at which this instance will be reachable
+#   EXPORT_PREFIX   The prefix behind which to hide sensitive data
 
-ALLOWED_HOSTS=$1
+# Options:
+#   --use-existing  Passed to certify.sh to indicate whether eligible
+#                   existing certs should be reused or completely
+#                   recreated.
+
+set -e
+set -o pipefail
+
+function die { echo $@; exit 1; }
+
+use_existing_flag=""
+while true; do
+    case "$1" in
+        --use-existing)
+            use_existing_flag="--use-existing"
+            shift
+            ;;
+        -*)
+            die "Error: Unknown argument '$1'"
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+DOMAIN=$1
 EXPORT_PREFIX=$2
-USE_EXISTING=$3
-# Found this one-liner via http://stackoverflow.com/a/246128. Thanks!
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-# The script dir is checkniner/scripts. The site root will be up one level.
-SITE_ROOT="$(dirname "$SCRIPT_DIR")"
-echo "     ALLOWED_HOSTS:     $ALLOWED_HOSTS"
-echo "     EXPORT_PREFIX:     $EXPORT_PREFIX"
-echo "     SITE_ROOT:         $SITE_ROOT"
+SITE_ROOT="$(readlink -f "$(dirname "$0")/..")"
 
+[[ -z "$DOMAIN" ]] && die "Error: Please provide the DOMAIN for this instance"
+[[ -z "$EXPORT_PREFIX" ]] && die "Error: Please provide the EXPORT_PREFIX for this instance"
 
 # Setting up nginx & TLS certificates with Let's Encrypt on a fresh box is a
 # bit complicated. First, because we don't have any certificates, we need to
 # set up an unsecured configuration. Since the unsecured server answers Let's
 # Encrypt's challenges to prove domain control, though, it must know about the
 # /etc/letsencrypt/challenges directory and be able to alias into it.
-#
+
 # Once the unsecured nginx configuration is running, we can run our certify
 # script to get real certificates. Finally, with those in possession, we can
 # put the secured nginx configuration in place and do a final `nginx reload`.
-#
-# WARNING: If ALLOWED_HOSTS contains comma-seperated entries such as
-# 'example.com,www.example.com' this section will not run correctly!
 
-if [ ! -d /etc/letsencrypt/ ]; then
-    sudo mkdir /etc/letsencrypt/
-fi
+[[ -d /etc/letsencrypt ]] || sudo mkdir /etc/letsencrypt
 sudo cp $SITE_ROOT/scripts/acme_tiny.py /etc/letsencrypt/acme_tiny.py
 sudo cp $SITE_ROOT/scripts/certify.sh ~/certify.sh
-echo "===> Getting TLS certificate"
-sudo ~/certify.sh $ALLOWED_HOSTS $USE_EXISTING
 
-CONF_DIR=/etc/nginx
-echo "===> Updating nginx configuration (secured)"
-sudo cp $SITE_ROOT/etc/nginx.secure $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
-sudo sed -i "s@{{ site_root }}@$SITE_ROOT@g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
-sudo sed -i "s/{{ domain_name }}/$ALLOWED_HOSTS/g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
-sudo sed -i "s/{{ export_prefix }}/$EXPORT_PREFIX/g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
-echo "===> Changing 'block unknown' nginx config to also support HTTPS"
-sudo cp $SITE_ROOT/etc/nginx.block_unknown_443 $CONF_DIR/sites-enabled/block_unknown
+echo "Getting TLS certificate"
+sudo ~/certify.sh $DOMAIN $use_existing_flag
+
+NGINX=/etc/nginx/sites-enabled
+echo "Updating nginx configuration to support HTTPS"
+cat $SITE_ROOT/etc/nginx.secure \
+    | sed "s@{{ site_root }}@$SITE_ROOT@g" \
+    | sed "s@{{ domain_name }}@$DOMAIN@g" \
+    | sed "s@{{ export_prefix }}@$EXPORT_PREFIX@g" \
+    | sudo tee $NGINX/$DOMAIN
+
+echo "Ensuring the blocking of unknown hosts covers HTTPS, too"
+sudo cp $SITE_ROOT/etc/nginx.block_unknown_443 $NGINX/block_unknown
 sudo service nginx reload
 
-echo "===> prep_production completed"
+echo "Finished preparing for production"
