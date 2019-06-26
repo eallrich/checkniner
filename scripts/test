@@ -1,25 +1,12 @@
 #!/bin/bash
 
-# scripts/test
-# ============
-# Runs the test suite
-#
+set -e
 
-echo "===> Starting scripts/test"
+function die { echo $@; exit 1; }
 
-# Found this one-liner via http://stackoverflow.com/a/246128. Thanks!
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-# The script dir is checkniner/scripts. The site root will be up one level.
-SITE_ROOT="$(dirname "$SCRIPT_DIR")"
-echo "     SITE_ROOT:  $SITE_ROOT"
+echo "Running the test suite"
+[[ -x $(which coverage) ]] || die "Error: The dev dependencies are missing"
 
-echo "---> Warning: Pending further development, this script will fail to run"
-echo "     the tests unless the user has already manually installed the"
-echo "     development pip packages."
-
+SITE_ROOT="$(readlink -f "$(dirname "$0")/..")"
 cd $SITE_ROOT/cotracker/
 coverage run manage.py test --settings=cotracker.settings.test
-
-# Exit using the 'coverage' call's return code. Another script (e.g. cibuild)
-# might be calling us and will want to know whether the tests passed.
-exit $?

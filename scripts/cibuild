@@ -1,33 +1,22 @@
 #!/bin/bash
 
-# scripts/cibuild
-# ===============
-# Configures CI environment and runs the test suite
-#
+set -e
 
-echo "===> Starting scripts/cibuild"
+echo "Configuring CI environment for the test suite"
 
 export DATABASE_URL=ignored
 export SECRET_KEY=supersecretkey
 export SENTRY_DSN=ignored
 export EXPORT_PREFIX=ignored
-# Found this one-liner via http://stackoverflow.com/a/246128. Thanks!
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-# The script dir is checkniner/scripts. The site root will be up one level.
-SITE_ROOT="$(dirname "$SCRIPT_DIR")"
+SITE_ROOT="$(readlink -f "$(dirname "$0")/..")"
 
-echo "     DATABASE_URL:  ignored"
-echo "     SECRET_KEY:    supersecretkey"
-echo "     SENTRY_DSN:    ignored"
-echo "     EXPORT_PREFIX: ignored"
-echo "     SITE_ROOT:     $SITE_ROOT"
+echo "DATABASE_URL:  $DATABASE_URL"
+echo "SECRET_KEY:    $SECRET_KEY"
+echo "SENTRY_DSN:    $SENTRY_DSN"
+echo "EXPORT_PREFIX: $EXPORT_PREFIX"
+echo "SITE_ROOT:     $SITE_ROOT"
 
-echo "===> Installing pip packages for testing"
+echo "Installing pip packages for testing"
 pip install -r $SITE_ROOT/requirements/development.txt
 
-echo "===> Passing the baton to scripts/test"
 $SITE_ROOT/scripts/test
-
-# Upon exiting, return the exit code from scripts/test. This will tell the CI
-# system whether or not the tests passed.
-exit $?
