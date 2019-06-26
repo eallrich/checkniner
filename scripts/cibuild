@@ -4,7 +4,7 @@ set -e
 
 echo "Configuring CI environment for the test suite"
 
-export DATABASE_URL=ignored
+export DATABASE_URL='sqlite3://ignored'
 export SECRET_KEY=supersecretkey
 export SENTRY_DSN=ignored
 export EXPORT_PREFIX=ignored
