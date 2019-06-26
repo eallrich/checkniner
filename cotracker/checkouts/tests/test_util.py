@@ -10,7 +10,7 @@ import checkouts.tests.helper as helper
 class GetAircraftTypeNamesTests(TestCase):
     
     def test_empty(self):
-        self.assertNotEqual(len(util.get_aircrafttype_names()), 0)
+        self.assertEqual(len(util.get_aircrafttype_names()), 0)
     
     def test_single(self):
         name = 'ACTypeName'
