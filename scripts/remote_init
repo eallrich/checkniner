@@ -1,21 +1,23 @@
-#!/bin/bash
-# Purpose: Connects to a remote box, performs init tasks, and then calls
-#          scripts/setup. Requires sudo on the remote server.
-# Usage: remote_init [--app-user <username>] SSH-connection hosted-domain sentry-DSN export-prefix
-#
-# Required Arguments
-# - SSH-connection: user@host for a sudo-capable user on a remote host
-# - hosted-domain: the domain for django's allowed_hosts setting (limited to
-#   one domain because of processing by downstream scripts)
-# - sentry-DSN: the DSN to which Raven should report errors
-# - export-prefix: the prefix behind which to hide sensitive data
-#
-# Argument Options
-#   --app-user  The user under which the app will run (checkniner by default)
+#!/usr/bin/env bash
 
-REPOSITORY=https://github.com/eallrich/checkniner.git
+# Prepares a remote server for installation of a Checknner instance
+# Usage: remote_init [OPTIONS] SSH_CONNECTION DOMAIN SENTRY_DSN EXPORT_PREFIX
 
-echo "===> Starting scripts/remote_init"
+# Arguments:
+#   SSH_HOST        The SSH connection string used to reach the remote instance
+#   DOMAIN          The domain at which this instance will be reachable
+#   SENTRY_DSN      The DSN to which Sentry-captured errors will be reported
+#   EXPORT_PREFIX   The prefix behind which to hide sensitive data
+
+# Options:
+#   --app-user NAME     The user under which the app will run as well as the
+#                       name of the postgres user and postgres database to be
+#                       used by the instance [default: checkniner]
+
+set -e
+set -o pipefail
+
+function die { echo $@; exit 1; }
 
 APP_USER="checkniner"
 while true; do
@@ -25,8 +27,7 @@ while true; do
             shift 2
             ;;
         -*)
-            echo "Error: Unknown argument '$1'"
-            exit 1
+            die "Error: Unknown argument '$1'"
             ;;
         *)
             break
@@ -35,29 +36,30 @@ while true; do
 done
 
 CONNECTION=$1
-ALLOWED_HOSTS=$2
+DOMAIN=$2
 SENTRY_DSN=$3
 EXPORT_PREFIX=$4
+
+[[ -z "$CONNECTION" ]] && die "Error: Please provide the SSH_CONNECTION for the remote server"
+[[ -z "$DOMAIN" ]] && die "Error: Please provide the DOMAIN for this installation"
+[[ -z "$SENTRY_DSN" ]] && die "Error: Please provide the SENTRY_DSN for this installation"
+[[ -z "$EXPORT_PREFIX" ]] && die "Error: Please provide the EXPORT_PREFIX for this installation"
+
+REPOSITORY=https://github.com/eallrich/checkniner.git
+
 SITE_ROOT="/home/$APP_USER/checkniner"
 
-echo "===> Performing operating system package upgrades"
 ssh $CONNECTION "sudo apt-get update && sudo apt-get dist-upgrade --assume-yes"
-
-echo "===> Installing base system packages"
-PACKAGES="byobu git fail2ban"
-ssh $CONNECTION "sudo apt-get install --assume-yes $PACKAGES"
-
-echo "===> Creating user '$APP_USER' to host the app"
+ssh $CONNECTION "sudo apt-get install --assume-yes byobu git fail2ban"
 # Thanks to http://askubuntu.com/a/94067 for this one-liner.
-ssh $CONNECTION "sudo adduser --disabled-password --gecos \"\" $APP_USER"
+ssh $CONNECTION "sudo adduser --disabled-password --gecos '' $APP_USER"
 
-echo "===> Cloning the github repository"
-# The initial 'cd /' avoids an error message caused by the host user
-# attempting to navigate to the /root directory (the default directory for the
-# root user) when 'sudo -u ...' is invoked.
+# We 'cd' to a commonly-reachable directory first in order to avoid an error
+# regarding permissions (since the app_user doesn't have access to the first
+# user's homedir)
 ssh $CONNECTION "cd /; sudo --set-home --user=$APP_USER git clone $REPOSITORY $SITE_ROOT"
 
-echo "===> passing the baton to scripts/setup"
-ssh $CONNECTION "sudo $SITE_ROOT/scripts/setup $ALLOWED_HOSTS $SENTRY_DSN $EXPORT_PREFIX $APP_USER"
+echo "Invoking $SITE_ROOT/scripts/setup on the remote instance"
+ssh $CONNECTION "sudo $SITE_ROOT/scripts/setup --app-user $APP_USER $ALLOWED_HOSTS $SENTRY_DSN $EXPORT_PREFIX"
 
-echo "===> remote_init completed"
+echo "Finished remote initialization"
