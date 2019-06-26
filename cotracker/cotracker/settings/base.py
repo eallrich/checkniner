@@ -153,10 +153,6 @@ TEMPLATE_DIRS = (
     os.path.join(PROJECT_ROOT, 'templates'),
 )
 
-TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_TCP + (
-    'django.core.context_processors.request',
-)
-
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
