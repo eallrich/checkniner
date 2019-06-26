@@ -15,7 +15,7 @@ class AircraftTypeTests(TestCase):
     
     def test_unicode(self):
         o, attributes = helper.create_aircrafttype(object_only=False)
-        self.assertEqual(o.__unicode__(), attributes['name'])
+        self.assertEqual(str(o), attributes['name'])
 
 
 class AirstripTests(TestCase):
@@ -23,7 +23,7 @@ class AirstripTests(TestCase):
     def test_unicode(self):
         o, attributes = helper.create_airstrip(object_only=False)
         self.assertEqual(
-            o.__unicode__(), 
+            str(o),
             "%s (%s)" % (attributes['ident'], attributes['name'])
         ) 
     
@@ -161,4 +161,4 @@ class VerifyPatchedUserModelTests(TestCase):
     
     def test_unicode(self):
         expected = '%s, %s' % (self.pilot.last_name, self.pilot.first_name)
-        self.assertEqual(self.pilot.__unicode__(), expected)
+        self.assertEqual(str(self.pilot), expected)
