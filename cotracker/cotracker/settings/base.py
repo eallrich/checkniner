@@ -5,6 +5,8 @@ import os
 from django.core.exceptions import ImproperlyConfigured
 
 import dj_database_url
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # From checkniner/cotracker/cotracker/settings/base.py to checkniner/cotracker/
 PROJECT_ROOT = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.pardir, os.pardir)
@@ -29,9 +31,10 @@ if get_env_var('DATABASE_URL'):
         'default': dj_database_url.config(),
     }
 
-RAVEN_CONFIG = {
-    'dsn': get_env_var('SENTRY_DSN'),
-}
+sentry_sdk.init(
+    dsn=get_env_var('SENTRY_DSN'),
+    integrations=[DjangoIntegration()]
+)
 
 STATSD_CONFIG = {
     'host': 'localhost',
@@ -161,7 +164,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'checkouts',
-    'raven.contrib.django.raven_compat',
 )
 
 main_header = '='*100
