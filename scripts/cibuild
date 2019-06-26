@@ -19,4 +19,7 @@ echo "SITE_ROOT:     $SITE_ROOT"
 echo "Installing pip packages for testing"
 pip install -r $SITE_ROOT/requirements/development.txt
 
+echo "Packages installed:"
+pip freeze
+
 $SITE_ROOT/scripts/test
