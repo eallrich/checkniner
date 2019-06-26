@@ -1,21 +1,24 @@
-#!/bin/bash
-# Purpose: Set up application for the first time after cloning. Requires sudo.
-# Usage: setup [--app-user <username>] [--add-swap <megabytes>] hosted-domain sentry-DSN export-prefix
-#
-# Required Arguments
-# - hosted-domain: the domain for django's allowed_hosts setting (limited to
-#   one domain because of processing by downstream scripts)
-# - sentry-DSN: the DSN to which Raven should report errors
-# - export-prefix: the prefix behind which to hide sensitive data
-#
-# Argument Options
-#   --app-user  The user under which the app will run (checkniner by default)
-#   --add-swap  How many megabytes (MB) of additional swap space to configure
-#
-# Assumptions
-#   The app user, postgres user, and postgres DB all share the same name
+#!/usr/bin/env bash
 
-echo "===> Starting scripts/setup"
+# Sets up a Checkniner instance for the first time.
+# Usage: setup [OPTIONS] DOMAIN SENTRY_DSN EXPORT_PREFIX
+
+# Arguments:
+#   DOMAIN          The domain at which this instance will be reachable
+#   SENTRY_DSN      The DSN to which Sentry-captured errors will be reported
+#   EXPORT_PREFIX   The prefix behind which to hide sensitive data
+
+# Options:
+#   --app-user NAME     The user under which the app will run as well as the
+#                       name of the postgres user and postgres database to be
+#                       used by the instance [default: checkniner]
+#   --add-swap MiB      The size (in MiB) of additional swap to configure
+#                       [default: no swap]
+
+set -e
+set -o pipefail
+
+function die { echo $@; exit 1; }
 
 APP_USER="checkniner"
 SWAP_SIZE=""
@@ -30,8 +33,7 @@ while true; do
             shift 2
             ;;
         -*)
-            echo "Error: Unknown argument '$1'"
-            exit 1
+            die "Error: Unknown argument '$1'"
             ;;
         *)
             break
@@ -39,56 +41,57 @@ while true; do
     esac
 done
 
-ALLOWED_HOSTS=$1
+DOMAIN=$1
 SENTRY_DSN=$2
 EXPORT_PREFIX=$3
+
+[[ -z "$DOMAIN" ]] && die "Error: Please provide the DOMAIN for this instance"
+[[ -z "$SENTRY_DSN" ]] && die "Error: Please provide the SENTRY_DSN for this instance"
+[[ -z "$EXPORT_PREFIX" ]] && die "Error: Please provide the EXPORT_PREFIX for this instance"
+
 PG_DATABASE="$APP_USER"
 SECRET_KEY=$(python -c "import base64, os; print base64.b64encode(os.urandom(40))")
-# Found this one-liner via http://stackoverflow.com/a/246128. Thanks!
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-# The script dir is checkniner/scripts. The site root will be up one level.
-SITE_ROOT="$(dirname "$SCRIPT_DIR")"
-echo "     ALLOWED_HOSTS:     $ALLOWED_HOSTS"
-echo "     SENTRY_DSN:        $SENTRY_DSN"
-echo "     EXPORT_PREFIX:     $EXPORT_PREFIX"
-echo "     PG_DATABASE:       $PG_DATABASE"
-echo "     APP_USER:          $APP_USER"
-echo "     SECRET_KEY:        $SECRET_KEY"
-echo "     SITE_ROOT:         $SITE_ROOT"
-if [[ -z "$SWAP_SIZE" ]]; then
-    echo "     SWAP_SIZE:         (none)"
-else
-    echo "     SWAP_SIZE:         $SWAP_SIZE"
-fi
+SITE_ROOT="$(readlink -f "$(dirname "$0")/..")"
 
+echo "-----------------------------------"
+echo "Proceeding with this configuration:"
+echo "-----------------------------------"
+echo "  DOMAIN:         $DOMAIN"
+echo "  SENTRY_DSN:     $SENTRY_DSN"
+echo "  EXPORT_PREFIX:  $EXPORT_PREFIX"
+echo "  APP_USER:       $APP_USER"
+echo "  PG_DATABASE:    $PG_DATABASE"
+echo "  SECRET_KEY:     $SECRET_KEY"
+echo "  SITE_ROOT:      $SITE_ROOT"
+echo "  SWAP_SIZE:      $([[ -z "$SWAP_SIZE" ]] && echo "(none)" || echo "$SWAP_SIZE")"
+echo "-----------------------------------"
 
-echo "===> Setting locale"
+echo "Picking en_us.UTF-8 as the locale"
 # Postgres correctly insists on the locale being set properly
 # Thanks to http://stackoverflow.com/a/17712701 for these!
 locale-gen en_US en_US.UTF-8 
 sudo dpkg-reconfigure locales
 
-
-echo "===> Installing system packages"
+echo "Installing dependencies from system packages"
 PACKAGES="build-essential python-virtualenv python-dev postgresql libpq-dev nginx supervisor"
 sudo apt-get install --assume-yes $PACKAGES
 
+echo "Initializing postgres with username=$APP_USER and database=$PG_DATABASE"
+# If we don't 'cd' into a commonly-viewable path before the sudo command we
+# get an error message about permissions (since the postgres user can't see
+# the root user's homedir).
+pushd /
+sudo --set-home --user=postgres bash -c "echo '\
+CREATE DATABASE $PG_DATABASE; \
+CREATE USER $APP_USER; \
+GRANT ALL PRIVILEGES ON DATABASE $PG_DATABASE to $APP_USER; \
+\\q' | psql"
+popd
 
-echo "===> Setting up postgres user & database"
-# Developer Note: A couple of things to be aware of in this configuation:
-# - We're using peer authentication, so we don't need a password or a hostname
-# - This will work as long as django and the database are on the same host
-# This initial 'cd /' avoids an error message caused by the postgres user
-# attempting to navigate to the /root directory (the default directory for the
-# root user) when 'sudo -u ...' is invoked.
-cd /
-sudo --set-home --user=postgres bash -c "echo \"CREATE DATABASE $PG_DATABASE; CREATE USER $APP_USER; GRANT ALL PRIVILEGES ON DATABASE $PG_DATABASE to $APP_USER;\\q\" | psql"
-
-
-echo "===> Updating supervisor configuration"
-CONF_DIR=/etc/supervisor/conf.d
-sudo cp $SITE_ROOT/etc/supervisor.conf $CONF_DIR/checkniner_$APP_USER.conf
-sudo sed -i "s@{{ host_user }}@$APP_USER@g" $CONF_DIR/checkniner_$APP_USER.conf
+echo "Setting up supervisor configuration"
+cat $SITE_ROOT/etc/supervisor.conf \
+    | sed "s@{{ host_user }}@$APP_USER@g" \
+    | sudo tee /etc/supervisor/conf.d/checkniner_$APP_USER.conf
 sudo service supervisor restart
 # For Ubuntu 16.04 (with systemd), a couple additional tweaks thanks to
 # http://unix.stackexchange.com/a/291098. The first sets it to auto-start, the
@@ -96,42 +99,30 @@ sudo service supervisor restart
 sudo systemctl enable supervisor
 sudo systemctl start supervisor
 
-
 # We're going to start with an unsecured Nginx configuration which supports
-# routing ACME HTTP challenges (e.g. from Let's Encrypt). This will enable us
-# to get TLS certificates later if we choose to do so.
-#
-# WARNING: If ALLOWED_HOSTS contains comma-seperated entries such as
-# 'example.com,www.example.com' this section will not run correctly!
+# routing ACME HTTP challenges so we can get TLS certs later.
 
-CONF_DIR=/etc/nginx
-echo "===> Updating nginx configuration (unsecured)"
-if [ -f $CONF_DIR/sites-enabled/default ]; then
-    sudo rm $CONF_DIR/sites-enabled/default
-fi
-# Set up the HTTP config for our domain
-sudo cp $SITE_ROOT/etc/nginx.unsecure $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
-sudo sed -i "s@{{ site_root }}@$SITE_ROOT@g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
-sudo sed -i "s/{{ domain_name }}/$ALLOWED_HOSTS/g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
-sudo sed -i "s/{{ export_prefix }}/$EXPORT_PREFIX/g" $CONF_DIR/sites-enabled/$ALLOWED_HOSTS
-# Then make sure there's a config to prevent propagation of requests for
-# any unknown hosts
-BLOCK_UNKNOWN=$CONF_DIR/sites-enabled/block_unknown
-if [ ! -f $BLOCK_UNKNOWN ]; then
-    echo "===> Adding 'block unknown HTTP' nginx config"
-    # Since this is the first "block unknown" config, we will assume there
-    # aren't any HTTPS connections to worry about.
-    sudo cp $SITE_ROOT/etc/nginx.block_unknown_80 $BLOCK_UNKNOWN
+NGINX=/etc/nginx/sites-enabled
+echo "Setting up HTTP nginx configuration"
+sudo rm -f $NGINX/default
+cat $SITE_ROOT/etc/nginx.unsecure \
+    | sed "s@{{ site_root }}@$SITE_ROOT@g" \
+    | sed "s@{{ domain_name }}@$DOMAIN@g" \
+    | sed "s@{{ export_prefix }}@$EXPORT_PREFIX@g" \
+    | sudo tee $NGINX/$DOMAIN
+
+if [ ! -f $NGINX/block_unknown ]; then
+    echo "Adding nginx config to block all requests for unknown hosts"
+    # We're the first so there can't be any HTTPS connections to worry about
+    sudo cp $SITE_ROOT/etc/nginx.block_unknown_80 $NGINX/block_unknown
 fi
 sudo service nginx restart
 
-
-echo "===> Creating virtualenv"
+echo "Creating virtualenv"
 sudo --set-home --user=$APP_USER virtualenv $SITE_ROOT
 
-
 echo "===> Setting env vars"
-echo "export ALLOWED_HOSTS=$ALLOWED_HOSTS" >> $SITE_ROOT/bin/activate
+echo "export ALLOWED_HOSTS=$DOMAIN" >> $SITE_ROOT/bin/activate
 echo "export DATABASE_URL=postgres://$APP_USER@/$PG_DATABASE" >> $SITE_ROOT/bin/activate
 echo "export DJANGO_SETTINGS_MODULE=cotracker.settings.production" >> $SITE_ROOT/bin/activate
 echo "export PYTHONPATH=$SITE_ROOT/cotracker/" >> $SITE_ROOT/bin/activate
@@ -139,30 +130,21 @@ echo "export SECRET_KEY=$SECRET_KEY" >> $SITE_ROOT/bin/activate
 echo "export SENTRY_DSN=$SENTRY_DSN" >> $SITE_ROOT/bin/activate
 echo "export EXPORT_PREFIX=$EXPORT_PREFIX" >> $SITE_ROOT/bin/activate
 
-
-echo "===> passing the baton to scripts/bootstrap"
 sudo --set-home --user=$APP_USER $SITE_ROOT/scripts/bootstrap
-
-echo "===> passing the baton to scripts/update"
 sudo --set-home --user=$APP_USER $SITE_ROOT/scripts/update
 
-echo "===> Everything is set up; Requesting supervisor to restart gunicorn"
+echo "Finished setting up checkniner, restarting gunicorn"
 sudo supervisorctl restart gunicorn_$APP_USER
 
-
-if [[ -z "$SWAP_SIZE" ]]; then
-    echo "===> Nothing to do for additional swap"
-else
-    echo "===> Adding additional ${SWAP_SIZE}MB of swap"
+if [[ ! -z "$SWAP_SIZE" ]]; then
+    echo "Adding swap of ${SWAP_SIZE}MB"
     SWAP_PATH="/var/swap"
     sudo dd if=/dev/zero of=$SWAP_PATH bs=1M count=$SWAP_SIZE
     sudo chmod 600 $SWAP_PATH
     sudo mkswap $SWAP_PATH
-    # Turn swap on immediately
     sudo swapon $SWAP_PATH
-    # And also make sure swap space loads after restarts
-    echo "$SWAP_PATH      none    swap    sw    0    0" | sudo tee --append /etc/fstab
+    echo "$SWAP_PATH      none    swap    sw    0    0" \
+        | sudo tee --append /etc/fstab
 fi
 
-
-echo "===> setup completed"
+echo "Finished setting up"
