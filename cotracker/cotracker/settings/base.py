@@ -2,7 +2,6 @@
 
 import os
 
-from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as DEFAULT_TCP
 from django.core.exceptions import ImproperlyConfigured
 
 import dj_database_url
