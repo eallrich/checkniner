@@ -6,7 +6,7 @@ echo "Configuring CI environment for the test suite"
 
 export DATABASE_URL='sqlite:///ignored'
 export SECRET_KEY=supersecretkey
-export SENTRY_DSN=https://key@sentry.io/example
+export SENTRY_DSN=https://key@sentry.io/1
 export EXPORT_PREFIX=ignored
 SITE_ROOT="$(readlink -f "$(dirname "$0")/..")"
 
