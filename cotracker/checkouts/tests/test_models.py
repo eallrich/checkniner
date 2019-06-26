@@ -8,7 +8,7 @@ from checkouts.models import (
     user_is_flight_scheduler,
 )
 
-import helper
+import checkouts.tests.helper as helper
 
 
 class AircraftTypeTests(TestCase):

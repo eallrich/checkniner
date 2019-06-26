@@ -4,7 +4,7 @@ from django.test import TestCase
 from checkouts import util
 from checkouts.models import AircraftType
 
-import helper
+import checkouts.tests.helper as helper
 
 
 class GetAircraftTypeNamesTests(TestCase):
