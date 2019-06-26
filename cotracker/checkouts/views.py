@@ -13,7 +13,7 @@ from braces.views import LoginRequiredMixin
 from .forms import FilterForm, CheckoutEditForm
 from .models import AircraftType, Airstrip, Checkout, PilotWeight
 from .statsdproxy import statsd
-import util
+import checkouts.util as util
 
 
 logger = logging.getLogger(__name__)

@@ -20,7 +20,7 @@ def user_full_name(user):
 User.full_name = property(user_full_name)
 
 # Default representation for users should be the 'Last, First' name format
-User.__unicode__ = user_full_name
+User.__str__ = user_full_name
 
 # Desire an easy, globally usable way to detect pilot vs non-pilot users
 def user_is_pilot(user):
@@ -46,7 +46,7 @@ class Airstrip(TimeStampedModel):
     is_base = models.BooleanField()
     bases = models.ManyToManyField('self', symmetrical=False, limit_choices_to={'is_base': True}, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s (%s)" % (self.ident, self.name)
     
     def attached_airstrips(self):
@@ -67,7 +67,7 @@ class AircraftType(TimeStampedModel):
     name = models.CharField(max_length=10)
     sorted_position = models.IntegerField(default=0)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -91,7 +91,7 @@ class Checkout(TimeStampedModel):
     # =========================================================================
     date = models.DateField(auto_now_add=True)
     
-    def __unicode__(self):
+    def __str__(self):
         return '%s is checked out at %s in a %s' % (self.pilot, self.airstrip, self.aircraft_type)
     
     class Meta:
@@ -102,5 +102,5 @@ class PilotWeight(TimeStampedModel):
     pilot = models.OneToOneField(User, limit_choices_to={'groups__name': 'Pilots'})
     weight = models.IntegerField(default=0)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s: %dkg" % (self.pilot, self.weight)

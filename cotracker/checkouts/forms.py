@@ -1,7 +1,7 @@
 from django import forms
 
 from .models import AircraftType, Airstrip
-import util
+import checkouts.util as util
 
 
 class BaseModelChoiceField(forms.ModelChoiceField):

@@ -8,7 +8,7 @@ from checkouts.views import (
     PilotDetail,
 )
 
-import helper
+import checkouts.tests.helper as helper
 
 class PilotViewsTest(TestCase):
     def setUp(self):

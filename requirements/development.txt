@@ -1,4 +1,4 @@
 -r base.txt
 
-coverage==4.0.2
-honcho==0.6.6
+coverage==4.5.3
+honcho==1.0.1

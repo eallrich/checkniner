@@ -73,7 +73,7 @@ locale-gen en_US en_US.UTF-8
 sudo dpkg-reconfigure locales
 
 echo "Installing dependencies from system packages"
-PACKAGES="build-essential python-virtualenv python-dev postgresql libpq-dev nginx supervisor"
+PACKAGES="build-essential python3-virtualenv python3-dev postgresql libpq-dev nginx supervisor"
 sudo apt-get install --assume-yes $PACKAGES
 
 echo "Initializing postgres with username=$APP_USER and database=$PG_DATABASE"
@@ -119,7 +119,7 @@ fi
 sudo service nginx restart
 
 echo "Creating virtualenv"
-sudo --set-home --user=$APP_USER virtualenv $SITE_ROOT
+sudo --set-home --user=$APP_USER virtualenv --python=python3 $SITE_ROOT
 
 echo "===> Setting env vars"
 echo "export ALLOWED_HOSTS=$DOMAIN" >> $SITE_ROOT/bin/activate
