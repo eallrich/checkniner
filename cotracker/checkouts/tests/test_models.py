@@ -97,7 +97,7 @@ class CheckoutTests(TestCase):
     
     def test_unicode(self):
         expected = '%s is checked out at %s in a %s' % (self.pilot.full_name, self.airstrip, self.aircrafttype) 
-        self.assertEqual(self.checkout.__unicode__(), expected)
+        self.assertEqual(str(self.checkout), expected)
     
 
 class ModelFunctionTests(TestCase):
