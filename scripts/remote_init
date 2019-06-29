@@ -49,8 +49,9 @@ REPOSITORY=https://github.com/eallrich/checkniner.git
 
 SITE_ROOT="/home/$APP_USER/checkniner"
 
-ssh $CONNECTION "sudo apt-get update && sudo apt-get dist-upgrade --assume-yes"
+ssh $CONNECTION "sudo DEBIAN_FRONTEND=noninteractive apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade --assume-yes --quiet"
 ssh $CONNECTION "sudo apt-get install --assume-yes byobu git fail2ban"
+ssh $CONNECTION "sudo apt-get autoremove --assume-yes"
 # Thanks to http://askubuntu.com/a/94067 for this one-liner.
 ssh $CONNECTION "sudo adduser --disabled-password --gecos '' $APP_USER"
 
