@@ -61,6 +61,6 @@ ssh $CONNECTION "sudo adduser --disabled-password --gecos '' $APP_USER || echo '
 ssh $CONNECTION "cd /; sudo --set-home --user=$APP_USER git clone $REPOSITORY $SITE_ROOT || echo 'Failed to create clone, assuming exists'"
 
 echo "Invoking $SITE_ROOT/scripts/setup on the remote instance"
-ssh $CONNECTION "sudo $SITE_ROOT/scripts/setup --app-user $APP_USER $ALLOWED_HOSTS $SENTRY_DSN $EXPORT_PREFIX"
+ssh $CONNECTION "sudo $SITE_ROOT/scripts/setup --app-user $APP_USER $DOMAIN $SENTRY_DSN $EXPORT_PREFIX"
 
 echo "Finished remote initialization"
