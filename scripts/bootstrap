@@ -9,7 +9,7 @@ echo "Installing pip packages"
 pip install -r $SITE_ROOT/requirements.txt
 
 echo "Running syncdb"
-python $SITE_ROOT/cotracker/manage.py syncdb --noinput --no-initial-data
+python $SITE_ROOT/cotracker/manage.py migrate --noinput
 
 echo "If you need to create a superuser:"
 echo "    $SITE_ROOT/bin/python $SITE_ROOT/cotracker/manage.py createsuperuser"

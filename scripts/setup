@@ -50,7 +50,7 @@ EXPORT_PREFIX=$3
 [[ -z "$EXPORT_PREFIX" ]] && die "Error: Please provide the EXPORT_PREFIX for this instance"
 
 PG_DATABASE="$APP_USER"
-SECRET_KEY=$(python -c "import base64, os; print base64.b64encode(os.urandom(40))")
+SECRET_KEY=$(python3 -c "import base64, os; print base64.b64encode(os.urandom(40))")
 SITE_ROOT="$(readlink -f "$(dirname "$0")/..")"
 
 echo "-----------------------------------"
