@@ -14,6 +14,9 @@ class Analytics():
     middleware should come after Django's built-in AuthenticationMiddleware
     in the project settings.
     """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
 
     def is_monitor_agent(self, request):
         """Returns True if this request is related to a known monitoring agent."""
@@ -104,3 +107,9 @@ class Analytics():
         logger.info(template % context)
 
         return response
+
+
+    def __call__(self, request):
+        self.process_request(request)
+        response = self.get_response(request)
+        return self.process_response(request, response)
