@@ -69,8 +69,10 @@ echo "-----------------------------------"
 echo "Picking en_us.UTF-8 as the locale"
 # Postgres correctly insists on the locale being set properly
 # Thanks to http://stackoverflow.com/a/17712701 for these!
-locale-gen en_US en_US.UTF-8 
-sudo dpkg-reconfigure locales
+locale-gen en_US.UTF-8
+sed -i -e 's/# en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen
+sudo dpkg-reconfigure --frontend=noninteractive locales
+update-locale LANG=en_US.UTF-8
 
 echo "Installing dependencies from system packages"
 PACKAGES="build-essential python3-virtualenv python3-dev postgresql libpq-dev nginx supervisor"
