@@ -53,12 +53,12 @@ ssh $CONNECTION "sudo DEBIAN_FRONTEND=noninteractive apt-get update && sudo DEBI
 ssh $CONNECTION "sudo apt-get install --assume-yes byobu git fail2ban"
 ssh $CONNECTION "sudo apt-get autoremove --assume-yes"
 # Thanks to http://askubuntu.com/a/94067 for this one-liner.
-ssh $CONNECTION "sudo adduser --disabled-password --gecos '' $APP_USER"
+ssh $CONNECTION "sudo adduser --disabled-password --gecos '' $APP_USER || echo 'Failed to create user, assuming exists'"
 
 # We 'cd' to a commonly-reachable directory first in order to avoid an error
 # regarding permissions (since the app_user doesn't have access to the first
 # user's homedir)
-ssh $CONNECTION "cd /; sudo --set-home --user=$APP_USER git clone $REPOSITORY $SITE_ROOT"
+ssh $CONNECTION "cd /; sudo --set-home --user=$APP_USER git clone $REPOSITORY $SITE_ROOT || echo 'Failed to create clone, assuming exists'"
 
 echo "Invoking $SITE_ROOT/scripts/setup on the remote instance"
 ssh $CONNECTION "sudo $SITE_ROOT/scripts/setup --app-user $APP_USER $ALLOWED_HOSTS $SENTRY_DSN $EXPORT_PREFIX"
