@@ -75,7 +75,7 @@ sudo dpkg-reconfigure --frontend=noninteractive locales
 update-locale LANG=en_US.UTF-8
 
 echo "Installing dependencies from system packages"
-PACKAGES="build-essential python3-virtualenv python3-dev postgresql libpq-dev nginx supervisor"
+PACKAGES="build-essential virtualenv python3-virtualenv python3-dev postgresql libpq-dev nginx supervisor"
 sudo apt-get install --assume-yes $PACKAGES
 
 echo "Initializing postgres with username=$APP_USER and database=$PG_DATABASE"
