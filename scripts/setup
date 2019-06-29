@@ -120,7 +120,8 @@ if [ ! -f $NGINX/block_unknown ]; then
 fi
 sudo service nginx restart
 
-echo "Creating virtualenv"
+echo "(Re-)Creating virtualenv"
+sudo --set-home --user=$APP_USER rm -rf $SITE_ROOT/{bin,include,lib,share}
 sudo --set-home --user=$APP_USER virtualenv --python=python3 $SITE_ROOT
 
 echo "===> Setting env vars"
