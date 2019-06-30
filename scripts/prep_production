@@ -27,6 +27,7 @@ echo "Generating diffie-hellman parameters"
 openssl dhparam -out /etc/letsencrypt/dhparams.pem 2048
 
 echo "Generating self-signed catch-all certificate"
+[[ -d /etc/letsencrypt/keys ]] || sudo mkdir /etc/letsencrypt/keys
 # 3650 days is ~10 years
 openssl req -x509 -nodes \
     -days 3650 \
