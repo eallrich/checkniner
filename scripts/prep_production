@@ -23,6 +23,18 @@ echo "Installing dependencies"
 sudo add-apt-repository -y ppa:certbot/certbot
 sudo apt-get install -y certbot python-certbot-nginx
 
+echo "Generating diffie-hellman parameters"
+openssl dhparam -out /etc/letsencrypt/dhparams.pem 2048
+
+echo "Generating self-signed catch-all certificate"
+# 3650 days is ~10 years
+openssl req -x509 -nodes \
+    -days 3650 \
+    -subj "/CN=*" \
+    -newkey rsa:2048 \
+    -keyout /etc/letsencrypt/keys/selfsign.key \
+    -out /etc/letsencrypt/selfsign.crt
+
 echo "Fetching initial certificate"
 sudo certbot certonly \
   --register-unsafely-without-email \
