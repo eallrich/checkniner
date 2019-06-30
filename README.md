@@ -10,6 +10,19 @@ checkouts which should be prioritized for new training to alleviate scheduling
 constraints. A reporting feature allows analyzing checkouts per pilot, per
 airstrip, or per base of operations.
 
+### Built With
+
+Checkniner stands on the shoulders of many incredible free & libre software
+giants. Among them are several particularly valuable projects which have made
+this application possible:
+
+- [Django](https://www.djangoproject.com/)
+- [Let's Encrypt](https://letsencrypt.org/)
+- [Postgres](https://www.postgresql.org/)
+- [Python](https://www.python.org/)
+- [Sentry](https://sentry.io/)
+- [Ubuntu](https://www.ubuntu.com/)
+
 Development Setup
 -----------------
 
