@@ -3,32 +3,50 @@ checkniner
 
 [![Build Status](https://travis-ci.org/eallrich/checkniner.png)](https://travis-ci.org/eallrich/checkniner)
 
-Tracking and reporting of airstrip/aircraft checkout information for flight schedulers and pilots.
+This application provides a database for tracking pilot-airstrip-aircraft
+checkout tuples. Once recorded the tuples can be searched to find available
+flight scheduling assignments based on the known parameters or to identify
+checkouts which should be prioritized for new training to alleviate scheduling
+constraints. A reporting feature allows analyzing checkouts per pilot, per
+airstrip, or per base of operations.
 
-Down and Dirty for Development
-------------------------------
+Development Setup
+-----------------
 
-The two biggest differences between this dev environment and the production
-env are replacing postgres with sqlite for the database and replacing both
-nginx (reverse proxy) & supervisor (process formation controller) with honcho.
-With these two changes, the checkniner app can be setup & served without any
-root access required.
+The only firm requirement for developing and testing `checkniner` is an
+installation of Python 3.{5,6,7}. The steps below will also assume the presence
+of `git`, `virtualenv`, and `pip`.
+
+First let's get the repository and set up the virtual environment.
 
 ```shell
 $ git clone https://github.com/eallrich/checkniner.git
 $ cd checkniner
-$ virtualenv .
+$ virtualenv --python=python3 .
 ```
 
-Set the required configuration values by following the steps in Environment
-Variables, then continue here.
+Next we'll provide a few dev settings and install the python dependencies.
 
 ```shell
-# Pick up the new env vars
+$ echo "export DATABASE_URL='sqlite://$(pwd)/cotracker/dev.db'"       >> bin/activate
+$ echo "export DJANGO_SETTINGS_MODULE=cotracker.settings.development" >> bin/activate
+$ echo "export PYTHONPATH='$(pwd)/cotracker/'"                        >> bin/activate
+$ echo "export SECRET_KEY='$(head -c 15 /dev/urandom | base64)'"      >> bin/activate
+$ echo "export SENTRY_DSN=https://key@sentry.io/2"                    >> bin/activate
+$ echo "export EXPORT_PREFIX=zyxwvutsr"                               >> bin/activate
 $ source bin/activate
 $ pip install -r requirements/development.txt
-$ python cotracker/manage.py syncdb
-$ python cotracker/manage.py migrate
+```
+
+Then we have a bit of database set up work.
+
+```shell
+$ python cotracker/manage.py migrate --noinput
+```
+
+Finally we're ready to run our application!
+
+```shell
 $ honcho start
 ```
 
@@ -45,44 +63,38 @@ $ coverage html --include="./*"
 Up and Running for Production
 -----------------------------
 
-The scripts in `scripts/` help automate the tedious bits. Descriptions for the
-various utilities are available in the [scripts/ readme](scripts) document. Be
-sure to review the set of assumptions these scripts make as they perform their
-setup duties, such as assuming the app will be executed by a user named
-`checkniner`.
+Unlike setting up for development, deploying a production-ready instance is
+intended to be as automated as practical. You'll only need to provide:
 
-There are three configuration values required by the scripts during the initial
-setup:
-+ The URL at which the app will be served (`ALLOWED_HOSTS`)
-+ A Sentry DSN (`SENTRY_DSN`)
-+ A string to be prefixed onto some exported static files (`EXPORT_PREFIX`)
+- A fresh Ubuntu 18.04 64-bit server
+- A domain name pointed to the server's IP address
+- A [Sentry](https://sentry.io/) DSN
+- A secret key to restrict access to exported files
 
-An optional fourth parameter is the name of the host user under whose account
-the application is run. Example names include 'staging' and 'checkniner\_prod'.
-This name is also used for PostgreSQL configuration as both the postgres DB
-user & the DB name.
+If you have SSH access to the server you can use `scripts/remote_init` to take
+care of everything. Otherwise you'll need to connect to the server and do a few
+things yourself before picking up with `scripts/setup` - just follow what's in
+`scripts/remote_init` and perform those steps manually on your server.
 
-If the scripts aren't used, there are several additional variables the user
-must specify. All these configuration options are covered in the Environment
-Variables section.
+We're going to assume these values for the above requirements:
 
-The two deployment possibilities are to install the checkniner app locally or
-remotely. If you're already connected to the machine which will be hosting the
-app, then setting up is as simple as:
+- `DOMAIN`: `checkouts.example.com`
+- `SENTRY_DSN`: `https://key@sentry.io/1`
+- `EXPORT_PREFIX`: `zyxwvutsr`
+
+The simplest option is to check out this repository locally and then run the
+`scripts/remote_init` script. Let's say the server's SSH connection string is
+`root@10.31.41.59` and that you've set up SSH keys.
 
 ```shell
 $ git clone https://github.com/eallrich/checkniner.git
-$ checkniner/scripts/setup example.com https://access:key@sentry.example.com/2 zyxwvutsr staging
+$ cd checkniner
+$ scripts/remote_init root@10.31.41.59 checkouts.example.com https://key@sentry.io/1 zyxwvutsr
 ```
 
-Only slightly more complicated than installing locally, to get a remote server
-ready to serve checkniner we'll also need to pass the SSH connection string of
-the remote machine.
-
-```shell
-$ git clone https://github.com/eallrich/checkniner.git
-$ checkniner/scripts/remote_init ubuntu@example.com example.com https://access:key@sentry.example.com/2 zyxwvutsr staging
-```
+After waiting approximately five minutes you should be able to visit your new
+instance at https://checkouts.example.com/ and be presented with the login
+screen.
 
 ### Backups and Restores ###
 
