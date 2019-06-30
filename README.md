@@ -88,8 +88,7 @@ The simplest option is to check out this repository locally and then run the
 
 ```shell
 $ git clone https://github.com/eallrich/checkniner.git
-$ cd checkniner
-$ scripts/remote_init root@10.31.41.59 checkouts.example.com https://key@sentry.io/1 zyxwvutsr
+$ checkniner/scripts/remote_init root@10.31.41.59 checkouts.example.com https://key@sentry.io/1 zyxwvutsr
 ```
 
 After waiting approximately five minutes you should be able to visit your new
