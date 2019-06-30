@@ -20,8 +20,8 @@ these names. For convenience they may be set in the activation script for the
 application's virtualenv (e.g. `checkniner/bin/activate`). This is the approach
 taken by the scripts which set up a production-ready instance.
 
-In Dev/Prod but not in Test
----------------------------
+In Dev and Prod but not in Test
+-------------------------------
 
 In order to view the `django-debug-toolbar` it's necessary to set the
 `INTERNAL_IPS` env var. In production the toolbar will not appear by default
@@ -32,8 +32,8 @@ deployments.
 | Name | Example Value | Purpose | Required? |
 | ---- | ------------- | ------- | --------- |
 | `ALLOWED_HOSTS` | `example.com,www.example.com` | Django will only respond to requests targeting these hostnames | Yes if in prod (i.e. `DEBUG=False`) |
-| `FORCE_DEBUG_MODE` | `true` | Override the `DEBUG` flag when using `settings.production` | Only when trying to use the `django-debug-toolbar` in prod |
-| `INTERNAL_IPS` | `10.31.41.59,10.27.182.8` | The `django-debug-toolbar` will only responde to requests from these IPs | Only when try to use the `django-debug-toolbar` (dev or prod) |
+| `FORCE_DEBUG_MODE` | `true` | Override the `DEBUG` flag when using `settings.production` | Only when using the `django-debug-toolbar` in prod |
+| `INTERNAL_IPS` | `10.31.41.59,10.27.182.8` | The `django-debug-toolbar` will only respond to requests from these IPs | Only when using the `django-debug-toolbar` (dev or prod) |
 
 Sending Emails
 --------------
