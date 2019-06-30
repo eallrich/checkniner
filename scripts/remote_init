@@ -63,4 +63,7 @@ ssh $CONNECTION "cd /; sudo --set-home --user=$APP_USER git clone $REPOSITORY $S
 echo "Invoking $SITE_ROOT/scripts/setup on the remote instance"
 ssh $CONNECTION "sudo $SITE_ROOT/scripts/setup --app-user $APP_USER $DOMAIN $SENTRY_DSN $EXPORT_PREFIX"
 
+echo "Invoking $SITE_ROOT/scripts/prep_production on the remote instance"
+ssh $CONNECTION "sudo $SITE_ROOT/scripts/prep_production $DOMAIN $EXPORT_PREFIX"
+
 echo "Finished remote initialization"
