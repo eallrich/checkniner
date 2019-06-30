@@ -67,7 +67,7 @@ Unlike setting up for development, deploying a production-ready instance is
 intended to be as automated as practical. You'll only need to provide:
 
 - A fresh Ubuntu 18.04 64-bit server
-- A domain name pointed to the server's IP address
+- A domain name pointing to the server's IP address
 - A [Sentry](https://sentry.io/) DSN
 - A secret key to restrict access to exported files
 
