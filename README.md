@@ -121,25 +121,6 @@ through the [Mailgun](https://mailgun.com/) API. To enable these email
 notifications, provide definitions for the email-related environment variables
 (as discussed in the Environment Variables section).
 
-### TLS via Let's Encrypt ###
-
-After the initial setup (via `scripts/setup`), run `scripts/prep_production` to
-obtain & configure TLS certificates from the Let's Encrypt CA.
-
-Certificates from Let's Encrypt have a validity period of 90 days. Once the
-initial certificate is obtained and installed, it is _highly_ recommended that
-the root crontab be updated to include a monthly "certificate renewal" task.
-For an example entry, see the [etc/root.crontab](etc/root.crontab) file in this
-repository.
-
-Once the template values in `etc/root.crontab` have been updated, install via:
-```shell
-# As the root user
-$ crontab -l > ~/existing.crontab
-$ cat etc/root.crontab >> ~/existing.crontab
-$ crontab ~/existing.crontab
-```
-
 Environment Variables
 ---------------------
 
