@@ -12,7 +12,6 @@ from braces.views import LoginRequiredMixin
 
 from .forms import FilterForm, CheckoutEditForm
 from .models import AircraftType, Airstrip, Checkout, PilotWeight
-from .statsdproxy import statsd
 import checkouts.util as util
 
 
@@ -150,7 +149,6 @@ class BaseEditAttached(LoginRequiredMixin, DetailView):
             message = "Only flight schedulers may modify which airstrips are attached to a base."""
             return self.forbidden(request, message)
     
-    @statsd.timer('view.base_edit_attached.get_context_data.elapsed')
     def get_context_data(self, **kwargs):
         """The form needs the full set of airstrips (excluding the 'self' base),
         and the set of airstrips currently attached to the 'self' base."""
@@ -160,7 +158,6 @@ class BaseEditAttached(LoginRequiredMixin, DetailView):
         
         return context
     
-    @statsd.timer('view.base_edit_attached.post.elapsed')
     def post(self, request, *args, **kwargs):
         """Updates the set of airstrips attached to the given base."""
         base = self.get_object()
@@ -238,7 +235,6 @@ class FilterFormView(LoginRequiredMixin, TemplateView):
         context = {'form': self.form_class(),}
         return self.render_to_response(context)
     
-    @statsd.timer('view.filter_form_view.post.elapsed')
     def post(self, request, *args, **kwargs):
         """If the filter is valid, renders the filtered checkout data"""
         logger.debug("=> FilterFormView.post")
@@ -274,7 +270,6 @@ class CheckoutEditFormView(LoginRequiredMixin, TemplateView):
         }
         return render(request, template, context, status=403)
     
-    @statsd.timer('view.checkout_edit_form_view.get.elapsed')
     def get(self, request, *args, **kwargs):
         """Renders a fresh form instance"""
         logger.debug("=> CheckoutEditFormView.get")
@@ -303,7 +298,6 @@ class CheckoutEditFormView(LoginRequiredMixin, TemplateView):
         
         return self.render_to_response({'form': form})
     
-    @statsd.timer('view.checkout_edit_form_view.post.elapsed')
     def post(self, request, *args, **kwargs):
         """Given a valid form, performs the requested add/remove action and
         then renders the same view again."""
@@ -504,7 +498,6 @@ class WeightEdit(LoginRequiredMixin, DetailView):
             message = "Pilots may only modify their own weights, and only flight schedulers may modify other pilots' weights."
             return self.forbidden(request, message)
 
-    @statsd.timer('view.weight_edit.post.elapsed')
     def post(self, request, *args, **kwargs):
         """Updates the pilot's weight to the given value."""
         pilotweight = self.get_object()

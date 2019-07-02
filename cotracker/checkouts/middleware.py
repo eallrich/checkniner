@@ -3,8 +3,6 @@
 import logging
 import time
 
-from .statsdproxy import statsd
-
 logger = logging.getLogger('analytics')
 
 class Analytics():
@@ -81,10 +79,8 @@ class Analytics():
         request._analytics_start_time = now
         try:
             request._queue_time = (now - self.get_queue_start(request)) * 1000.0
-            statsd.timing('queue.elapsed', request._queue_time)
         except AttributeError:
             pass # Nothing to do, no queue time to report
-        statsd.incr('request')
 
 
     def process_response(self, request, response):
@@ -99,7 +95,6 @@ class Analytics():
         if hasattr(request, '_analytics_start_time'):
             elapsed = (time.time() - request._analytics_start_time) * 1000.0
             context['elapsed'] = elapsed
-            statsd.timing('response.elapsed', elapsed)
         else:
             context['elapsed'] = -1.0
 

@@ -36,11 +36,6 @@ sentry_sdk.init(
     integrations=[DjangoIntegration()]
 )
 
-STATSD_CONFIG = {
-    'host': 'localhost',
-    'port': 48125,
-}
-
 PILOTWEIGHTS_JSON_FILE = get_env_var('EXPORT_PREFIX') + '_pilotweights.json'
 PILOTWEIGHTS_XML_FILE =  get_env_var('EXPORT_PREFIX') + '_pilotweights.xml'
 
