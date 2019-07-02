@@ -133,6 +133,10 @@ header span {
   color: green;
 }
 
+#messages .warning {
+  color: orange;
+}
+
 #messages .error {
   color: red;
 }
