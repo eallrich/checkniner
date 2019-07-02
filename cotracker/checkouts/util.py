@@ -308,12 +308,12 @@ def export_pilotweights():
         to_export["pilots"].append(data)
 
     jsonpath = os.path.join(settings.STATIC_ROOT, settings.PILOTWEIGHTS_JSON_FILE)
-    with open(jsonpath, 'wb') as f:
+    with open(jsonpath, 'w') as f:
         json.dump(to_export, f, indent=4, sort_keys=True)
     logger.info("Wrote %d bytes to %s" % (os.path.getsize(jsonpath), jsonpath))
 
     xmlpath = os.path.join(settings.STATIC_ROOT, settings.PILOTWEIGHTS_XML_FILE)
-    with open(xmlpath, 'wb') as f:
+    with open(xmlpath, 'w') as f:
         f.write("<pilotweights>\n")
         f.write("  <version>%s</version>\n" % to_export["version"])
         f.write("  <updated>%s</updated>\n" % to_export["updated"])
