@@ -96,7 +96,7 @@ We're going to assume these values for the above requirements:
 - `EXPORT_PREFIX`: `zyxwvutsr`
 
 You can read more about these settings (and the others the app supports) in
-the [settings documentation](cotracker/cotracker/settings)
+the [settings documentation](cotracker/cotracker/settings).
 
 The simplest option is to check out this repository locally and then run the
 `scripts/remote_init` script. Let's say the server's SSH connection string is
@@ -114,7 +114,7 @@ screen.
 ### Backups and Restores ###
 
 Details for backing up and restoring the checkniner database are available in
-the [scripts/backups/ readme](scripts/backups) document.
+the [scripts/backups readme](scripts/backups).
 
 ### Sending Emails ###
 
