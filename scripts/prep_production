@@ -23,8 +23,8 @@ echo "Installing dependencies"
 sudo add-apt-repository -y ppa:certbot/certbot
 sudo apt-get install -y certbot python-certbot-nginx
 
-echo "Generating diffie-hellman parameters"
-openssl dhparam -out /etc/letsencrypt/dhparams.pem 2048
+echo "Retrieving diffie-hellman parameters"
+curl https://ssl-config.mozilla.org/ffdhe2048.txt > /etc/letsencrypt/dhparams.pem
 
 echo "Generating self-signed catch-all certificate"
 [[ -d /etc/letsencrypt/keys ]] || sudo mkdir /etc/letsencrypt/keys
