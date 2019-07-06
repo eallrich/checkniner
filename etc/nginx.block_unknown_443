@@ -11,6 +11,6 @@ server {
     ssl_certificate /etc/letsencrypt/selfsign.crt;
     ssl_certificate_key /etc/letsencrypt/keys/selfsign.key;
     # Turn off SSLv3 so that SSL Labs doesn't claim we're vulnerable to POODLE
-    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_protocols TLSv1.2 TLSv1.3;
     return 444;
 }
