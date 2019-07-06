@@ -1,6 +1,8 @@
 """Checkouts application middleware"""
 
+import datetime
 import logging
+import subprocess
 import time
 
 logger = logging.getLogger('analytics')
@@ -102,6 +104,39 @@ class Analytics():
         logger.info(template % context)
 
         return response
+
+
+    def current_django(self):
+        with open('/home/checkniner/checkniner/requirements/base.txt', 'r') as f:
+            line = f.readline()
+            if 'Django==' in line:
+                return line.split('==')[-1].strip()
+
+
+    def available_django(self, series):
+        logger.info("Checking for latest django in series=%s" % series)
+        channel = subprocess.run(
+            ['pip', 'install', 'Django==999'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
+        )
+        text = channel.stdout.decode('utf-8').replace(',', '')
+        return [v for v in text.split(' ') if v.startswith(series)][-1].strip()
+
+
+    def update_check(self, request):
+        django_1_11_eol = datetime.date(2020, 4, 30)
+        if datetime.date.today() > django_1_11_eol:
+            m = 'You are using Django 1.11 which is no longer supported and has security holes. You are vulnerable. Upgrade immediately.'
+            messages.add_message(request, messages.ERROR, m)
+            return
+
+        have_django = self.current_django()
+        want_django = self.available_django(have_django.rsplit('.', 1)[0])
+        logger.info("Have django=%s, want django=%s" % (have_django, want_django))
+        if want_django > have_django:
+            m = 'You are using Django %s. A security update to Django %s is available. Upgrade to mitigate attacks.'
+            messages.add_message(request, messages.WARNING, m % (have_django, want_django))
 
 
     def __call__(self, request):
