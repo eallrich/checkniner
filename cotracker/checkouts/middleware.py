@@ -127,7 +127,7 @@ class Analytics():
     def update_check(self, request):
         django_1_11_eol = datetime.date(2020, 4, 30)
         if datetime.date.today() > django_1_11_eol:
-            m = 'You are using Django 1.11 which is no longer supported and has security holes. You are vulnerable. Upgrade immediately.'
+            m = 'You are using Django 1.11 which is no longer supported and has security vulnerabilities. Upgrade immediately.'
             messages.add_message(request, messages.ERROR, m)
             return
 
