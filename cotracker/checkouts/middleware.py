@@ -143,7 +143,10 @@ class Analytics():
 
     def __call__(self, request):
         self.process_request(request)
-        if request.user and request.user.is_authenticated() and 'logout' not in request.path:
+        if request.user and request.user.is_authenticated() \
+           and 'logout' not in request.path \
+           and 'password_change' not in request.path \
+           and request.path != '/':
             try:
                 self.update_check(request)
             except:
