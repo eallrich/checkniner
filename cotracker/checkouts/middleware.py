@@ -5,6 +5,8 @@ import logging
 import subprocess
 import time
 
+from django.contrib import messages
+
 logger = logging.getLogger('analytics')
 
 class Analytics():
@@ -141,5 +143,10 @@ class Analytics():
 
     def __call__(self, request):
         self.process_request(request)
+        if request.user and request.user.is_authenticated() and 'logout' not in request.path:
+            try:
+                self.update_check(request)
+            except:
+                logger.exception("Encountered an error during update_check middleware, skipping")
         response = self.get_response(request)
         return self.process_response(request, response)
