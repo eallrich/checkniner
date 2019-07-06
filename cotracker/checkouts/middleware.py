@@ -130,7 +130,7 @@ class Analytics():
         django_1_11_eol = datetime.date(2020, 4, 30)
         if datetime.date.today() > django_1_11_eol:
             m = 'You are using Django 1.11 which is no longer supported and has security vulnerabilities. Upgrade immediately.'
-            messages.add_message(request, messages.ERROR, m)
+            messages.error(request, m)
             return
 
         have_django = self.current_django()
@@ -138,7 +138,7 @@ class Analytics():
         logger.info("Have django=%s, want django=%s" % (have_django, want_django))
         if want_django > have_django:
             m = 'You are using Django %s. A security update to Django %s is available. Upgrade to mitigate attacks.'
-            messages.add_message(request, messages.WARNING, m % (have_django, want_django))
+            messages.warning(request, m % (have_django, want_django))
 
 
     def __call__(self, request):
