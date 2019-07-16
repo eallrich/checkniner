@@ -81,7 +81,7 @@ sudo apt-get install --assume-yes $PACKAGES $PYTHON3
 
 echo "Installing watchdog"
 sudo pip3 install checkniner-watchdog
-sudo watchdog init --extra ALLOWED_HOST=$DOMAIN
+sudo watchdog init --extra ALLOWED_HOSTS=$DOMAIN
 
 echo "Initializing postgres with username=$APP_USER and database=$PG_DATABASE"
 # If we don't 'cd' into a commonly-viewable path before the sudo command we
