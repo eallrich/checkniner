@@ -65,7 +65,7 @@ echo "0 0 6 * * certbot renew && systemctl reload nginx" \
     | sudo tee -a ~/crontab
 echo "15 15 * * * apt-get update && DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -yq && apt-get autoremove -y" \
     | sudo tee -a ~/crontab
-echo "1 * * * * watchdog patrol" | sudo tee -a ~/crontab
+echo "1 * * * * /usr/local/bin/watchdog patrol" | sudo tee -a ~/crontab
 sudo cat ~/crontab | sort | tee | sudo crontab -
 sudo mv ~/crontab ~/crontab.old
 
