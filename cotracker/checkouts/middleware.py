@@ -143,13 +143,13 @@ class Analytics():
 
     def __call__(self, request):
         self.process_request(request)
-        if request.user and request.user.is_authenticated() \
-           and 'logout' not in request.path \
-           and 'password_change' not in request.path \
-           and request.path != '/':
-            try:
-                self.update_check(request)
-            except:
-                logger.exception("Encountered an error during update_check middleware, skipping")
+        #if request.user and request.user.is_authenticated() \
+        #   and 'logout' not in request.path \
+        #   and 'password_change' not in request.path \
+        #   and request.path != '/':
+        #    try:
+        #        self.update_check(request)
+        #    except:
+        #        logger.exception("Encountered an error during update_check middleware, skipping")
         response = self.get_response(request)
         return self.process_response(request, response)
