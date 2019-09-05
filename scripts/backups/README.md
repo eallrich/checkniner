@@ -58,7 +58,7 @@ key-pair for the backups) and then export the GPG public key:
 # Create a GPG key. If you're unsure of which options to pick at the prompts,
 # use '(1)' for 'RSA and RSA', 4096 bits, and '(0)' for 'No expiration'. An
 # example user ID is 'Checkniner (backups) <checkniner@example.com>'
-$ gpg --gen-key
+$ gpg --full-gen-key
 # Now export the public key
 $ gpg --export [8-digit key ID created above] --output checkniner_public.gpg
 ```
