@@ -4,11 +4,12 @@ import logging
 import os
 import tarfile
 
+from azure.storage.blob import BlockBlobService
 from boto.s3.connection import S3Connection
 from boto.s3.bucket import Bucket
 from boto.s3.key import Key
 import dj_database_url
-import django # Provides django.setup()
+import django  # Provides django.setup()
 from django.apps import apps as django_apps
 import envoy
 
@@ -47,16 +48,18 @@ def capture_command(function):
         elif 'command' in kwargs:
             command = kwargs['command']
         else:
-            logger.warning("What's the command?.\n\targs: %r\n\tkwargs: %r" % (args, kwargs))
+            logger.warning(
+                "What's the command?.\n\targs: %r\n\tkwargs: %r" % (args, kwargs))
             command = '?'
-        
+
         # Being much too clever: Dynamically decorate the given function with
         # the 'instrument' function so that we can capture timing data. Once
         # the function is decorated, we'll call it with the original
         # parameters.
         milliseconds, r = instrument(function)(*args, **kwargs)
         bytes = len(r.std_out)
-        logger.info("cmd=\"%s\" real=%dms bytes=%d" % (command, milliseconds, bytes))
+        logger.info("cmd=\"%s\" real=%dms bytes=%d" %
+                    (command, milliseconds, bytes))
         if hasattr(r, 'std_err'):
             # Print each non-blank line separately
             lines = [line for line in r.std_err.split('\n') if line]
@@ -68,7 +71,8 @@ def capture_command(function):
 def capture_function(function):
     def wrapper(*args, **kwargs):
         milliseconds, r = instrument(function)(*args, **kwargs)
-        logger.info("func=\"%s\" real=%dms" % (function.__name__, milliseconds))
+        logger.info("func=\"%s\" real=%dms" %
+                    (function.__name__, milliseconds))
         return r
     return wrapper
 
@@ -100,6 +104,16 @@ def get_s3_credentials():
 
 def get_s3_bucket_name():
     return os.environ['S3_BUCKET_NAME']
+
+
+def get_az_credentials():
+    account_name = os.environ['AZ_STORAGE_ACCOUNT_NAME']
+    account_key = os.environ['AZ_STORAGE_ACCOUNT_KEY']
+    return (account_name, account_key)
+
+
+def get_az_container_name():
+    return os.environ['AZ_BLOB_CONTAINER_NAME']
 
 
 def dump_postgres():
@@ -184,9 +198,27 @@ def encrypt(filename):
 
 
 @capture_function
-def upload(filename):
+def az_upload(filename):
     if not filename.endswith('.gpg'):
-        logger.warning("Upload requested for '%s' which appears to be plaintext (not encrypted)" % filename)
+        logger.warning(
+            "Upload requested for '%s' which appears to be plaintext (not encrypted)" % filename)
+    account_name, account_key = get_az_credentials()
+    container_name = get_az_container_name()
+    local_path = os.path.abspath(os.path.dirname(__file__))
+    full_path_to_file = os.path.join(local_path, filename)
+    block_blob_service = BlockBlobService(account_name, account_key)
+    block_blob_service.create_blob_from_path(
+        container_name, filename, full_path_to_file)
+    logger.info("Uploaded '%s' to '%s:%s'" %
+                (filename, account_name, container_name))
+    return os.path.getsize(filename)
+
+
+@capture_function
+def s3_upload(filename):
+    if not filename.endswith('.gpg'):
+        logger.warning(
+            "Upload requested for '%s' which appears to be plaintext (not encrypted)" % filename)
     access, secret = get_s3_credentials()
     bucket_name = get_s3_bucket_name()
     key_name = 'db/%s' % filename
@@ -199,13 +231,14 @@ def upload(filename):
     return os.path.getsize(filename)
 
 
-filenames = [dump_postgres(),]
+filenames = [dump_postgres(), ]
 filenames.extend(dump_django_fixtures())
 if update_necessary():
     archive = package(filenames)
     secured = encrypt(archive)
-    filesize = upload(secured)
-    logger.info("---- Uploading complete ---- bytes=%d --------------------" % filesize)
+    filesize = az_upload(secured)
+    logger.info(
+        "---- Uploading complete ---- bytes=%d --------------------" % filesize)
 else:
     logger.info("---- Digests match, ceasing activity ---------------------")
 map(os.remove, filenames)
