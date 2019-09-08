@@ -167,7 +167,7 @@ def package(filenames):
     date = datetime.datetime.utcnow().strftime(DATE_FORMAT)
     filename = "%s.tar.gz" % date
     with tarfile.open(filename, 'w:gz') as archive:
-        map(archive.add, filenames)
+        [archive.add(name) for name in filenames]
     if os.path.lexists(latest):
         os.unlink(latest)
     os.symlink(filename, latest)
