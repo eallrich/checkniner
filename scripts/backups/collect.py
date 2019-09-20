@@ -106,7 +106,7 @@ def dump_postgres():
     database = get_database_name()
     r = envoy.run("pg_dump %s" % database)
     filename = "%s.sql" % database
-    with open(filename, 'wb') as f:
+    with open(filename, 'w') as f:
         f.write(r.std_out)
     return filename
 
@@ -117,7 +117,7 @@ def dump_django_fixtures():
         r = envoy.run('django-admin.py dumpdata %s --indent=4' % name)
         if r.std_out != EMPTY_FIXTURE:
             filename = "%s.json" % name
-            with open(filename, 'wb') as f:
+            with open(filename, 'w') as f:
                 f.write(r.std_out)
             filenames.append(filename)
         else:
@@ -167,7 +167,7 @@ def package(filenames):
     date = datetime.datetime.utcnow().strftime(DATE_FORMAT)
     filename = "%s.tar.gz" % date
     with tarfile.open(filename, 'w:gz') as archive:
-        map(archive.add, filenames)
+        [archive.add(name) for name in filenames]
     if os.path.lexists(latest):
         os.unlink(latest)
     os.symlink(filename, latest)
