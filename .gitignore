@@ -8,6 +8,9 @@ lib/
 local/
 shared/
 
+# Virtualenv in its own directory
+env/
+
 # Local sqlite DB
 cotracker/*.db
 
