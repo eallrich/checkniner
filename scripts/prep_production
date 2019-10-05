@@ -56,7 +56,11 @@ sudo cp $SITE_ROOT/etc/nginx.block_unknown_443 $NGINX/block_unknown
 sudo service nginx reload
 
 echo "Installing scheduled activities"
-sudo crontab -l > ~/crontab
+if sudo crontab -l; then
+    sudo crontab -l > ~/crontab
+else
+    echo -n '' > ~/crontab
+fi
 cat <<HEREDOC > ~/crontab-additions
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 0 0 6 * * certbot renew && systemctl reload nginx
