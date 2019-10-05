@@ -6,6 +6,7 @@ database and (2) restoring the database by using a backup archive.
 + `dj_database_url` to parse the database connection parameters
 + `envoy` to run commands outside python
 + S3 `access` and `secret` keys for boto
++ Azure blob storage account name, key, and container name
 
 Backup Overview
 ---------------
@@ -27,19 +28,31 @@ Stages of the backup process:
 4. If the new dataset is identical to the existing one, exit the backup script
     + Comparing via SHA1 hashes of the new/existing auth and checkouts fixtures
 5. Package the archive into a single .tar.gz
-6. Upload the file to S3 via boto
+6. Upload the file to Azure blob storage, or to S3 via boto
 
 Setting up Backups
 ------------------
 
 The backup scripts in this directory take snapshots of application data and
-upload the archives to S3 when the business data changes. To set up the
-pipeline, start by adding the S3 `access` and `secret` keys, as well as the
-desired S3 bucket name, to the virtualenv's shell activation script.
+upload the archives to Azure or S3 when the business data changes. To set up the
+pipeline, start by adding the required Azure or S3 parameters to the
+virtualenv's shell activation script.
 
-Note that bucket names with dots are **not supported** by boto at this time
-(at least v2.43.0). See https://github.com/boto/boto/issues/2836 for details.
+For S3, note that bucket names with dots are **not supported** by boto at this
+time (at least v2.43.0). See https://github.com/boto/boto/issues/2836 for details.
 My preferred alternative is to use hyphens in bucket names instead of dots.
+
+For Azure blob storage backups, add the storage account name, access key,
+and container name:
+
+```shell
+$ echo "export AZ_STORAGE_ACCOUNT_NAME=<name-placeholder>" >> bin/activate
+$ echo "export AZ_STORAGE_ACCOUNT_KEY=<key-placeholder>" >> bin/activate
+$ echo "export AZ_BLOB_CONTAINER_NAME=<name-placeholder>" >> bin/activate
+```
+
+For S3 backups, add the `access` and `secret` keys, and the desired S3 bucket
+name:
 
 ```shell
 $ echo "export S3_ACCESS_KEY=0123456789ABCDEF" >> bin/activate
@@ -80,8 +93,8 @@ $ gpg> quit
 ```
 
 Now we're ready to configure the backup pipeline to use our GPG public key for
-encrypting the archives before they get uploaded to S3. All you need to do is
-add the following line to the virtualenv's shell activation script:
+encrypting the archives before they get uploaded to Azure or S3. All you need
+to do is add the following line to the virtualenv's shell activation script:
 
 ```shell
 # Replace the user ID with the actual user ID of the public key
@@ -117,9 +130,10 @@ Restoring from a Backup
 The backup scripts discussed above provide for two sources of data from which
 restores may be made: Django fixtures (in json) and PostgreSQL commands. The
 steps below will cover how to restore a database to the state as captured in a
-backup archive, starting with retrieving a latest.tar.gz backup file from S3.
+backup archive, starting with retrieving a latest.tar.gz backup file from S3,
+if used.
 
-### Retrieving a backup snapshot ###
+### Retrieving an S3 backup snapshot ###
 
 The `get_latest_archive.py` script searches through the S3 bucket containing
 backup archives, finds the latest, and downloads it for local access. The file
