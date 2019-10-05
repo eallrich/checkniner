@@ -56,19 +56,15 @@ sudo cp $SITE_ROOT/etc/nginx.block_unknown_443 $NGINX/block_unknown
 sudo service nginx reload
 
 echo "Installing scheduled activities"
-if sudo crontab -l > /dev/null; then
-    sudo crontab -l | sudo tee ~/crontab
-else
-    echo -n '' | sudo tee ~/crontab
-fi
-echo "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-echo "0 0 6 * * certbot renew && systemctl reload nginx" \
-    | sudo tee -a ~/crontab
-echo "15 15 * * * apt-get update && DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -yq && apt-get autoremove -y" \
-    | sudo tee -a ~/crontab
-echo "1 * * * * /usr/local/bin/watchdog patrol" | sudo tee -a ~/crontab
-echo "30 * * * 1 pip3 install --upgrade checkniner-watchdog" | sudo tee -a ~/crontab
-sudo cat ~/crontab | sort | tee | sudo crontab -
-sudo mv ~/crontab ~/crontab.old
+sudo crontab -l > ~/crontab
+cat <<HEREDOC > ~/crontab-additions
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+0 0 6 * * certbot renew && systemctl reload nginx
+15 15 * * * apt-get update && DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -yq && apt-get autoremove -y
+1 * * * * /usr/local/bin/watchdog patrol
+30 * * * 1 pip3 install --upgrade checkniner-watchdog
+HEREDOC
+cat ~/crontab ~/crontab-additions | sudo crontab -
+mv ~/crontab ~/crontab.old
 
 echo "Finished preparing for production"
