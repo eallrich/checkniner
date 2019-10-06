@@ -56,7 +56,7 @@ sudo cp $SITE_ROOT/etc/nginx.block_unknown_443 $NGINX/block_unknown
 sudo service nginx reload
 
 echo "Installing scheduled activities"
-if sudo crontab -l; then
+if sudo crontab -l > /dev/null; then
     sudo crontab -l > ~/crontab
 else
     echo -n '' > ~/crontab
