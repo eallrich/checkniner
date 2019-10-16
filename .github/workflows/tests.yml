@@ -1,4 +1,4 @@
-name: checkniner tests
+name: tests
 
 on: [push]
 
