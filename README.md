@@ -1,8 +1,6 @@
 checkniner
 ==========
 
-[![Build Status](https://travis-ci.org/eallrich/checkniner.png)](https://travis-ci.org/eallrich/checkniner)
-
 This application provides a database for tracking pilot-airstrip-aircraft
 checkout tuples. Once recorded the tuples can be searched to find available
 flight scheduling assignments based on the known parameters or to identify
