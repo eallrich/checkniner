@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import django.db.models.deletion
 import django.utils.timezone
 from django.conf import settings
 import model_utils.fields
@@ -49,9 +50,9 @@ class Migration(migrations.Migration):
                 ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
                 ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
                 ('date', models.DateField(auto_now_add=True)),
-                ('aircraft_type', models.ForeignKey(to='checkouts.AircraftType')),
-                ('airstrip', models.ForeignKey(to='checkouts.Airstrip')),
-                ('pilot', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('aircraft_type', models.ForeignKey(to='checkouts.AircraftType', on_delete=django.db.models.deletion.CASCADE)),
+                ('airstrip', models.ForeignKey(to='checkouts.Airstrip', on_delete=django.db.models.deletion.CASCADE)),
+                ('pilot', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.AlterUniqueTogether(

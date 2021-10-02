@@ -1,0 +1,10 @@
+Django~=3.2
+dj-database-url
+django-braces
+django-debug-toolbar
+django-model-utils
+gunicorn
+requests
+sentry-sdk
+sqlparse
+whitenoise

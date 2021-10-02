@@ -48,13 +48,13 @@ class Airstrip(TimeStampedModel):
 
     def __str__(self):
         return "%s (%s)" % (self.ident, self.name)
-    
+
     def attached_airstrips(self):
         """Retrieves the set of Airstrips which reference this instance as a
         base
         """
         return Airstrip.objects.filter(bases=self).order_by('ident')
-    
+
     def unattached_airstrips(self):
         """Retrieves the set of Airstrips which do not reference this instance
         as a base
@@ -72,10 +72,14 @@ class AircraftType(TimeStampedModel):
 
 
 class Checkout(TimeStampedModel):
-    pilot = models.ForeignKey(User, limit_choices_to={'groups__name': 'Pilots'})
-    airstrip = models.ForeignKey(Airstrip)
-    aircraft_type = models.ForeignKey(AircraftType)
-    
+    pilot = models.ForeignKey(
+        User,
+        limit_choices_to={'groups__name': 'Pilots'},
+        on_delete=models.CASCADE
+    )
+    airstrip = models.ForeignKey(Airstrip, on_delete=models.CASCADE)
+    aircraft_type = models.ForeignKey(AircraftType, on_delete=models.CASCADE)
+
     # =========================================================================
     # TL;DR: Field is hidden from users; we keep it to avoid losing user data
     #
@@ -90,16 +94,20 @@ class Checkout(TimeStampedModel):
     # their date data when imported, while new checkouts default to 'today.'
     # =========================================================================
     date = models.DateField(auto_now_add=True)
-    
+
     def __str__(self):
         return '%s is checked out at %s in a %s' % (self.pilot, self.airstrip, self.aircraft_type)
-    
+
     class Meta:
         unique_together = (('pilot', 'airstrip', 'aircraft_type'),)
 
 
 class PilotWeight(TimeStampedModel):
-    pilot = models.OneToOneField(User, limit_choices_to={'groups__name': 'Pilots'})
+    pilot = models.OneToOneField(
+        User,
+        limit_choices_to={'groups__name': 'Pilots'},
+        on_delete=models.CASCADE
+    )
     weight = models.IntegerField(default=0)
 
     def __str__(self):
