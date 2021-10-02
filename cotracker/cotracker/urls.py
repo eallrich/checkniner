@@ -20,11 +20,11 @@ from checkouts.views import (
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'^login/$', auth.views.login, {'template_name': 'checkouts/login.html',}, name='login'),
+    url(r'^login/$', auth.views.LoginView.as_view(template_name='checkouts/login.html'), name='login'),
     url(r'^logout/$', auth.views.logout_then_login, name='logout'),
-    url(r'^password_change/$', auth.views.password_change, {'template_name': 'checkouts/password_change_form.html',}, name='password_change'),
-    url(r'^password_change/done/$', auth.views.password_change_done, {'template_name': 'checkouts/password_change_done.html',}, name='password_change_done'),
-    url(r'^emerald/', include(admin.site.urls)),
+    url(r'^password_change/$', auth.views.PasswordChangeView.as_view(template_name='checkouts/password_change_form.html'), name='password_change'),
+    url(r'^password_change/done/$', auth.views.PasswordChangeDoneView.as_view(template_name='checkouts/password_change_done.html'), name='password_change_done'),
+    url(r'^emerald/', admin.site.urls),
     # Checkouts app views
     url(
         regex=r'^$',
