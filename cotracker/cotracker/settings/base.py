@@ -31,6 +31,8 @@ if get_env_var('DATABASE_URL'):
         'default': dj_database_url.config(),
     }
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 sentry_sdk.init(
     dsn=get_env_var('SENTRY_DSN'),
     integrations=[DjangoIntegration()]

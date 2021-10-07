@@ -25,7 +25,7 @@ Development Setup
 -----------------
 
 The only firm requirement for developing and testing `checkniner` is an
-installation of Python 3.{5,6,7}. The steps below will also assume the presence
+installation of Python 3.7+. The steps below will also assume the presence
 of `git`, `virtualenv`, and `pip`.
 
 First let's get the repository and set up the virtual environment.
